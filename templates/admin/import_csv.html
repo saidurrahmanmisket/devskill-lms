@@ -1,0 +1,78 @@
+{% extends 'admin/base_admin.html' %}
+
+{% block title %}Bulk User Provisioning – Vuexy Admin{% endblock %}
+
+{% block admin_content %}
+<!-- Breadcrumb & Header -->
+<div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem;">
+  <div>
+    <h4 style="font-size: 1.35rem; font-weight: 700; color: var(--vx-text-heading); margin: 0; display: flex; align-items: center; gap: 0.5rem;">
+      <i class="fa-solid fa-file-csv" style="color: var(--vx-primary);"></i>
+      Roster User Provisioning
+    </h4>
+    <div style="font-size: 0.8125rem; color: var(--vx-muted); margin-top: 0.25rem;">
+      Bulk-provision student, faculty, and administrative identity accounts using institutional CSV manifests.
+    </div>
+  </div>
+  <div style="display: flex; gap: 0.75rem;">
+    <a href="?download_template=1" class="vx-btn vx-btn-primary">
+      <i class="fa-solid fa-download"></i>
+      <span>Sample CSV Template</span>
+    </a>
+    <a href="{% url 'lms:admin_users' %}" class="vx-btn vx-btn-outline-primary">
+      <i class="fa-solid fa-arrow-left"></i>
+      <span>Back to Users</span>
+    </a>
+  </div>
+</div>
+
+<div style="max-width: 840px; margin: 0 auto;">
+  <div class="vx-card">
+    <div class="vx-card-header" style="border-bottom: 1px solid var(--vx-border-subtle); padding: 1.25rem 1.5rem;">
+      <div>
+        <h5 class="vx-card-title">Upload Institutional CSV Manifest</h5>
+        <div class="vx-card-subtitle">Parse accounts and automatically assign roles and passwords</div>
+      </div>
+      <span class="vx-badge-pill primary">CSV Format UTF-8</span>
+    </div>
+    
+    <div class="vx-card-body" style="padding: 1.5rem;">
+      <!-- Guidance Card -->
+      <div style="background: var(--vx-primary-light); border: 1px solid rgba(115, 103, 240, 0.25); border-radius: var(--vx-radius-sm); padding: 1.25rem; margin-bottom: 2rem;">
+        <h6 style="font-size: 0.92rem; font-weight: 700; color: var(--vx-primary); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
+          <i class="fa-solid fa-circle-info"></i>
+          Required CSV Column Structure:
+        </h6>
+        <div style="background: var(--vx-card-bg); padding: 0.6rem 0.85rem; border-radius: 4px; font-family: monospace; font-size: 0.82rem; color: var(--vx-text-heading); border: 1px solid var(--vx-border-subtle);">
+          First Name, Last Name, Email, Role, Academic ID
+        </div>
+        <ul style="margin-top: 0.75rem; padding-left: 1.25rem; font-size: 0.82rem; color: var(--vx-muted); line-height: 1.6;">
+          <li><strong>Role</strong> must be one of: <code>STUDENT</code>, <code>INSTRUCTOR</code>, or <code>ADMIN</code>.</li>
+          <li><strong>Academic ID</strong> is unique and linked to institutional course enrollments and transcripts.</li>
+          <li>Default generated passwords are set to <code>UnivLMS@2026</code> (users will be prompted to reset upon first login).</li>
+        </ul>
+      </div>
+
+      <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div style="margin-bottom: 1.75rem;">
+          <label class="vx-form-label" for="id_csv_file" style="font-weight: 600; font-size: 0.875rem; margin-bottom: 0.5rem; display: block;">Select CSV Manifest File</label>
+          <div style="border: 2px dashed var(--vx-border); border-radius: var(--vx-radius-md); padding: 2rem; text-align: center; background: var(--vx-body-bg); transition: border-color 0.2s ease;">
+            <i class="fa-solid fa-cloud-arrow-up" style="font-size: 2.5rem; color: var(--vx-primary); margin-bottom: 0.75rem; display: block;"></i>
+            <div style="font-size: 0.9rem; font-weight: 600; color: var(--vx-text-heading); margin-bottom: 0.25rem;">Choose a file or drag &amp; drop here</div>
+            <div style="font-size: 0.78rem; color: var(--vx-muted); margin-bottom: 1rem;">Accepts UTF-8 encoded .csv files up to 10MB</div>
+            <div style="display: inline-block;">
+              {{ form.csv_file }}
+            </div>
+          </div>
+        </div>
+
+        <button type="submit" class="vx-btn vx-btn-primary" style="padding: 0.75rem 2rem; font-size: 0.95rem;">
+          <i class="fa-solid fa-bolt"></i>
+          <span>Parse Manifest &amp; Provision Users</span>
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

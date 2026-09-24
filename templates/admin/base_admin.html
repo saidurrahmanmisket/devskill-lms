@@ -1,0 +1,997 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Vuexy – Analytics Dashboard &amp; Admin Governance{% endblock %}</title>
+  <meta name="description" content="Vuexy Vuejs Admin Analytics Dashboard for DEVSKILL Platform">
+
+  <!-- Google Fonts: Plus Jakarta Sans / Public Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,600&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Font Awesome 6.5.0 Icons (Strictly NO emojis) -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  
+  <!-- ApexCharts CDN for Vuexy Interactive Charts -->
+  <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+
+  <style>
+    /* ===================================================================
+       VUEXY ADMIN DESIGN SYSTEM
+       Exact palette matched to PixInvent Vuexy Vuejs Admin Template
+       =================================================================== */
+    :root {
+      --vx-primary: #0FAE9A;
+      --vx-primary-hover: #087F73;
+      --vx-primary-light: rgba(15, 174, 154, 0.14);
+      --vx-primary-rgb: 15, 174, 154;
+      
+      --vx-success: #0FAE9A;
+      --vx-success-light: #E6F7F5;
+      
+      --vx-warning: #FF6333;
+      --vx-warning-light: #FFF0EA;
+      
+      --vx-danger: #EA5455;
+      --vx-danger-light: #FCEAEA;
+      
+      --vx-info: #087F73;
+      --vx-info-light: rgba(8, 127, 115, 0.12);
+      
+      --vx-dark: #111827;
+      --vx-text-heading: #111827;
+      --vx-muted: #64748B;
+      --vx-placeholder: #94A3B8;
+      
+      --vx-body-bg: #F6FAFA;
+      --vx-card-bg: #FFFFFF;
+      --vx-sidebar-bg: #FFFFFF;
+      --vx-navbar-bg: #FFFFFF;
+      --vx-border: #E2E8F0;
+      --vx-border-subtle: #F1F5F9;
+      
+      --vx-shadow-card: 0 4px 18px 0 rgba(17, 24, 39, 0.05);
+      --vx-shadow-primary: 0 2px 6px 0 rgba(15, 174, 154, 0.35);
+      --vx-shadow-navbar: 0 2px 14px 0 rgba(17, 24, 39, 0.04);
+      
+      --vx-radius-sm: 6px;
+      --vx-radius-md: 10px;
+      --vx-radius-lg: 14px;
+      --vx-radius-full: 9999px;
+      
+      --vx-font: 'Public Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+
+    [data-theme="dark"] {
+      --vx-dark: #F8FAFC;
+      --vx-text-heading: #F8FAFC;
+      --vx-muted: #94A3B8;
+      --vx-placeholder: #64748B;
+      
+      --vx-body-bg: #0F172A;
+      --vx-card-bg: #1E293B;
+      --vx-sidebar-bg: #1E293B;
+      --vx-navbar-bg: #1E293B;
+      --vx-border: #334155;
+      --vx-border-subtle: #1E293B;
+      
+      --vx-shadow-card: 0 4px 18px 0 rgba(0, 0, 0, 0.3);
+      --vx-shadow-navbar: 0 2px 14px 0 rgba(0, 0, 0, 0.25);
+      --vx-primary-light: rgba(15, 174, 154, 0.18);
+      --vx-success-light: rgba(15, 174, 154, 0.18);
+      --vx-warning-light: rgba(255, 99, 51, 0.18);
+      --vx-danger-light: rgba(234, 84, 85, 0.18);
+      --vx-info-light: rgba(8, 127, 115, 0.18);
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--vx-font);
+      background-color: var(--vx-body-bg);
+      color: var(--vx-muted);
+      line-height: 1.5;
+      font-size: 0.9375rem;
+      min-height: 100vh;
+      display: flex;
+      overflow-x: hidden;
+      transition: background-color 0.25s ease, color 0.25s ease;
+    }
+
+    .apexcharts-datalabel-value {
+      fill: var(--vx-text-heading) !important;
+      font-weight: 800 !important;
+      font-family: var(--vx-font) !important;
+    }
+    .apexcharts-datalabel-label {
+      fill: var(--vx-muted) !important;
+      font-weight: 600 !important;
+      font-family: var(--vx-font) !important;
+    }
+
+    /* ===================================================================
+       VUEXY SIDEBAR
+       =================================================================== */
+    .vx-sidebar {
+      width: 260px;
+      min-width: 260px;
+      background: var(--vx-sidebar-bg);
+      border-right: 1px solid var(--vx-border);
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      position: sticky;
+      top: 0;
+      z-index: 1050;
+      transition: transform 0.3s ease, background-color 0.25s ease, border-color 0.25s ease;
+    }
+
+    .vx-sidebar-brand {
+      padding: 1.25rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--vx-border-subtle);
+    }
+
+    .vx-brand-logo-wrap {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      text-decoration: none;
+      color: var(--vx-text-heading);
+    }
+
+    .vx-logo-icon {
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #0FAE9A 0%, #087F73 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #FFFFFF;
+      font-size: 1.1rem;
+      font-weight: 800;
+      box-shadow: var(--vx-shadow-primary);
+    }
+
+    .vx-brand-title {
+      font-size: 1.35rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: var(--vx-text-heading);
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .vx-brand-badge {
+      font-size: 0.65rem;
+      font-weight: 800;
+      background: var(--vx-primary-light);
+      color: var(--vx-primary);
+      padding: 0.15rem 0.45rem;
+      border-radius: var(--vx-radius-full);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .vx-sidebar-nav {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1rem 0.75rem;
+      list-style: none;
+    }
+
+    .vx-nav-section-title {
+      font-size: 0.6875rem;
+      font-weight: 700;
+      color: var(--vx-placeholder);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 1.25rem 0.75rem 0.4rem 0.75rem;
+    }
+
+    .vx-nav-link {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.65rem 0.85rem;
+      border-radius: var(--vx-radius-sm);
+      text-decoration: none;
+      color: var(--vx-muted);
+      font-size: 0.9375rem;
+      font-weight: 500;
+      margin-bottom: 0.25rem;
+      transition: all 0.18s ease;
+    }
+
+    .vx-nav-link-left {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .vx-nav-link-left i {
+      font-size: 1.1rem;
+      width: 20px;
+      text-align: center;
+      color: var(--vx-muted);
+      transition: color 0.18s ease;
+    }
+
+    .vx-nav-link:hover {
+      background: var(--vx-primary-light);
+      color: var(--vx-primary);
+    }
+    .vx-nav-link:hover .vx-nav-link-left i {
+      color: var(--vx-primary);
+    }
+
+    .vx-nav-link.active {
+      background: linear-gradient(72.47deg, #0FAE9A 22.16%, #087F73 76.47%);
+      color: #FFFFFF;
+      box-shadow: var(--vx-shadow-primary);
+      font-weight: 600;
+    }
+    .vx-nav-link.active .vx-nav-link-left i {
+      color: #FFFFFF;
+    }
+
+    .vx-badge-pill {
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 0.15rem 0.55rem;
+      border-radius: var(--vx-radius-full);
+      line-height: 1;
+    }
+    .vx-badge-pill.primary { background: var(--vx-primary-light); color: var(--vx-primary); }
+    .vx-badge-pill.success { background: var(--vx-success-light); color: var(--vx-success); }
+    .vx-badge-pill.warning { background: var(--vx-warning-light); color: var(--vx-warning); }
+    .vx-badge-pill.danger { background: var(--vx-danger-light); color: var(--vx-danger); }
+
+    /* ===================================================================
+       VUEXY MAIN CONTENT WRAPPER
+       =================================================================== */
+    .vx-main-layout {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      min-height: 100vh;
+    }
+
+    /* TOP FLOATING NAVBAR */
+    .vx-navbar {
+      background: var(--vx-navbar-bg);
+      border: 1px solid var(--vx-border);
+      border-radius: var(--vx-radius-md);
+      box-shadow: var(--vx-shadow-navbar);
+      margin: 1rem 1.5rem 0 1.5rem;
+      padding: 0.75rem 1.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 1rem;
+      z-index: 1040;
+      transition: all 0.25s ease;
+    }
+
+    .vx-navbar-left {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      flex: 1;
+      max-width: 480px;
+    }
+
+    .vx-nav-search-box {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      color: var(--vx-placeholder);
+      background: transparent;
+      width: 100%;
+    }
+
+    .vx-nav-search-box input {
+      border: none;
+      outline: none;
+      background: transparent;
+      width: 100%;
+      font-size: 0.9375rem;
+      color: var(--vx-text-heading);
+      font-family: inherit;
+    }
+
+    .vx-search-shortcut {
+      background: var(--vx-border-subtle);
+      border: 1px solid var(--vx-border);
+      border-radius: 4px;
+      padding: 0.15rem 0.4rem;
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: var(--vx-muted);
+      white-space: nowrap;
+    }
+
+    .vx-navbar-right {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .vx-nav-icon-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--vx-muted);
+      cursor: pointer;
+      border: none;
+      background: transparent;
+      font-size: 1.05rem;
+      transition: background-color 0.2s, color 0.2s;
+      position: relative;
+    }
+    .vx-nav-icon-btn:hover {
+      background: var(--vx-border-subtle);
+      color: var(--vx-primary);
+    }
+
+    .vx-notif-badge {
+      position: absolute;
+      top: 4px;
+      right: 4px;
+      width: 8px;
+      height: 8px;
+      background: var(--vx-danger);
+      border-radius: 50%;
+      border: 2px solid var(--vx-navbar-bg);
+    }
+
+    .vx-admin-avatar-wrap {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      text-decoration: none;
+      color: var(--vx-text-heading);
+      cursor: pointer;
+      padding-left: 0.5rem;
+      border-left: 1px solid var(--vx-border-subtle);
+    }
+
+    .vx-avatar {
+      position: relative;
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #7367F0 0%, #28C76F 100%);
+      color: #FFFFFF;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.95rem;
+    }
+
+    .vx-status-dot {
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--vx-success);
+      border: 2px solid var(--vx-navbar-bg);
+    }
+
+    .vx-avatar-info {
+      line-height: 1.25;
+    }
+    .vx-avatar-name {
+      font-weight: 700;
+      font-size: 0.88rem;
+      color: var(--vx-text-heading);
+    }
+    .vx-avatar-role {
+      font-size: 0.75rem;
+      color: var(--vx-muted);
+    }
+
+    /* CONTENT WRAPPER */
+    .vx-content-wrapper {
+      padding: 1.5rem;
+      flex: 1;
+    }
+
+    /* VUEXY CARD */
+    .vx-card {
+      background: var(--vx-card-bg);
+      border-radius: var(--vx-radius-md);
+      box-shadow: var(--vx-shadow-card);
+      border: 1px solid var(--vx-border);
+      transition: all 0.25s ease;
+      overflow: hidden;
+      margin-bottom: 1.5rem;
+    }
+
+    .vx-card-header {
+      padding: 1.5rem 1.5rem 0.5rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+
+    .vx-card-title {
+      font-size: 1.125rem;
+      font-weight: 700;
+      color: var(--vx-text-heading);
+      letter-spacing: -0.01em;
+      margin: 0;
+    }
+
+    .vx-card-subtitle {
+      font-size: 0.8125rem;
+      color: var(--vx-muted);
+      margin-top: 0.2rem;
+    }
+
+    .vx-card-body {
+      padding: 1.5rem;
+    }
+
+    /* VUEXY BUTTONS */
+    .vx-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 0.6rem 1.25rem;
+      font-size: 0.875rem;
+      font-weight: 600;
+      border-radius: var(--vx-radius-sm);
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border: 1px solid transparent;
+      font-family: inherit;
+    }
+
+    .vx-btn-primary {
+      background: var(--vx-primary);
+      color: #FFFFFF;
+      box-shadow: var(--vx-shadow-primary);
+    }
+    .vx-btn-primary:hover {
+      background: var(--vx-primary-hover);
+      transform: translateY(-1px);
+    }
+
+    .vx-btn-outline-primary {
+      border-color: var(--vx-primary);
+      color: var(--vx-primary);
+      background: transparent;
+    }
+    .vx-btn-outline-primary:hover {
+      background: var(--vx-primary-light);
+    }
+
+    .vx-btn-outline {
+      border-color: var(--vx-border);
+      color: var(--vx-text-heading);
+      background: transparent;
+    }
+    .vx-btn-outline:hover {
+      background: var(--vx-border-subtle);
+    }
+
+    .vx-btn-sm {
+      padding: 0.4rem 0.85rem;
+      font-size: 0.8125rem;
+    }
+
+    /* VUEXY TABLE */
+    .vx-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+    }
+
+    .vx-table th {
+      background: var(--vx-border-subtle);
+      color: var(--vx-muted);
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 0.85rem 1.25rem;
+      border-bottom: 1px solid var(--vx-border);
+    }
+
+    .vx-table td {
+      padding: 1rem 1.25rem;
+      border-bottom: 1px solid var(--vx-border);
+      font-size: 0.875rem;
+      color: var(--vx-text-heading);
+      vertical-align: middle;
+    }
+
+    .vx-table tbody tr:hover {
+      background: var(--vx-border-subtle);
+    }
+
+    /* FOOTER */
+    .vx-footer {
+      padding: 1.25rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: var(--vx-muted);
+      font-size: 0.8125rem;
+      border-top: 1px solid var(--vx-border);
+      background: var(--vx-sidebar-bg);
+      margin-top: auto;
+    }
+
+    .vx-form-control {
+      background: var(--vx-card-bg);
+      border: 1px solid var(--vx-border);
+      border-radius: var(--vx-radius-sm);
+      color: var(--vx-text-heading);
+      padding: 0.6rem 1rem;
+      font-size: 0.875rem;
+      font-family: inherit;
+      outline: none;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+    .vx-form-control:focus {
+      border-color: var(--vx-primary);
+      box-shadow: 0 0 0 3px rgba(115, 103, 240, 0.18);
+    }
+    .vx-form-control::placeholder {
+      color: var(--vx-placeholder);
+    }
+    .vx-form-label {
+      color: var(--vx-text-heading);
+      font-size: 0.875rem;
+      font-weight: 600;
+      margin-bottom: 0.35rem;
+    }
+
+    .vx-sidebar-toggle-btn {
+      display: none;
+    }
+
+    @media (max-width: 1024px) {
+      .vx-sidebar {
+        position: fixed;
+        left: -260px;
+      }
+      .vx-sidebar.open {
+        transform: translateX(260px);
+        box-shadow: 0 0 35px rgba(0,0,0,0.25);
+      }
+      .vx-sidebar-toggle-btn {
+        display: inline-flex;
+      }
+    }
+  </style>
+
+  {% block admin_extra_css %}{% endblock %}
+</head>
+<body>
+
+  <!-- ===================================================================
+       VUEXY VERTICAL SIDEBAR
+       =================================================================== -->
+  <aside class="vx-sidebar" id="vxSidebar">
+    <!-- Brand Header -->
+    <div class="vx-sidebar-brand">
+      <a href="{% if user.is_admin %}{% url 'lms:admin_dashboard' %}{% elif user.is_instructor %}{% url 'lms:faculty_dashboard' %}{% else %}{% url 'lms:student_dashboard' %}{% endif %}" class="vx-brand-logo-wrap">
+        <div class="vx-logo-icon">
+          <i class="fa-solid fa-shapes"></i>
+        </div>
+        <div class="vx-brand-title">
+          Vuexy <span class="vx-brand-badge">{% if user.is_admin %}ADMIN{% elif user.is_instructor %}FACULTY{% else %}STUDENT{% endif %}</span>
+        </div>
+      </a>
+      <button type="button" class="vx-nav-icon-btn" onclick="toggleSidebar()" aria-label="Toggle Sidebar" style="font-size:0.85rem;">
+        <i class="fa-regular fa-circle-dot" style="color:var(--vx-primary);"></i>
+      </button>
+    </div>
+
+    <!-- Navigation Menu Items -->
+    <ul class="vx-sidebar-nav">
+      {% if user.is_admin %}
+        <!-- Section: Dashboards -->
+        <li class="vx-nav-section-title">Dashboards</li>
+        <li>
+          <a href="{% url 'lms:admin_dashboard' %}" class="vx-nav-link {% if request.resolver_match.url_name == 'admin_dashboard' %}active{% endif %}">
+            <div class="vx-nav-link-left">
+              <i class="fa-solid fa-chart-pie"></i>
+              <span>Analytics</span>
+            </div>
+            <span class="vx-badge-pill danger">New</span>
+          </a>
+        </li>
+        <li>
+          <a href="{% url 'lms:student_my_courses' %}" class="vx-nav-link {% if request.resolver_match.url_name == 'student_my_courses' %}active{% endif %}">
+            <div class="vx-nav-link-left">
+              <i class="fa-solid fa-book-bookmark"></i>
+              <span>My Courses</span>
+            </div>
+            <span class="vx-badge-pill primary">All</span>
+          </a>
+        </li>
+        <li>
+          <a href="{% url 'lms:admin_users' %}" class="vx-nav-link {% if request.resolver_match.url_name == 'admin_users' %}active{% endif %}">
+            <div class="vx-nav-link-left">
+              <i class="fa-solid fa-users"></i>
+              <span>User Management</span>
+            </div>
+            <span class="vx-badge-pill primary">{{ total_students|default:"10" }}</span>
+          </a>
+        </li>
+        <li>
+          <a href="{% url 'lms:course_catalog' %}" target="_blank" class="vx-nav-link">
+            <div class="vx-nav-link-left">
+              <i class="fa-solid fa-book-open"></i>
+              <span>Courses Catalog</span>
+            </div>
+            <span class="vx-badge-pill success">{{ total_courses|default:"6" }}</span>
+          </a>
+        </li>
+
+        <!-- Section: Governance & Apps -->
+        <li class="vx-nav-section-title">Governance &amp; Apps</li>
+        <li>
+          <a href="{% url 'lms:admin_import_csv' %}" class="vx-nav-link {% if request.resolver_match.url_name == 'admin_import_csv' %}active{% endif %}">
+            <div class="vx-nav-link-left">
+              <i class="fa-solid fa-file-csv"></i>
+              <span>CSV Roster Import</span>
+            </div>
+          </a>
+        </li>
+        <li>
+          <a href="{% url 'lms:admin_audit_logs' %}" class="vx-nav-link {% if request.resolver_match.url_name == 'admin_audit_logs' %}active{% endif %}">
+            <div class="vx-nav-link-left">
+              <i class="fa-solid fa-shield-halved"></i>
+              <span>System Audit Trail</span>
+            </div>
+            <span class="vx-badge-pill warning">Logs</span>
+          </a>
+        </li>
+        <li>
+          <a href="{% url 'lms:faculty_gradebook' %}" class="vx-nav-link {% if request.resolver_match.url_name == 'faculty_gradebook' %}active{% endif %}">
+            <div class="vx-nav-link-left">
+              <i class="fa-solid fa-table-list"></i>
+              <span>Master Gradebook</span>
+            </div>
+          </a>
+        </li>
+
+      {% elif user.is_instructor %}
+        <!-- Section: Faculty Hub -->
+        <li class="vx-nav-section-title">Faculty Hub</li>
+        <li>
+          <a href="{% url 'lms:faculty_dashboard' %}" class="vx-nav-link {% if request.resolver_match.url_name == 'faculty_dashboard' %}active{% endif %}">
+            <div class="vx-nav-link-left">
+              <i class="fa-solid fa-chart-pie"></i>
+              <span>Teaching Analytics</span>
+            </div>
+            <span class="vx-badge-pill primary">Live</span>
+          </a>
+        </li>
+        <li>
+          <a href="{% url 'lms:faculty_my_courses' %}" class="vx-nav-link {% if request.resolver_match.url_name == 'faculty_my_courses' %}active{% endif %}">
+            <div class="vx-nav-link-left">
+              <i class="fa-solid fa-book-bookmark"></i>
+              <span>My Courses</span>
+            </div>
+            <span class="vx-badge-pill primary">All</span>
+          </a>
+        </li>
+        <li>
+          <a href="{% url 'lms:course_create' %}" class="vx-nav-link {% if request.resolver_match.url_name == 'course_create' %}active{% endif %}">
+            <div class="vx-nav-link-left">
+              <i class="fa-solid fa-circle-plus"></i>
+              <span>Author Course</span>
+            </div>
+            <span class="vx-badge-pill success">New</span>
+          </a>
+        </li>
+        <li>
+          <a href="{% url 'lms:course_catalog' %}" target="_blank" class="vx-nav-link">
+            <div class="vx-nav-link-left">
+              <i class="fa-solid fa-book-open"></i>
+              <span>Browse Catalog</span>
+            </div>
+          </a>
+        </li>
+
+        <!-- Section: Evaluations & Records -->
+        <li class="vx-nav-section-title">Evaluations &amp; Records</li>
+        <li>
+          <a href="{% url 'lms:faculty_gradebook' %}" class="vx-nav-link {% if request.resolver_match.url_name == 'faculty_gradebook' %}active{% endif %}">
+            <div class="vx-nav-link-left">
+              <i class="fa-solid fa-table-list"></i>
+              <span>Master Gradebook</span>
+            </div>
+            <span class="vx-badge-pill warning">Ledger</span>
+          </a>
+        </li>
+        <li>
+          <a href="{% url 'lms:admin_audit_logs' %}" class="vx-nav-link">
+            <div class="vx-nav-link-left">
+              <i class="fa-solid fa-shield-halved"></i>
+              <span>Audit Log</span>
+            </div>
+          </a>
+        </li>
+
+      {% else %}
+        <!-- Section: Student Portal -->
+        <li class="vx-nav-section-title">Student Hub</li>
+        <li>
+          <a href="{% url 'lms:student_dashboard' %}" class="vx-nav-link {% if request.resolver_match.url_name == 'student_dashboard' %}active{% endif %}">
+            <div class="vx-nav-link-left">
+              <i class="fa-solid fa-chart-pie"></i>
+              <span>Dashboard</span>
+            </div>
+            <span class="vx-badge-pill primary">Portal</span>
+          </a>
+        </li>
+        <li>
+          <a href="{% url 'lms:student_my_courses' %}" class="vx-nav-link {% if request.resolver_match.url_name == 'student_my_courses' or request.resolver_match.url_name == 'course_detail' or request.resolver_match.url_name == 'assignment_submit' %}active{% endif %}">
+            <div class="vx-nav-link-left">
+              <i class="fa-solid fa-book-bookmark"></i>
+              <span>My Courses</span>
+            </div>
+            <span class="vx-badge-pill primary">Courses</span>
+          </a>
+        </li>
+        <li>
+          <a href="{% url 'lms:course_catalog' %}" class="vx-nav-link">
+            <div class="vx-nav-link-left">
+              <i class="fa-solid fa-compass"></i>
+              <span>Explore Catalog</span>
+            </div>
+            <span class="vx-badge-pill success">Enroll</span>
+          </a>
+        </li>
+
+        <!-- Section: Academic Progress -->
+        <li class="vx-nav-section-title">Academic Records</li>
+        <li>
+          <a href="{% url 'lms:student_grades' %}" class="vx-nav-link {% if request.resolver_match.url_name == 'student_grades' %}active{% endif %}">
+            <div class="vx-nav-link-left">
+              <i class="fa-solid fa-award"></i>
+              <span>Transcript &amp; GPA</span>
+            </div>
+            <span class="vx-badge-pill warning">Grades</span>
+          </a>
+        </li>
+        <li>
+          <a href="{% url 'lms:mentors' %}" target="_blank" class="vx-nav-link">
+            <div class="vx-nav-link-left">
+              <i class="fa-solid fa-chalkboard-user"></i>
+              <span>Meet Mentors</span>
+            </div>
+          </a>
+        </li>
+      {% endif %}
+
+      <!-- Section: Portals & Roles -->
+      <li class="vx-nav-section-title">Portals &amp; Roles</li>
+      <li>
+        <a href="{% url 'lms:index' %}" class="vx-nav-link" target="_blank">
+          <div class="vx-nav-link-left">
+            <i class="fa-solid fa-globe"></i>
+            <span>Public Home</span>
+          </div>
+          <i class="fa-solid fa-arrow-up-right-from-square" style="font-size:0.75rem;"></i>
+        </a>
+      </li>
+      {% if user.is_admin %}
+        <li>
+          <a href="{% url 'lms:faculty_dashboard' %}" class="vx-nav-link">
+            <div class="vx-nav-link-left">
+              <i class="fa-solid fa-chalkboard-user"></i>
+              <span>Faculty Hub</span>
+            </div>
+          </a>
+        </li>
+        <li>
+          <a href="{% url 'lms:student_dashboard' %}" class="vx-nav-link">
+            <div class="vx-nav-link-left">
+              <i class="fa-solid fa-user-graduate"></i>
+              <span>Student Workspace</span>
+            </div>
+          </a>
+        </li>
+      {% elif user.is_instructor %}
+        <li>
+          <a href="{% url 'lms:student_dashboard' %}" class="vx-nav-link">
+            <div class="vx-nav-link-left">
+              <i class="fa-solid fa-user-graduate"></i>
+              <span>Student View</span>
+            </div>
+          </a>
+        </li>
+      {% else %}
+        <li>
+          <a href="{% url 'lms:course_catalog' %}" class="vx-nav-link">
+            <div class="vx-nav-link-left">
+              <i class="fa-solid fa-book-open"></i>
+              <span>All Courses</span>
+            </div>
+          </a>
+        </li>
+      {% endif %}
+      <li>
+        <a href="{% url 'accounts:logout' %}" class="vx-nav-link" style="color:var(--vx-danger);">
+          <div class="vx-nav-link-left">
+            <i class="fa-solid fa-right-from-bracket" style="color:var(--vx-danger);"></i>
+            <span>Sign Out</span>
+          </div>
+        </a>
+      </li>
+    </ul>
+  </aside>
+
+  <!-- ===================================================================
+       VUEXY MAIN CONTENT WRAPPER
+       =================================================================== -->
+  <div class="vx-main-layout">
+    
+    <!-- FLOATING TOP NAVBAR -->
+    <nav class="vx-navbar">
+      <div class="vx-navbar-left">
+        <button type="button" class="vx-nav-icon-btn vx-sidebar-toggle-btn" onclick="toggleSidebar()" aria-label="Open Navigation">
+          <i class="fa-solid fa-bars"></i>
+        </button>
+        <div class="vx-nav-search-box">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input type="text" placeholder="Search (Ctrl+/)" aria-label="Search">
+          <span class="vx-search-shortcut">⌘K</span>
+        </div>
+      </div>
+
+      <div class="vx-navbar-right">
+        <!-- Quick Demo Switcher Pills -->
+        <div style="display:flex; align-items:center; gap:0.35rem; background:var(--vx-border-subtle); padding:0.2rem 0.35rem; border-radius:var(--vx-radius-full); border:1px solid var(--vx-border);" class="vx-demo-pills">
+          <a href="{% url 'accounts:demo_login' 'admin' %}" style="font-size:0.72rem; font-weight:700; text-decoration:none; padding:0.2rem 0.55rem; border-radius:var(--vx-radius-full); {% if user.is_admin %}background:var(--vx-primary); color:#FFFFFF;{% else %}color:var(--vx-muted);{% endif %}" title="Switch to Admin Session">Admin</a>
+          <a href="{% url 'accounts:demo_login' 'instructor' %}" style="font-size:0.72rem; font-weight:700; text-decoration:none; padding:0.2rem 0.55rem; border-radius:var(--vx-radius-full); {% if user.is_instructor %}background:var(--vx-primary); color:#FFFFFF;{% else %}color:var(--vx-muted);{% endif %}" title="Switch to Faculty Session">Faculty</a>
+          <a href="{% url 'accounts:demo_login' 'student' %}" style="font-size:0.72rem; font-weight:700; text-decoration:none; padding:0.2rem 0.55rem; border-radius:var(--vx-radius-full); {% if user.is_student %}background:var(--vx-primary); color:#FFFFFF;{% else %}color:var(--vx-muted);{% endif %}" title="Switch to Student Session">Student</a>
+        </div>
+
+        <!-- Language Switcher -->
+        <button type="button" class="vx-nav-icon-btn" title="English Language">
+          <i class="fa-solid fa-globe"></i>
+        </button>
+
+        <!-- Dark/Light Theme Switcher -->
+        <button type="button" class="vx-nav-icon-btn" id="themeToggleBtn" onclick="toggleTheme()" title="Switch Light/Dark Mode">
+          <i class="fa-regular fa-moon" id="themeIcon"></i>
+        </button>
+
+        <!-- App Shortcuts -->
+        <a href="{% url 'lms:course_catalog' %}" class="vx-nav-icon-btn" title="Course Catalog">
+          <i class="fa-solid fa-border-all"></i>
+        </a>
+
+        <!-- Notifications Bell -->
+        <button type="button" class="vx-nav-icon-btn" title="Notifications">
+          <i class="fa-regular fa-bell"></i>
+          <span class="vx-notif-badge"></span>
+        </button>
+
+        <!-- Profile Avatar Wrap -->
+        <div class="vx-admin-avatar-wrap" title="User Profile: {{ user.get_full_name_or_username }}">
+          <div class="vx-avatar">
+            {{ user.first_name|first|default:user.username|first|upper }}
+            <span class="vx-status-dot"></span>
+          </div>
+          <div class="vx-avatar-info">
+            <div class="vx-avatar-name">{{ user.get_full_name_or_username }}</div>
+            <div class="vx-avatar-role">
+              {% if user.is_admin %}
+                Super Admin &middot; {{ user.academic_id|default:"ADM-001" }}
+              {% elif user.is_instructor %}
+                Faculty Instructor &middot; {{ user.academic_id|default:"FAC-PROF" }}
+              {% else %}
+                Student Learner &middot; {{ user.academic_id|default:"STU-ONLINE" }}
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <!-- FLASH MESSAGES -->
+    {% if messages %}
+      <div style="padding: 1.5rem 1.5rem 0 1.5rem;">
+        {% for message in messages %}
+          <div class="alert alert-{{ message.tags }}" style="background:var(--vx-card-bg); border-left:4px solid var(--vx-primary); border-radius:var(--vx-radius-sm); padding:1rem 1.25rem; box-shadow:var(--vx-shadow-card); color:var(--vx-text-heading); display:flex; align-items:center; justify-content:space-between; margin-bottom:1rem;">
+            <span>{{ message }}</span>
+            <button type="button" onclick="this.parentElement.remove()" style="border:none; background:transparent; cursor:pointer; color:var(--vx-muted);">
+              <i class="fa-solid fa-xmark"></i>
+            </button>
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    <!-- DYNAMIC MAIN CONTENT -->
+    <main class="vx-content-wrapper">
+      {% block admin_content %}{% endblock %}
+    </main>
+
+    <!-- VUEXY FOOTER -->
+    <footer class="vx-footer">
+      <div>
+        &copy; 2026 <strong>Vuexy &amp; DEVSKILL</strong> &middot; Enterprise Academic Learning Management System
+      </div>
+      <div style="display:flex; gap:1.5rem;">
+        <a href="{% url 'lms:index' %}" style="color:var(--vx-muted); text-decoration:none;">Public Portal</a>
+        <a href="{% url 'lms:admin_audit_logs' %}" style="color:var(--vx-muted); text-decoration:none;">Audit Trail</a>
+        <a href="#" style="color:var(--vx-muted); text-decoration:none;">Documentation</a>
+      </div>
+    </footer>
+
+  </div>
+
+  <script>
+    // Theme Mode Toggle (Light / Dark)
+    function toggleTheme() {
+      const html = document.documentElement;
+      const currentTheme = html.getAttribute('data-theme') || 'light';
+      const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+      html.setAttribute('data-theme', newTheme);
+      localStorage.setItem('vx_theme', newTheme);
+      updateThemeIcon(newTheme);
+    }
+
+    function updateThemeIcon(theme) {
+      const icon = document.getElementById('themeIcon');
+      if (!icon) return;
+      if (theme === 'dark') {
+        icon.className = 'fa-regular fa-sun';
+      } else {
+        icon.className = 'fa-regular fa-moon';
+      }
+    }
+
+    // Initialize Theme
+    const savedTheme = localStorage.getItem('vx_theme') || 'light';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+    document.addEventListener('DOMContentLoaded', () => {
+      updateThemeIcon(savedTheme);
+    });
+
+    // Mobile Sidebar Toggle
+    function toggleSidebar() {
+      const sidebar = document.getElementById('vxSidebar');
+      if (sidebar) {
+        sidebar.classList.toggle('open');
+      }
+    }
+  </script>
+
+  {% block admin_extra_js %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,190 @@
+{% extends 'admin/base_admin.html' %}
+{% load static %}
+
+{% block title %}Vuexy – Academic Grades &amp; Transcript{% endblock %}
+
+{% block admin_content %}
+<!-- Breadcrumb Header -->
+<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; flex-wrap:wrap; gap:1rem;">
+  <div>
+    <h1 style="font-size:1.5rem; font-weight:700; color:var(--vx-text-heading); margin-bottom:0.25rem;">
+      Academic Grades &amp; Transcript
+    </h1>
+    <div style="font-size:0.8125rem; color:var(--vx-muted); display:flex; align-items:center; gap:0.5rem;">
+      <a href="{% url 'lms:student_dashboard' %}" style="color:var(--vx-primary); text-decoration:none; font-weight:600;">Student Hub</a>
+      <span>/</span>
+      <span>Academic Records</span>
+      <span>/</span>
+      <span style="font-weight:600; color:var(--vx-text-heading);">Official Transcript</span>
+    </div>
+  </div>
+
+  <div style="display:flex; gap:0.75rem; flex-wrap:wrap;">
+    <a href="?export=pdf" class="vx-btn vx-btn-primary vx-btn-sm">
+      <i class="fa-solid fa-file-pdf"></i> Download Official Transcript PDF
+    </a>
+    <a href="{% url 'lms:student_dashboard' %}" class="vx-btn vx-btn-outline vx-btn-sm">
+      <i class="fa-solid fa-arrow-left"></i> Workspace
+    </a>
+  </div>
+</div>
+
+<!-- GPA Summary Cards Row -->
+<div style="display:grid; grid-template-columns: repeat(4, 1fr); gap:1.5rem; margin-bottom:1.5rem;" class="vx-kpi-grid">
+  <div class="vx-card" style="margin-bottom:0; padding:1.25rem 1.5rem;">
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+      <div>
+        <div style="font-size:0.8125rem; color:var(--vx-muted); font-weight:600;">Cumulative GPA</div>
+        <div style="font-size:1.65rem; font-weight:800; color:var(--vx-text-heading); margin-top:0.25rem;">{{ gpa|floatformat:2|default:"—" }}</div>
+        <div style="font-size:0.75rem; color:var(--vx-success); margin-top:0.35rem; display:flex; align-items:center; gap:0.25rem;">
+          <i class="fa-solid fa-star"></i> Honors Standing
+        </div>
+      </div>
+      <div style="width:44px; height:44px; border-radius:8px; background:var(--vx-primary-light); color:var(--vx-primary); display:flex; align-items:center; justify-content:center; font-size:1.25rem;">
+        <i class="fa-solid fa-chart-simple"></i>
+      </div>
+    </div>
+  </div>
+
+  <div class="vx-card" style="margin-bottom:0; padding:1.25rem 1.5rem;">
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+      <div>
+        <div style="font-size:0.8125rem; color:var(--vx-muted); font-weight:600;">Graded Tasks</div>
+        <div style="font-size:1.65rem; font-weight:800; color:var(--vx-text-heading); margin-top:0.25rem;">{{ graded_count }}</div>
+        <div style="font-size:0.75rem; color:var(--vx-success); margin-top:0.35rem; display:flex; align-items:center; gap:0.25rem;">
+          <i class="fa-solid fa-circle-check"></i> Official Evaluations
+        </div>
+      </div>
+      <div style="width:44px; height:44px; border-radius:8px; background:var(--vx-success-light); color:var(--vx-success); display:flex; align-items:center; justify-content:center; font-size:1.25rem;">
+        <i class="fa-solid fa-circle-check"></i>
+      </div>
+    </div>
+  </div>
+
+  <div class="vx-card" style="margin-bottom:0; padding:1.25rem 1.5rem;">
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+      <div>
+        <div style="font-size:0.8125rem; color:var(--vx-muted); font-weight:600;">Pending Review</div>
+        <div style="font-size:1.65rem; font-weight:800; color:var(--vx-text-heading); margin-top:0.25rem;">{{ pending_count }}</div>
+        <div style="font-size:0.75rem; color:var(--vx-warning); margin-top:0.35rem; display:flex; align-items:center; gap:0.25rem;">
+          <i class="fa-regular fa-clock"></i> In Faculty Queue
+        </div>
+      </div>
+      <div style="width:44px; height:44px; border-radius:8px; background:var(--vx-warning-light); color:var(--vx-warning); display:flex; align-items:center; justify-content:center; font-size:1.25rem;">
+        <i class="fa-regular fa-clock"></i>
+      </div>
+    </div>
+  </div>
+
+  <div class="vx-card" style="margin-bottom:0; padding:1.25rem 1.5rem;">
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+      <div>
+        <div style="font-size:0.8125rem; color:var(--vx-muted); font-weight:600;">Enrolled Courses</div>
+        <div style="font-size:1.65rem; font-weight:800; color:var(--vx-text-heading); margin-top:0.25rem;">{{ enrolled_count }}</div>
+        <div style="font-size:0.75rem; color:var(--vx-primary); margin-top:0.35rem; display:flex; align-items:center; gap:0.25rem;">
+          <i class="fa-solid fa-book-open"></i> Active Curricula
+        </div>
+      </div>
+      <div style="width:44px; height:44px; border-radius:8px; background:var(--vx-primary-light); color:var(--vx-primary); display:flex; align-items:center; justify-content:center; font-size:1.25rem;">
+        <i class="fa-solid fa-graduation-cap"></i>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Grades Broken Down by Course -->
+{% for course_code, course_data in grades_by_course.items %}
+  <div class="vx-card" style="margin-bottom:1.5rem;">
+    <div class="vx-card-header">
+      <div style="display:flex; align-items:center; gap:0.75rem;">
+        <span class="vx-badge-pill primary" style="font-size:0.85rem; font-weight:800;">
+          {{ course_code }}
+        </span>
+        <div>
+          <h2 class="vx-card-title">{{ course_data.title }}</h2>
+          <div class="vx-card-subtitle">Course Evaluation Ledger</div>
+        </div>
+      </div>
+      {% if course_data.avg_score is not None %}
+        <div style="text-align:right;">
+          <div style="font-size:1.35rem; font-weight:800; color:var(--vx-primary);">{{ course_data.avg_score|floatformat:1 }}%</div>
+          <div style="font-size:0.75rem; color:var(--vx-muted);">Course Average</div>
+        </div>
+      {% endif %}
+    </div>
+
+    <div style="overflow-x:auto;">
+      <table class="vx-table">
+        <thead>
+          <tr>
+            <th>Assignment Task</th>
+            <th>Submitted At</th>
+            <th>Status</th>
+            <th>Awarded Score</th>
+            <th>Faculty Feedback &amp; Rubric</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for sub in course_data.submissions %}
+            <tr>
+              <td>
+                <div style="font-weight:700; color:var(--vx-text-heading);">{{ sub.assignment.title }}</div>
+                <div style="font-size:0.75rem; color:var(--vx-muted);">Max: {{ sub.assignment.max_points }} pts</div>
+              </td>
+              <td>
+                <div style="font-size:0.8125rem; color:var(--vx-text-heading);">{{ sub.submitted_at|date:"M d, Y" }}</div>
+                <div style="font-size:0.72rem; color:var(--vx-muted);">{{ sub.submitted_at|date:"H:i" }}</div>
+              </td>
+              <td>
+                {% if sub.is_late %}
+                  <span class="vx-badge-pill danger">Late</span>
+                {% else %}
+                  <span class="vx-badge-pill success">On-Time</span>
+                {% endif %}
+              </td>
+              <td>
+                {% if sub.is_graded %}
+                  <span class="vx-badge-pill success" style="font-size:0.85rem; font-weight:800;">
+                    {{ sub.score }} <span style="font-size:0.7rem; font-weight:600; opacity:0.8;">/ {{ sub.assignment.max_points }}</span>
+                  </span>
+                {% else %}
+                  <span class="vx-badge-pill warning">Under Review</span>
+                {% endif %}
+              </td>
+              <td style="max-width:320px;">
+                {% if sub.feedback_markdown %}
+                  <div style="font-size:0.8125rem; color:var(--vx-text-heading); line-height:1.5;">
+                    {{ sub.feedback_markdown|linebreaks }}
+                  </div>
+                  {% if sub.graded_by %}
+                    <div style="font-size:0.72rem; color:var(--vx-muted); margin-top:0.25rem;">
+                      &mdash; {{ sub.graded_by.get_full_name }}, {{ sub.graded_at|date:"M d, Y" }}
+                    </div>
+                  {% endif %}
+                {% else %}
+                  <span style="color:var(--vx-muted); font-size:0.8125rem;">&mdash;</span>
+                {% endif %}
+              </td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="5" style="text-align:center; padding:2rem; color:var(--vx-muted);">
+                No submissions recorded for this course yet.
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+{% empty %}
+  <div class="vx-card" style="text-align:center; padding:4rem 2rem;">
+    <div style="width:64px; height:64px; margin:0 auto 1rem auto; background:var(--vx-warning-light); color:var(--vx-warning); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1.75rem;">
+      <i class="fa-solid fa-award"></i>
+    </div>
+    <h3 style="color:var(--vx-text-heading); font-weight:800; font-size:1.25rem; margin-bottom:0.5rem;">No evaluated tasks on record</h3>
+    <p style="color:var(--vx-muted); font-size:0.9rem; margin-bottom:1.5rem;">Submit course assignments to view academic evaluations and official transcripts here.</p>
+    <a href="{% url 'lms:student_dashboard' %}" class="vx-btn vx-btn-primary vx-btn-sm">Go to My Workspace</a>
+  </div>
+{% endfor %}
+{% endblock %}

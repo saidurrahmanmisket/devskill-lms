@@ -1,0 +1,699 @@
+{% extends 'admin/base_admin.html' %}
+{% load static %}
+
+{% block title %}Vuexy – Curriculum Builder: {{ course.course_code }}{% endblock %}
+
+{% block admin_content %}
+<style>
+/* ====== CURRICULUM BUILDER STYLES ====== */
+.cb-module-card {
+  border: 1px solid var(--vx-border);
+  border-radius: 14px;
+  overflow: hidden;
+  background: var(--vx-bg-surface, #FFFFFF);
+  transition: box-shadow 0.2s;
+  margin-bottom: 1rem;
+}
+.cb-module-card:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.07); }
+
+.cb-module-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 1rem 1.25rem; background: var(--vx-bg-subtle, #F8FAFC);
+  border-bottom: 1px solid var(--vx-border); cursor: pointer;
+  user-select: none;
+}
+.cb-module-title {
+  font-weight: 800; font-size: 0.9375rem; color: var(--vx-text-heading);
+  display: flex; align-items: center; gap: 0.5rem;
+}
+.cb-lesson-row {
+  display: flex; align-items: center; gap: 0.75rem;
+  padding: 0.7rem 1.25rem; border-bottom: 1px solid var(--vx-border);
+  transition: background 0.15s;
+}
+.cb-lesson-row:hover { background: var(--vx-bg-subtle, #F8FAFC); }
+.cb-lesson-row:last-child { border-bottom: none; }
+
+.cb-type-badge {
+  display: inline-flex; align-items: center; gap: 0.3rem;
+  font-size: 0.7rem; font-weight: 700; padding: 0.2rem 0.55rem;
+  border-radius: 999px; white-space: nowrap;
+}
+.type-TEXT    { background: #EFF6FF; color: #1D4ED8; }
+.type-VIDEO   { background: #FEF2F2; color: #DC2626; }
+.type-AUDIO   { background: #F5F3FF; color: #7C3AED; }
+.type-PDF     { background: #FEF9EC; color: #D97706; }
+.type-IMAGE   { background: #F0FDF4; color: #16A34A; }
+.type-LINK    { background: #F0F9FF; color: #0284C7; }
+
+.cb-form-section {
+  border: 1px solid var(--vx-border); border-radius: 14px;
+  background: var(--vx-bg-surface, #FFFFFF); overflow: hidden;
+  margin-bottom: 1.25rem;
+}
+.cb-form-section-header {
+  padding: 0.875rem 1.25rem; background: var(--vx-bg-subtle, #F8FAFC);
+  border-bottom: 1px solid var(--vx-border); display:flex; align-items:center; gap:0.5rem;
+  font-weight: 800; font-size: 0.875rem; color: var(--vx-text-heading);
+}
+.cb-form-section-body { padding: 1.25rem; display:flex; flex-direction:column; gap:1rem; }
+
+.vx-form-label {
+  display: block; font-size: 0.8rem; font-weight: 700;
+  color: var(--vx-text-heading); margin-bottom: 0.35rem;
+}
+.vx-form-control {
+  width: 100%; padding: 0.55rem 0.8rem;
+  border: 1px solid var(--vx-border); border-radius: 8px;
+  background: var(--vx-bg-input, #F8FAFC); color: var(--vx-text-heading);
+  font-size: 0.875rem; font-family: inherit; box-sizing: border-box; transition: border-color 0.18s;
+}
+.vx-form-control:focus { outline:none; border-color:var(--vx-primary); box-shadow:0 0 0 3px rgba(15,174,154,0.12); }
+textarea.vx-form-control { resize:vertical; min-height:80px; line-height:1.6; }
+select.vx-form-control { cursor:pointer; }
+
+.lesson-type-panel { display:none; }
+.lesson-type-panel.active { display:block; }
+
+.upload-drop-zone {
+  border: 2px dashed var(--vx-border); border-radius: 10px;
+  padding: 1.5rem; text-align: center; cursor: pointer;
+  transition: all 0.2s; background: var(--vx-bg-subtle, #F8FAFC);
+}
+.upload-drop-zone:hover, .upload-drop-zone.dragover {
+  border-color: var(--vx-primary); background: rgba(15,174,154,0.04);
+}
+.upload-drop-zone i { font-size: 1.75rem; color: var(--vx-primary); display:block; margin-bottom:0.5rem; }
+
+.cb-empty-state {
+  text-align:center; padding:2.5rem 1rem; color:var(--vx-muted);
+}
+.cb-empty-state i { font-size: 2.5rem; opacity:0.3; display:block; margin-bottom:0.75rem; }
+</style>
+
+<!-- Breadcrumb -->
+<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; flex-wrap:wrap; gap:1rem;">
+  <div>
+    <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.35rem;">
+      <span class="vx-badge-pill primary" style="font-size:0.8rem; font-weight:800;">{{ course.course_code }}</span>
+      {% if course.is_published %}
+        <span class="vx-badge-pill success"><i class="fa-solid fa-circle" style="font-size:0.45rem;"></i> Published</span>
+      {% else %}
+        <span class="vx-badge-pill warning"><i class="fa-solid fa-pen-ruler" style="font-size:0.65rem;"></i> Draft</span>
+      {% endif %}
+    </div>
+    <h1 style="font-size:1.4rem; font-weight:700; color:var(--vx-text-heading); margin:0;">Curriculum Builder — {{ course.title }}</h1>
+    <div style="font-size:0.8125rem; color:var(--vx-muted); margin-top:0.25rem; display:flex; align-items:center; gap:0.5rem;">
+      <a href="{% url 'lms:faculty_dashboard' %}" style="color:var(--vx-primary); text-decoration:none; font-weight:600;">Faculty</a>
+      <span>/</span>
+      <a href="{% url 'lms:faculty_my_courses' %}" style="color:var(--vx-primary); text-decoration:none; font-weight:600;">My Courses</a>
+      <span>/</span>
+      <span>{{ course.course_code }}</span>
+    </div>
+  </div>
+  <div style="display:flex; gap:0.65rem; flex-wrap:wrap; align-items:center;">
+    {% if course.is_published %}
+      <form method="post" action="{% url 'lms:course_toggle_publish' course.id %}" style="margin:0;">
+        {% csrf_token %}
+        <button type="submit" class="vx-btn vx-btn-outline vx-btn-sm" style="color:#D97706; border-color:#FCD34D;">
+          <i class="fa-solid fa-eye-slash"></i> Unpublish
+        </button>
+      </form>
+    {% else %}
+      <form method="post" action="{% url 'lms:course_toggle_publish' course.id %}" style="margin:0;">
+        {% csrf_token %}
+        <button type="submit" class="vx-btn vx-btn-primary vx-btn-sm">
+          <i class="fa-solid fa-rocket"></i> Publish Live
+        </button>
+      </form>
+    {% endif %}
+    <a href="{% url 'lms:course_detail' course.id %}" target="_blank" class="vx-btn vx-btn-outline vx-btn-sm">
+      <i class="fa-solid fa-arrow-up-right-from-square"></i> Preview
+    </a>
+    <form method="post" action="{% url 'lms:course_delete' course.id %}" style="margin:0;"
+          onsubmit="return confirm('Delete {{ course.course_code }}? This is permanent.');">
+      {% csrf_token %}
+      <button type="submit" class="vx-btn vx-btn-sm" style="background:#FEE2E2; color:#DC2626; border:1px solid #FECACA; font-weight:700;">
+        <i class="fa-solid fa-trash-can"></i> Delete
+      </button>
+    </form>
+  </div>
+</div>
+
+<!-- Stats Bar -->
+<div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:1rem; margin-bottom:1.5rem;">
+  {% with total_lessons=0 %}
+  <div class="vx-card" style="margin-bottom:0; padding:1rem 1.25rem; display:flex; align-items:center; gap:0.75rem;">
+    <div style="width:40px; height:40px; border-radius:10px; background:var(--vx-primary-light); color:var(--vx-primary); display:flex; align-items:center; justify-content:center; font-size:1.1rem; flex-shrink:0;">
+      <i class="fa-solid fa-layer-group"></i>
+    </div>
+    <div>
+      <div style="font-size:1.4rem; font-weight:800; color:var(--vx-text-heading); line-height:1;">{{ modules|length }}</div>
+      <div style="font-size:0.75rem; color:var(--vx-muted); font-weight:500;">Modules</div>
+    </div>
+  </div>
+  {% endwith %}
+  <div class="vx-card" style="margin-bottom:0; padding:1rem 1.25rem; display:flex; align-items:center; gap:0.75rem;">
+    <div style="width:40px; height:40px; border-radius:10px; background:var(--vx-success-light); color:var(--vx-success); display:flex; align-items:center; justify-content:center; font-size:1.1rem; flex-shrink:0;">
+      <i class="fa-solid fa-book-open"></i>
+    </div>
+    <div>
+      <div style="font-size:1.4rem; font-weight:800; color:var(--vx-text-heading); line-height:1;">
+        {% with count=0 %}{% for m in modules %}{% for l in m.lessons.all %}{% with count=count|add:1 %}{% endwith %}{% endfor %}{% endfor %}{{ modules|length }}{% endwith %}
+      </div>
+      <div style="font-size:0.75rem; color:var(--vx-muted); font-weight:500;">Total Lessons</div>
+    </div>
+  </div>
+  <div class="vx-card" style="margin-bottom:0; padding:1rem 1.25rem; display:flex; align-items:center; gap:0.75rem;">
+    <div style="width:40px; height:40px; border-radius:10px; background:var(--vx-warning-light); color:var(--vx-warning); display:flex; align-items:center; justify-content:center; font-size:1.1rem; flex-shrink:0;">
+      <i class="fa-solid fa-user-graduate"></i>
+    </div>
+    <div>
+      <div style="font-size:1.4rem; font-weight:800; color:var(--vx-text-heading); line-height:1;">{{ course.total_students }}</div>
+      <div style="font-size:0.75rem; color:var(--vx-muted); font-weight:500;">Enrolled</div>
+    </div>
+  </div>
+  <div class="vx-card" style="margin-bottom:0; padding:1rem 1.25rem; display:flex; align-items:center; gap:0.75rem;">
+    <div style="width:40px; height:40px; border-radius:10px; background:var(--vx-info-light); color:var(--vx-info); display:flex; align-items:center; justify-content:center; font-size:1.1rem; flex-shrink:0;">
+      <i class="fa-solid fa-file-signature"></i>
+    </div>
+    <div>
+      <div style="font-size:1.4rem; font-weight:800; color:var(--vx-text-heading); line-height:1;">{{ course.total_assignments }}</div>
+      <div style="font-size:0.75rem; color:var(--vx-muted); font-weight:500;">Assignments</div>
+    </div>
+  </div>
+</div>
+
+<!-- Main Two-Panel Layout -->
+<div style="display:grid; grid-template-columns:1.4fr 1fr; gap:1.5rem; align-items:start;">
+
+  <!-- LEFT: Curriculum Tree -->
+  <div>
+    <div class="vx-card" style="margin-bottom:0;">
+      <div class="vx-card-header">
+        <div>
+          <h2 class="vx-card-title"><i class="fa-solid fa-sitemap" style="color:var(--vx-primary);"></i> Course Curriculum</h2>
+          <div class="vx-card-subtitle">Drag modules to reorder &middot; Click a module to expand</div>
+        </div>
+        <span class="vx-badge-pill primary">{{ modules|length }} modules</span>
+      </div>
+      <div class="vx-card-body" style="padding:1rem;">
+        <div id="curriculumTree">
+          {% if modules %}
+            {% for mod in modules %}
+            <div class="cb-module-card" id="module-card-{{ mod.id }}">
+              <div class="cb-module-header" onclick="toggleModule({{ mod.id }})">
+                <div class="cb-module-title">
+                  <i class="fa-solid fa-folder" style="color:var(--vx-primary);"></i>
+                  <span>Module {{ mod.order_index }}: {{ mod.title }}</span>
+                  <span style="font-size:0.72rem; font-weight:600; color:var(--vx-muted); background:var(--vx-border); padding:0.15rem 0.5rem; border-radius:999px;">
+                    {{ mod.lessons.count }} lessons
+                  </span>
+                </div>
+                <div style="display:flex; align-items:center; gap:0.5rem;">
+                  <i class="fa-solid fa-chevron-down toggle-icon-{{ mod.id }}" style="color:var(--vx-muted); font-size:0.8rem; transition:transform 0.2s;"></i>
+                  <button class="vx-btn vx-btn-sm" style="background:#FEE2E2; color:#DC2626; border:none; padding:0.25rem 0.5rem; border-radius:6px; cursor:pointer; font-size:0.75rem;"
+                    onclick="event.stopPropagation(); deleteModule({{ mod.id }})" title="Delete Module">
+                    <i class="fa-solid fa-trash-can"></i>
+                  </button>
+                </div>
+              </div>
+              <div id="module-body-{{ mod.id }}" style="display:none;">
+                <!-- Lessons -->
+                <div id="lessons-{{ mod.id }}">
+                  {% for lesson in mod.lessons.all %}
+                  <div class="cb-lesson-row" id="lesson-row-{{ lesson.id }}">
+                    <i class="fa-solid fa-grip-vertical" style="color:#CBD5E1; font-size:0.8rem;"></i>
+                    <span class="cb-type-badge type-{{ lesson.lesson_type }}">
+                      {% if lesson.lesson_type == 'VIDEO' %}<i class="fa-solid fa-play"></i>
+                      {% elif lesson.lesson_type == 'AUDIO' %}<i class="fa-solid fa-music"></i>
+                      {% elif lesson.lesson_type == 'PDF' %}<i class="fa-solid fa-file-pdf"></i>
+                      {% elif lesson.lesson_type == 'IMAGE' %}<i class="fa-solid fa-image"></i>
+                      {% elif lesson.lesson_type == 'LINK' %}<i class="fa-solid fa-link"></i>
+                      {% else %}<i class="fa-solid fa-file-lines"></i>{% endif %}
+                      {{ lesson.get_lesson_type_display }}
+                    </span>
+                    <span style="flex:1; font-weight:600; font-size:0.875rem; color:var(--vx-text-heading);">{{ lesson.title }}</span>
+                    {% if lesson.duration_minutes %}
+                      <span style="font-size:0.72rem; color:var(--vx-muted); white-space:nowrap;">
+                        <i class="fa-regular fa-clock"></i> {{ lesson.duration_minutes }}m
+                      </span>
+                    {% endif %}
+                    <button class="vx-btn vx-btn-sm" style="background:#FEE2E2; color:#DC2626; border:none; padding:0.2rem 0.45rem; border-radius:6px; cursor:pointer; font-size:0.72rem;"
+                      onclick="deleteLesson({{ lesson.id }}, {{ mod.id }})" title="Delete Lesson">
+                      <i class="fa-solid fa-xmark"></i>
+                    </button>
+                  </div>
+                  {% empty %}
+                  <div class="cb-empty-state" id="no-lessons-{{ mod.id }}" style="padding:1.5rem;">
+                    <i class="fa-solid fa-file-circle-plus" style="font-size:1.5rem; opacity:0.3; display:block; margin-bottom:0.4rem;"></i>
+                    <div style="font-size:0.8125rem;">No lessons yet. Use the panel on the right to add one.</div>
+                  </div>
+                  {% endfor %}
+                </div>
+                <!-- Add Lesson Quick Button -->
+                <div style="padding:0.75rem 1.25rem; background:var(--vx-bg-subtle, #F8FAFC);">
+                  <button class="vx-btn vx-btn-outline vx-btn-sm" style="width:100%;"
+                    onclick="openAddLesson({{ mod.id }}, '{{ mod.title|escapejs }}')">
+                    <i class="fa-solid fa-plus"></i> Add Lesson to this Module
+                  </button>
+                </div>
+              </div>
+            </div>
+            {% endfor %}
+          {% else %}
+          <div class="cb-empty-state" id="no-modules-msg">
+            <i class="fa-solid fa-folder-open"></i>
+            <div style="font-size:0.9rem; font-weight:600; margin-bottom:0.25rem;">No modules yet</div>
+            <div style="font-size:0.8125rem;">Add your first module using the panel on the right.</div>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT: Add Panel -->
+  <div style="position:sticky; top:80px;">
+
+    <!-- Add Module -->
+    <div class="cb-form-section">
+      <div class="cb-form-section-header">
+        <i class="fa-solid fa-folder-plus" style="color:var(--vx-primary);"></i> Add New Module
+      </div>
+      <div class="cb-form-section-body">
+        <div>
+          <label class="vx-form-label" for="moduleTitle">Module Title <span style="color:var(--vx-danger);">*</span></label>
+          <input type="text" id="moduleTitle" class="vx-form-control" placeholder="e.g. Introduction to Python" maxlength="255">
+        </div>
+        <button class="vx-btn vx-btn-primary" style="width:100%;" onclick="addModule()">
+          <i class="fa-solid fa-plus"></i> Add Module
+        </button>
+      </div>
+    </div>
+
+    <!-- Add Lesson -->
+    <div class="cb-form-section" id="addLessonSection">
+      <div class="cb-form-section-header">
+        <i class="fa-solid fa-circle-plus" style="color:var(--vx-success);"></i>
+        Add Lesson
+        <span id="addLessonModuleName" style="color:var(--vx-primary); font-weight:600; margin-left:0.25rem;"></span>
+      </div>
+      <div class="cb-form-section-body">
+
+        <!-- Target Module Selector -->
+        <div>
+          <label class="vx-form-label" for="lessonModuleSelect">Target Module <span style="color:var(--vx-danger);">*</span></label>
+          <select id="lessonModuleSelect" class="vx-form-control">
+            <option value="">— Select a module —</option>
+            {% for mod in modules %}
+            <option value="{{ mod.id }}">Module {{ mod.order_index }}: {{ mod.title }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <!-- Lesson Title -->
+        <div>
+          <label class="vx-form-label" for="lessonTitle">Lesson Title <span style="color:var(--vx-danger);">*</span></label>
+          <input type="text" id="lessonTitle" class="vx-form-control" placeholder="e.g. Variables and Data Types">
+        </div>
+
+        <!-- Lesson Type -->
+        <div>
+          <label class="vx-form-label" for="lessonType">Content Type <span style="color:var(--vx-danger);">*</span></label>
+          <select id="lessonType" class="vx-form-control" onchange="showLessonTypePanel(this.value)">
+            {% for value, label in lesson_types %}
+            <option value="{{ value }}">{{ label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <!-- Duration -->
+        <div>
+          <label class="vx-form-label" for="lessonDuration">Est. Duration (minutes)</label>
+          <input type="number" id="lessonDuration" class="vx-form-control" placeholder="e.g. 15" min="0" max="600" value="0">
+        </div>
+
+        <!-- === TYPE-SPECIFIC PANELS === -->
+
+        <!-- TEXT Panel -->
+        <div id="panel-TEXT" class="lesson-type-panel active">
+          <label class="vx-form-label" for="lessonText">Text / Markdown Content</label>
+          <textarea id="lessonText" class="vx-form-control" rows="6"
+            placeholder="## Lesson Overview&#10;Write your lesson content here in Markdown...&#10;&#10;**Bold**, _italic_, `code`, lists, etc. are all supported."
+            style="font-family:monospace; font-size:0.82rem;"></textarea>
+        </div>
+
+        <!-- VIDEO Panel -->
+        <div id="panel-VIDEO" class="lesson-type-panel">
+          <label class="vx-form-label">Upload Video File</label>
+          <div class="upload-drop-zone" onclick="document.getElementById('fileInputVIDEO').click();" id="dropVIDEO">
+            <i class="fa-solid fa-film"></i>
+            <div style="font-weight:600; font-size:0.875rem; color:var(--vx-text-heading);">Click to upload video</div>
+            <div style="font-size:0.72rem; color:var(--vx-muted); margin-top:0.25rem;">MP4, WEBM &mdash; max 50 MB</div>
+            <div id="fileNameVIDEO" style="font-size:0.78rem; color:var(--vx-primary); margin-top:0.4rem; font-weight:600;"></div>
+          </div>
+          <input type="file" id="fileInputVIDEO" accept=".mp4,.webm" style="display:none;" onchange="showFileName('VIDEO', this)">
+        </div>
+
+        <!-- AUDIO Panel -->
+        <div id="panel-AUDIO" class="lesson-type-panel">
+          <label class="vx-form-label">Upload Audio File</label>
+          <div class="upload-drop-zone" onclick="document.getElementById('fileInputAUDIO').click();" id="dropAUDIO">
+            <i class="fa-solid fa-headphones"></i>
+            <div style="font-weight:600; font-size:0.875rem; color:var(--vx-text-heading);">Click to upload audio</div>
+            <div style="font-size:0.72rem; color:var(--vx-muted); margin-top:0.25rem;">MP3, WAV, OGG &mdash; max 50 MB</div>
+            <div id="fileNameAUDIO" style="font-size:0.78rem; color:var(--vx-primary); margin-top:0.4rem; font-weight:600;"></div>
+          </div>
+          <input type="file" id="fileInputAUDIO" accept=".mp3,.wav,.ogg" style="display:none;" onchange="showFileName('AUDIO', this)">
+        </div>
+
+        <!-- PDF Panel -->
+        <div id="panel-PDF" class="lesson-type-panel">
+          <label class="vx-form-label">Upload PDF Document</label>
+          <div class="upload-drop-zone" onclick="document.getElementById('fileInputPDF').click();" id="dropPDF">
+            <i class="fa-solid fa-file-pdf"></i>
+            <div style="font-weight:600; font-size:0.875rem; color:var(--vx-text-heading);">Click to upload PDF</div>
+            <div style="font-size:0.72rem; color:var(--vx-muted); margin-top:0.25rem;">PDF only &mdash; max 50 MB</div>
+            <div id="fileNamePDF" style="font-size:0.78rem; color:var(--vx-primary); margin-top:0.4rem; font-weight:600;"></div>
+          </div>
+          <input type="file" id="fileInputPDF" accept=".pdf" style="display:none;" onchange="showFileName('PDF', this)">
+        </div>
+
+        <!-- IMAGE Panel -->
+        <div id="panel-IMAGE" class="lesson-type-panel">
+          <label class="vx-form-label">Upload Image</label>
+          <div class="upload-drop-zone" onclick="document.getElementById('fileInputIMAGE').click();" id="dropIMAGE">
+            <i class="fa-solid fa-image"></i>
+            <div style="font-weight:600; font-size:0.875rem; color:var(--vx-text-heading);">Click to upload image</div>
+            <div style="font-size:0.72rem; color:var(--vx-muted); margin-top:0.25rem;">PNG, JPG, JPEG, GIF &mdash; max 50 MB</div>
+            <div id="fileNameIMAGE" style="font-size:0.78rem; color:var(--vx-primary); margin-top:0.4rem; font-weight:600;"></div>
+          </div>
+          <input type="file" id="fileInputIMAGE" accept=".png,.jpg,.jpeg,.gif" style="display:none;" onchange="showFileName('IMAGE', this)">
+        </div>
+
+        <!-- LINK Panel -->
+        <div id="panel-LINK" class="lesson-type-panel">
+          <label class="vx-form-label" for="lessonExternalUrl">External URL <span style="color:var(--vx-danger);">*</span></label>
+          <div style="position:relative;">
+            <i class="fa-solid fa-link" style="position:absolute; left:0.75rem; top:50%; transform:translateY(-50%); color:var(--vx-muted); font-size:0.8rem;"></i>
+            <input type="url" id="lessonExternalUrl" class="vx-form-control" style="padding-left:2.25rem;"
+              placeholder="https://www.youtube.com/watch?v=...">
+          </div>
+          <div style="font-size:0.72rem; color:var(--vx-muted); margin-top:0.25rem;">External video, article, or resource link.</div>
+        </div>
+
+        <!-- Add Lesson Button -->
+        <button class="vx-btn vx-btn-primary" style="width:100%; margin-top:0.25rem;" id="addLessonBtn" onclick="addLesson()">
+          <i class="fa-solid fa-circle-plus"></i> Add Lesson
+        </button>
+
+        <!-- Progress Bar (hidden) -->
+        <div id="uploadProgress" style="display:none;">
+          <div style="background:var(--vx-border); border-radius:999px; height:6px; overflow:hidden;">
+            <div id="uploadProgressBar" style="height:100%; background:var(--vx-primary); width:0%; transition:width 0.3s;"></div>
+          </div>
+          <div style="font-size:0.75rem; color:var(--vx-muted); margin-top:0.35rem; text-align:center;">Uploading...</div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Quick Tips -->
+    <div class="vx-card" style="margin-bottom:0; background:linear-gradient(135deg, #EFF6FF, #F0FDF4);">
+      <div class="vx-card-body" style="padding:1rem 1.25rem;">
+        <div style="font-weight:700; font-size:0.8125rem; color:var(--vx-text-heading); margin-bottom:0.5rem; display:flex; align-items:center; gap:0.4rem;">
+          <i class="fa-solid fa-lightbulb" style="color:#F59E0B;"></i> Content Tips
+        </div>
+        <ul style="font-size:0.78rem; color:var(--vx-muted); line-height:1.8; padding-left:1.2rem; margin:0;">
+          <li>Videos: Upload MP4 for best browser compatibility</li>
+          <li>Text: Use Markdown for rich formatting</li>
+          <li>PDFs: Great for slides and reading materials</li>
+          <li>Links: YouTube, Vimeo, or external articles</li>
+          <li>Max file size: <strong>50 MB</strong> per lesson</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const CSRF_TOKEN = '{{ csrf_token }}';
+const COURSE_ID = {{ course.id }};
+
+// ---- LESSON TYPE PANEL SWITCHER ----
+function showLessonTypePanel(type) {
+  document.querySelectorAll('.lesson-type-panel').forEach(p => p.classList.remove('active'));
+  const panel = document.getElementById('panel-' + type);
+  if (panel) panel.classList.add('active');
+}
+
+function showFileName(type, input) {
+  if (input.files[0]) {
+    document.getElementById('fileNameVIDEO') && (document.getElementById('fileNameVIDEO').textContent = '');
+    document.getElementById('fileNameAUDIO') && (document.getElementById('fileNameAUDIO').textContent = '');
+    document.getElementById('fileNamePDF') && (document.getElementById('fileNamePDF').textContent = '');
+    document.getElementById('fileNameIMAGE') && (document.getElementById('fileNameIMAGE').textContent = '');
+    document.getElementById('fileName' + type).textContent = input.files[0].name;
+  }
+}
+
+// ---- MODULE TOGGLE ----
+function toggleModule(moduleId) {
+  const body = document.getElementById('module-body-' + moduleId);
+  const icon = document.querySelector('.toggle-icon-' + moduleId);
+  if (body.style.display === 'none') {
+    body.style.display = 'block';
+    icon.style.transform = 'rotate(180deg)';
+  } else {
+    body.style.display = 'none';
+    icon.style.transform = 'rotate(0deg)';
+  }
+}
+
+// ---- OPEN ADD LESSON (pre-select module) ----
+function openAddLesson(moduleId, moduleName) {
+  document.getElementById('lessonModuleSelect').value = moduleId;
+  document.getElementById('addLessonSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  document.getElementById('lessonTitle').focus();
+}
+
+// ---- ADD MODULE (AJAX) ----
+async function addModule() {
+  const title = document.getElementById('moduleTitle').value.trim();
+  if (!title) { showAlert('Enter a module title.', 'danger'); return; }
+
+  const formData = new FormData();
+  formData.append('title', title);
+  formData.append('csrfmiddlewaretoken', CSRF_TOKEN);
+
+  const res = await fetch(`/faculty/courses/${COURSE_ID}/modules/add/`, {
+    method: 'POST', body: formData
+  });
+  if (!res.ok) { const d = await res.json(); showAlert(d.error || 'Error adding module.', 'danger'); return; }
+
+  const data = await res.json();
+  document.getElementById('moduleTitle').value = '';
+
+  // Remove empty state
+  const noMsg = document.getElementById('no-modules-msg');
+  if (noMsg) noMsg.remove();
+
+  // Build new module card HTML
+  const tree = document.getElementById('curriculumTree');
+  const card = document.createElement('div');
+  card.className = 'cb-module-card';
+  card.id = 'module-card-' + data.id;
+  card.innerHTML = `
+    <div class="cb-module-header" onclick="toggleModule(${data.id})">
+      <div class="cb-module-title">
+        <i class="fa-solid fa-folder" style="color:var(--vx-primary);"></i>
+        <span>Module ${data.order_index}: ${data.title}</span>
+        <span style="font-size:0.72rem; font-weight:600; color:var(--vx-muted); background:var(--vx-border); padding:0.15rem 0.5rem; border-radius:999px;" id="lesson-count-${data.id}">0 lessons</span>
+      </div>
+      <div style="display:flex; align-items:center; gap:0.5rem;">
+        <i class="fa-solid fa-chevron-down toggle-icon-${data.id}" style="color:var(--vx-muted); font-size:0.8rem; transition:transform 0.2s;"></i>
+        <button class="vx-btn vx-btn-sm" style="background:#FEE2E2; color:#DC2626; border:none; padding:0.25rem 0.5rem; border-radius:6px; cursor:pointer; font-size:0.75rem;"
+          onclick="event.stopPropagation(); deleteModule(${data.id})" title="Delete Module">
+          <i class="fa-solid fa-trash-can"></i>
+        </button>
+      </div>
+    </div>
+    <div id="module-body-${data.id}" style="display:none;">
+      <div id="lessons-${data.id}">
+        <div class="cb-empty-state" id="no-lessons-${data.id}" style="padding:1.5rem;">
+          <i class="fa-solid fa-file-circle-plus" style="font-size:1.5rem; opacity:0.3; display:block; margin-bottom:0.4rem;"></i>
+          <div style="font-size:0.8125rem;">No lessons yet.</div>
+        </div>
+      </div>
+      <div style="padding:0.75rem 1.25rem; background:var(--vx-bg-subtle, #F8FAFC);">
+        <button class="vx-btn vx-btn-outline vx-btn-sm" style="width:100%;"
+          onclick="openAddLesson(${data.id}, '${data.title.replace(/'/g,"\\'")}')">
+          <i class="fa-solid fa-plus"></i> Add Lesson to this Module
+        </button>
+      </div>
+    </div>`;
+  tree.appendChild(card);
+  toggleModule(data.id);
+
+  // Add to module selector
+  const sel = document.getElementById('lessonModuleSelect');
+  const opt = document.createElement('option');
+  opt.value = data.id;
+  opt.textContent = `Module ${data.order_index}: ${data.title}`;
+  sel.appendChild(opt);
+
+  showAlert(`Module "${data.title}" added!`, 'success');
+}
+
+// ---- DELETE MODULE (AJAX) ----
+async function deleteModule(moduleId) {
+  if (!confirm('Delete this module and all its lessons? This cannot be undone.')) return;
+  const formData = new FormData();
+  formData.append('csrfmiddlewaretoken', CSRF_TOKEN);
+  const res = await fetch(`/faculty/modules/${moduleId}/delete/`, { method: 'POST', body: formData });
+  if (!res.ok) { showAlert('Error deleting module.', 'danger'); return; }
+  document.getElementById('module-card-' + moduleId)?.remove();
+  // Remove from select
+  const opt = document.querySelector(`#lessonModuleSelect option[value="${moduleId}"]`);
+  if (opt) opt.remove();
+  showAlert('Module deleted.', 'success');
+}
+
+// ---- ADD LESSON (AJAX) ----
+async function addLesson() {
+  const moduleId = document.getElementById('lessonModuleSelect').value;
+  const title = document.getElementById('lessonTitle').value.trim();
+  const lessonType = document.getElementById('lessonType').value;
+  const duration = document.getElementById('lessonDuration').value || 0;
+
+  if (!moduleId) { showAlert('Select a target module.', 'danger'); return; }
+  if (!title) { showAlert('Enter a lesson title.', 'danger'); return; }
+
+  const formData = new FormData();
+  formData.append('csrfmiddlewaretoken', CSRF_TOKEN);
+  formData.append('title', title);
+  formData.append('lesson_type', lessonType);
+  formData.append('duration_minutes', duration);
+
+  if (lessonType === 'TEXT') {
+    formData.append('content_markdown', document.getElementById('lessonText').value);
+  } else if (lessonType === 'LINK') {
+    formData.append('external_url', document.getElementById('lessonExternalUrl').value.trim());
+  } else {
+    const fileInput = document.getElementById('fileInput' + lessonType);
+    if (fileInput && fileInput.files[0]) {
+      formData.append('media_file', fileInput.files[0]);
+    }
+  }
+
+  // Show progress
+  const btn = document.getElementById('addLessonBtn');
+  btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Uploading...';
+  btn.disabled = true;
+  document.getElementById('uploadProgress').style.display = 'block';
+
+  const res = await fetch(`/faculty/modules/${moduleId}/lessons/add/`, {
+    method: 'POST', body: formData
+  });
+
+  btn.innerHTML = '<i class="fa-solid fa-circle-plus"></i> Add Lesson';
+  btn.disabled = false;
+  document.getElementById('uploadProgress').style.display = 'none';
+
+  if (!res.ok) { const d = await res.json(); showAlert(d.error || 'Error adding lesson.', 'danger'); return; }
+  const data = await res.json();
+
+  // Remove empty state
+  const noLessons = document.getElementById('no-lessons-' + moduleId);
+  if (noLessons) noLessons.remove();
+
+  // Type icon mapping
+  const typeIcons = {
+    TEXT: 'fa-file-lines', VIDEO: 'fa-play', AUDIO: 'fa-music',
+    PDF: 'fa-file-pdf', IMAGE: 'fa-image', LINK: 'fa-link'
+  };
+  const typeClasses = {
+    TEXT: 'type-TEXT', VIDEO: 'type-VIDEO', AUDIO: 'type-AUDIO',
+    PDF: 'type-PDF', IMAGE: 'type-IMAGE', LINK: 'type-LINK'
+  };
+
+  const lessonRow = document.createElement('div');
+  lessonRow.className = 'cb-lesson-row';
+  lessonRow.id = 'lesson-row-' + data.id;
+  lessonRow.innerHTML = `
+    <i class="fa-solid fa-grip-vertical" style="color:#CBD5E1; font-size:0.8rem;"></i>
+    <span class="cb-type-badge ${typeClasses[data.lesson_type]}">
+      <i class="fa-solid ${typeIcons[data.lesson_type] || 'fa-file'}"></i> ${data.lesson_type_display}
+    </span>
+    <span style="flex:1; font-weight:600; font-size:0.875rem; color:var(--vx-text-heading);">${data.title}</span>
+    ${data.duration_minutes ? `<span style="font-size:0.72rem; color:var(--vx-muted); white-space:nowrap;"><i class="fa-regular fa-clock"></i> ${data.duration_minutes}m</span>` : ''}
+    <button class="vx-btn vx-btn-sm" style="background:#FEE2E2; color:#DC2626; border:none; padding:0.2rem 0.45rem; border-radius:6px; cursor:pointer; font-size:0.72rem;"
+      onclick="deleteLesson(${data.id}, ${moduleId})" title="Delete Lesson">
+      <i class="fa-solid fa-xmark"></i>
+    </button>`;
+
+  const lessonsContainer = document.getElementById('lessons-' + moduleId);
+  lessonsContainer.appendChild(lessonRow);
+
+  // Open module if not already open
+  const body = document.getElementById('module-body-' + moduleId);
+  if (body && body.style.display === 'none') toggleModule(moduleId);
+
+  // Update count badge
+  const countEl = document.getElementById('lesson-count-' + moduleId);
+  if (countEl) {
+    const current = parseInt(countEl.textContent) || 0;
+    countEl.textContent = (current + 1) + ' lesson' + (current + 1 !== 1 ? 's' : '');
+  }
+
+  // Reset form
+  document.getElementById('lessonTitle').value = '';
+  document.getElementById('lessonText').value = '';
+  document.getElementById('lessonExternalUrl').value = '';
+  document.getElementById('lessonDuration').value = '0';
+  ['VIDEO','AUDIO','PDF','IMAGE'].forEach(t => {
+    const fi = document.getElementById('fileInput'+t);
+    if (fi) fi.value = '';
+    const fn = document.getElementById('fileName'+t);
+    if (fn) fn.textContent = '';
+  });
+
+  showAlert(`Lesson "${data.title}" added!`, 'success');
+}
+
+// ---- DELETE LESSON (AJAX) ----
+async function deleteLesson(lessonId, moduleId) {
+  if (!confirm('Delete this lesson? This cannot be undone.')) return;
+  const formData = new FormData();
+  formData.append('csrfmiddlewaretoken', CSRF_TOKEN);
+  const res = await fetch(`/faculty/lessons/${lessonId}/delete/`, { method: 'POST', body: formData });
+  if (!res.ok) { showAlert('Error deleting lesson.', 'danger'); return; }
+  document.getElementById('lesson-row-' + lessonId)?.remove();
+
+  // Update count badge
+  const countEl = document.getElementById('lesson-count-' + moduleId);
+  if (countEl) {
+    const current = parseInt(countEl.textContent) || 1;
+    const next = Math.max(0, current - 1);
+    countEl.textContent = next + ' lesson' + (next !== 1 ? 's' : '');
+  }
+  showAlert('Lesson deleted.', 'success');
+}
+
+// ---- ALERT HELPER ----
+function showAlert(message, type) {
+  const colors = {
+    success: { bg:'#ECFDF5', text:'#065F46', border:'#A7F3D0', icon:'fa-circle-check' },
+    danger:  { bg:'#FEF2F2', text:'#991B1B', border:'#FECACA', icon:'fa-circle-xmark' },
+  };
+  const c = colors[type] || colors.success;
+  const alert = document.createElement('div');
+  alert.style.cssText = `position:fixed; top:1.5rem; right:1.5rem; z-index:9999; background:${c.bg}; color:${c.text}; border:1px solid ${c.border}; border-radius:10px; padding:0.85rem 1.25rem; font-size:0.875rem; font-weight:600; box-shadow:0 4px 20px rgba(0,0,0,0.12); display:flex; align-items:center; gap:0.6rem; max-width:340px;`;
+  alert.innerHTML = `<i class="fa-solid ${c.icon}"></i> ${message}`;
+  document.body.appendChild(alert);
+  setTimeout(() => { alert.style.opacity = '0'; alert.style.transition = 'opacity 0.4s'; setTimeout(() => alert.remove(), 400); }, 3000);
+}
+</script>
+{% endblock %}

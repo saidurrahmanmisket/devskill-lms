@@ -1,0 +1,232 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Faculty Mentors &amp; Instructors – DEVSKILL Academic Platform{% endblock %}
+
+{% block content %}
+<!-- DEVSKILL Header Banner -->
+<div class="dev-header-banner">
+  <div style="max-width:1500px; margin:0 auto; padding:0 2rem; display:flex; justify-content:space-between; align-items:flex-end; flex-wrap:wrap; gap:1.5rem;">
+    <div>
+      <div class="dev-header-pill">
+        <i class="fa-solid fa-chalkboard-user"></i> DISTINGUISHED FACULTY
+      </div>
+      <h1 class="dev-page-title">Meet Our Expert Mentors</h1>
+      <p class="dev-page-subtitle">
+        Learn directly from world-class university professors, principal software engineers, and award-winning design leaders.
+      </p>
+    </div>
+    <div style="display:flex; gap:0.75rem; flex-wrap:wrap;">
+      <a href="{% url 'lms:course_catalog' %}" class="btn btn-outline" style="border-radius:999px;">
+        <i class="fa-solid fa-book-open"></i> Browse All Courses
+      </a>
+      {% if user.is_authenticated and user.role == 'INSTRUCTOR' %}
+        <a href="{% url 'lms:faculty_dashboard' %}" class="btn btn-primary" style="border-radius:999px;">
+          <i class="fa-solid fa-chalkboard-user"></i> My Faculty Hub
+        </a>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<div style="max-width:1500px; margin:0 auto; padding:2.5rem 2rem 5rem 2rem;">
+  <!-- Platform Mentorship Stats Strip -->
+  <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:1.25rem; margin-bottom:2.5rem;">
+    <div class="dev-stat-box">
+      <div class="dev-stat-icon-wrap teal">
+        <i class="fa-solid fa-chalkboard-user"></i>
+      </div>
+      <div>
+        <div style="font-size:1.85rem; font-weight:800; color:#111827; line-height:1.1;">{{ total_mentors }}</div>
+        <div style="font-size:0.82rem; font-weight:700; color:#6B7280; text-transform:uppercase; letter-spacing:0.04em; margin-top:0.25rem;">Active Faculty Mentors</div>
+      </div>
+    </div>
+
+    <div class="dev-stat-box">
+      <div class="dev-stat-icon-wrap orange">
+        <i class="fa-solid fa-book-open"></i>
+      </div>
+      <div>
+        <div style="font-size:1.85rem; font-weight:800; color:#111827; line-height:1.1;">{{ total_courses_taught }}</div>
+        <div style="font-size:0.82rem; font-weight:700; color:#6B7280; text-transform:uppercase; letter-spacing:0.04em; margin-top:0.25rem;">Specialized Courses</div>
+      </div>
+    </div>
+
+    <div class="dev-stat-box">
+      <div class="dev-stat-icon-wrap purple">
+        <i class="fa-solid fa-star"></i>
+      </div>
+      <div>
+        <div style="font-size:1.85rem; font-weight:800; color:#111827; line-height:1.1;">4.96</div>
+        <div style="font-size:0.82rem; font-weight:700; color:#6B7280; text-transform:uppercase; letter-spacing:0.04em; margin-top:0.25rem;">Average Mentor Rating</div>
+      </div>
+    </div>
+
+    <div class="dev-stat-box">
+      <div class="dev-stat-icon-wrap blue">
+        <i class="fa-solid fa-award"></i>
+      </div>
+      <div>
+        <div style="font-size:1.85rem; font-weight:800; color:#111827; line-height:1.1;">100%</div>
+        <div style="font-size:0.82rem; font-weight:700; color:#6B7280; text-transform:uppercase; letter-spacing:0.04em; margin-top:0.25rem;">Industry Vetted</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Search & Department Filters -->
+  <form method="get" style="margin-bottom:3rem;">
+    <div style="background:#FFFFFF; border:1px solid #EFE4DC; border-radius:24px; padding:1.25rem 1.5rem; box-shadow:0 4px 20px rgba(0,0,0,0.03); display:flex; gap:1rem; flex-wrap:wrap; align-items:center;">
+      <div style="flex:1; min-width:260px; position:relative;">
+        <span style="position:absolute; left:1.1rem; top:50%; transform:translateY(-50%); color:#9CA3AF; font-size:1rem;">
+          <i class="fa-solid fa-magnifying-glass"></i>
+        </span>
+        <input type="text" name="q" value="{{ query }}" placeholder="Search mentors by name, keyword, or academic topic..."
+               class="form-control" style="padding-left:2.8rem; border-radius:999px; border:1px solid #E5E7EB; background:#F6FAFA; height:48px;">
+      </div>
+
+      <div style="min-width:240px;">
+        <select name="dept" class="form-control" style="border-radius:999px; border:1px solid #E5E7EB; background:#F6FAFA; height:48px; font-weight:600; color:#374151;">
+          <option value="">All Academic Departments</option>
+          {% for d in departments %}
+            <option value="{{ d }}" {% if d == selected_dept %}selected{% endif %}>{{ d }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <button type="submit" class="btn btn-primary" style="border-radius:999px; height:48px; padding:0 1.75rem; font-weight:700;">
+        <i class="fa-solid fa-filter"></i> Filter
+      </button>
+
+      {% if query or selected_dept %}
+        <a href="{% url 'lms:mentors' %}" class="btn btn-outline" style="border-radius:999px; height:48px; display:inline-flex; align-items:center;">
+          <i class="fa-solid fa-xmark"></i> Clear
+        </a>
+      {% endif %}
+    </div>
+  </form>
+
+  <!-- Mentor Cards Grid -->
+  <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:2rem 1rem;">
+    {% for item in mentors %}
+      {% with mentor=item.user %}
+      <div class="dev-card-modern" style="display:flex; flex-direction:column; overflow:hidden;">
+        
+        <!-- Mentor Image Header with Badge Overlay -->
+        <div style="position:relative; height:280px; overflow:hidden; background:#F6FAFA;">
+          <img src="{% static mentor.mentor_avatar_url %}" alt="{{ mentor.get_full_name }}"
+               style="width:100%; height:100%; object-fit:cover; transition:transform 0.4s ease;"
+               onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+
+          <!-- Gradient overlay -->
+          <div style="position:absolute; inset:0; background:linear-gradient(to top, rgba(17,24,39,0.75) 0%, transparent 50%);"></div>
+
+          <!-- Academic ID Pill -->
+          <span style="position:absolute; top:1rem; left:1rem; background:rgba(17,24,39,0.8); backdrop-filter:blur(6px); color:#FFFFFF; font-size:0.75rem; font-weight:800; padding:0.35rem 0.85rem; border-radius:999px; letter-spacing:0.04em;">
+            {{ mentor.academic_id|default:"FAC-VERIFIED" }}
+          </span>
+
+          <!-- Rating Pill -->
+          <span style="position:absolute; top:1rem; right:1rem; background:#FF6333; color:#FFFFFF; font-size:0.75rem; font-weight:800; padding:0.35rem 0.85rem; border-radius:999px; display:inline-flex; align-items:center; gap:0.3rem;">
+            <i class="fa-solid fa-star" style="font-size:0.7rem;"></i> {{ mentor.mentor_rating }}
+          </span>
+
+          <!-- Quick Metrics on Image Base -->
+          <div style="position:absolute; bottom:0.85rem; left:1.25rem; right:1.25rem; display:flex; justify-content:space-between; align-items:center; color:#FFFFFF; font-size:0.82rem; font-weight:700;">
+            <span style="display:inline-flex; align-items:center; gap:0.4rem;">
+              <i class="fa-solid fa-layer-group" style="color:#0FAE9A;"></i> {{ item.courses_count }} Course{{ item.courses_count|pluralize }}
+            </span>
+            <span style="display:inline-flex; align-items:center; gap:0.4rem;">
+              <i class="fa-solid fa-users" style="color:#FF6333;"></i> {{ item.total_students }} Enrolled Students
+            </span>
+          </div>
+        </div>
+
+        <!-- Mentor Details Body -->
+        <div style="padding:1.75rem; display:flex; flex-direction:column; flex:1;">
+          <div style="font-size:0.75rem; font-weight:800; text-transform:uppercase; color:#0FAE9A; letter-spacing:0.06em; margin-bottom:0.35rem;">
+            {{ mentor.mentor_department }}
+          </div>
+
+          <h3 style="font-size:1.35rem; font-weight:800; color:#111827; margin:0 0 0.35rem 0;">
+            {{ mentor.get_full_name }}
+          </h3>
+
+          <div style="font-size:0.88rem; font-weight:700; color:#FF6333; margin-bottom:1rem; line-height:1.4;">
+            {{ mentor.mentor_title }}
+          </div>
+
+          <p style="color:#6B7280; font-size:0.88rem; line-height:1.65; margin-bottom:1.25rem; flex:1;">
+            {{ mentor.mentor_bio }}
+          </p>
+
+          <!-- Core Specialties Tags -->
+          <div style="margin-bottom:1.25rem;">
+            <div style="font-size:0.75rem; font-weight:800; color:#374151; text-transform:uppercase; letter-spacing:0.04em; margin-bottom:0.5rem;">
+              Core Focus Areas:
+            </div>
+            <div style="display:flex; flex-wrap:wrap; gap:0.4rem;">
+              {% for skill in mentor.mentor_specialties %}
+                <span style="background:#FFF0EA; color:#FF6333; font-size:0.75rem; font-weight:700; padding:0.25rem 0.65rem; border-radius:999px;">
+                  {{ skill }}
+                </span>
+              {% endfor %}
+            </div>
+          </div>
+
+          <!-- Courses Taught Section -->
+          <div style="padding-top:1rem; border-top:1px solid #F3EDE8; margin-bottom:1.5rem;">
+            <div style="font-size:0.75rem; font-weight:800; color:#374151; text-transform:uppercase; letter-spacing:0.04em; margin-bottom:0.6rem;">
+              Active Courses Taught:
+            </div>
+            <div style="display:flex; flex-direction:column; gap:0.5rem;">
+              {% for c in item.courses %}
+                <a href="{% url 'lms:public_course_detail' c.id %}"
+                   style="display:flex; justify-content:space-between; align-items:center; padding:0.5rem 0.75rem; background:#F6FAFA; border:1px solid #EFE4DC; border-radius:10px; text-decoration:none; color:#111827; transition:all 0.2s;"
+                   onmouseover="this.style.background='#FFFFFF'; this.style.borderColor='#FF6333';"
+                   onmouseout="this.style.background='#F6FAFA'; this.style.borderColor='#EFE4DC';">
+                  <div style="display:flex; align-items:center; gap:0.5rem; overflow:hidden;">
+                    <span style="background:#0FAE9A; color:#FFFFFF; font-size:0.7rem; font-weight:800; padding:0.15rem 0.5rem; border-radius:999px; white-space:nowrap;">
+                      {{ c.course_code }}
+                    </span>
+                    <span style="font-size:0.82rem; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+                      {{ c.title }}
+                    </span>
+                  </div>
+                  <i class="fa-solid fa-chevron-right" style="font-size:0.7rem; color:#9CA3AF; margin-left:0.5rem;"></i>
+                </a>
+              {% empty %}
+                <span style="font-size:0.8rem; color:#9CA3AF;">Curriculum authoring in progress.</span>
+              {% endfor %}
+            </div>
+          </div>
+
+          <!-- Footer Actions & Socials -->
+          <div style="display:flex; justify-content:space-between; align-items:center; padding-top:0.75rem; border-top:1px solid #F3EDE8;">
+            <div style="display:flex; align-items:center; gap:0.5rem;">
+              <a href="#" class="dev-social-circle" aria-label="LinkedIn" title="LinkedIn Profile"><i class="fa-brands fa-linkedin-in"></i></a>
+              <a href="#" class="dev-social-circle" aria-label="GitHub" title="GitHub Repository"><i class="fa-brands fa-github"></i></a>
+              <a href="#" class="dev-social-circle" aria-label="X Twitter" title="X Profile"><i class="fa-brands fa-x-twitter"></i></a>
+              <a href="mailto:{{ mentor.email }}" class="dev-social-circle" aria-label="Email" title="Direct Academic Email"><i class="fa-solid fa-envelope"></i></a>
+            </div>
+
+            <a href="{% url 'lms:course_catalog' %}?q={{ mentor.last_name }}" class="btn btn-primary btn-sm" style="border-radius:999px; padding:0.45rem 1.15rem; font-weight:700;">
+              View Courses <i class="fa-solid fa-arrow-right" style="font-size:0.75rem; margin-left:2px;"></i>
+            </a>
+          </div>
+
+        </div>
+      </div>
+      {% endwith %}
+    {% empty %}
+      <div style="grid-column:1/-1; text-align:center; padding:5rem 2rem; background:#FFFFFF; border-radius:24px; border:1px solid #EFE4DC;">
+        <div style="width:70px; height:70px; margin:0 auto 1.5rem auto; background:#FFF0EA; color:#FF6333; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:2rem;">
+          <i class="fa-solid fa-chalkboard-user"></i>
+        </div>
+        <h3 style="color:#111827; font-size:1.4rem; font-weight:800; margin-bottom:0.5rem;">No mentors found</h3>
+        <p style="color:#6B7280; font-size:0.95rem; margin-bottom:1.75rem;">Try modifying your keyword search or clear the academic department filter.</p>
+        <a href="{% url 'lms:mentors' %}" class="btn btn-primary" style="border-radius:999px;">Clear All Filters</a>
+      </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

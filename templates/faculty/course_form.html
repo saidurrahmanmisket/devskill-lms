@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Author Course – DEVSKILL Platform{% endblock %}
+
+{% block content %}
+<!-- DEVSKILL Header Banner -->
+<div class="dev-header-banner">
+  <div style="max-width:900px; margin:0 auto; display:flex; justify-content:space-between; align-items:flex-end; flex-wrap:wrap; gap:1.5rem;">
+    <div>
+      <div class="dev-header-pill">
+        <i class="fa-solid fa-pen-to-square"></i> Course Authoring Studio
+      </div>
+      <h1 class="dev-page-title">Author Academic Course</h1>
+      <p class="dev-page-subtitle">Publish a verified academic or industry course entity into the DEVSKILL catalog</p>
+    </div>
+    <a href="{% url 'lms:faculty_dashboard' %}" class="btn btn-outline" style="border-radius:999px;">
+      <i class="fa-solid fa-arrow-left"></i> Faculty Hub
+    </a>
+  </div>
+</div>
+
+<div style="max-width:900px; margin:0 auto; padding:2.5rem 6vw 5rem 6vw;">
+  <div class="dev-card-modern" style="padding:2.25rem;">
+    <form method="post">
+      {% csrf_token %}
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; margin-bottom: 1.25rem;">
+        <div class="form-group">
+          <label class="form-label" for="course_code" style="font-weight: 700; color: #374151; font-size: 0.88rem;">Course Code</label>
+          <input type="text" name="course_code" id="course_code" class="form-control" placeholder="e.g. CS-202" required style="border-radius: 12px; border: 1px solid #E5E7EB; background: #F6FAFA; height: 46px;">
+          <div style="font-size: 0.75rem; color: #9CA3AF; margin-top: 0.25rem;">Must be unique across the platform.</div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="credit_count" style="font-weight: 700; color: #374151; font-size: 0.88rem;">Credit Units</label>
+          <input type="number" name="credit_count" id="credit_count" class="form-control" value="3" min="1" max="10" required style="border-radius: 12px; border: 1px solid #E5E7EB; background: #F6FAFA; height: 46px;">
+        </div>
+      </div>
+
+      <div class="form-group" style="margin-bottom: 1.25rem;">
+        <label class="form-label" for="title" style="font-weight: 700; color: #374151; font-size: 0.88rem;">Course Title</label>
+        <input type="text" name="title" id="title" class="form-control" placeholder="e.g. Modern Full-Stack Python &amp; Django Engineering" required style="border-radius: 12px; border: 1px solid #E5E7EB; background: #F6FAFA; height: 46px;">
+      </div>
+
+      <div class="form-group" style="margin-bottom: 1.25rem;">
+        <label class="form-label" for="department" style="font-weight: 700; color: #374151; font-size: 0.88rem;">Academic Department</label>
+        <input type="text" name="department" id="department" class="form-control" placeholder="e.g. Software Engineering &amp; Computer Science" required style="border-radius: 12px; border: 1px solid #E5E7EB; background: #F6FAFA; height: 46px;">
+      </div>
+
+      <div class="form-group" style="margin-bottom: 1.5rem;">
+        <label class="form-label" for="syllabus_outline" style="font-weight: 700; color: #374151; font-size: 0.88rem;">Syllabus Outline (Markdown)</label>
+        <textarea name="syllabus_outline" id="syllabus_outline" class="form-control" rows="8" placeholder="Define course prerequisites, objectives, and evaluation breakdown using markdown..." style="border-radius: 12px; border: 1px solid #E5E7EB; background: #F6FAFA; line-height: 1.6;"></textarea>
+      </div>
+
+      <div class="form-group" style="margin-bottom: 2rem; background: #F6FAFA; padding: 1.25rem; border-radius: 16px; border: 1px solid #EFE4DC;">
+        <label style="display: inline-flex; align-items: center; gap: 0.75rem; cursor: pointer;">
+          <input type="checkbox" name="is_published" value="1" style="width: 1.2rem; height: 1.2rem; accent-color: var(--primary, #0FAE9A);" checked>
+          <span style="font-weight: 800; color: #111827; font-size: 0.95rem;">
+            <i class="fa-solid fa-rocket" style="color: var(--accent, #FF6333); margin-right: 4px;"></i> Publish Course Immediately (Make Live in Catalog)
+          </span>
+        </label>
+        <div style="font-size: 0.82rem; color: #6B7280; margin-top: 0.35rem; margin-left: 2rem;">
+          Uncheck to preserve as Draft while you author modules, lessons, and assignments.
+        </div>
+      </div>
+
+      <button type="submit" class="btn btn-accent" style="border-radius: 999px; padding: 0.85rem 2.25rem; font-weight: 700; font-size: 1rem; display: inline-flex; align-items: center; gap: 0.5rem;">
+        <span>Save &amp; Build Curriculum</span>
+        <i class="fa-solid fa-arrow-right"></i>
+      </button>
+    </form>
+  </div>
+</div>
+{% endblock %}

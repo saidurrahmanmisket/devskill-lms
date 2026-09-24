@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}403 Access Denied – DEVSKILL Platform{% endblock %}
+
+{% block content %}
+<div style="min-height: 75vh; display: flex; align-items: center; justify-content: center; padding: 3rem 1.5rem; background: var(--bg-main);">
+  <div class="dev-card-modern" style="max-width: 540px; width: 100%; text-align: center; padding: 3.5rem 2rem; box-shadow: 0 10px 35px rgba(0,0,0,0.06);">
+    <div style="width: 80px; height: 80px; margin: 0 auto 1.5rem auto; background: #FEE2E2; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #DC2626; font-size: 2.2rem;">
+      <i class="fa-solid fa-shield-halved"></i>
+    </div>
+    
+    <span style="font-size: 0.8rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: #DC2626; background: #FEF2F2; padding: 0.35rem 0.9rem; border-radius: 999px; display: inline-block; margin-bottom: 1rem; border: 1px solid #FECACA;">
+      HTTP 403 Forbidden
+    </span>
+    
+    <h1 style="font-size: 2rem; font-weight: 800; color: #111827; margin-bottom: 0.75rem; letter-spacing: -0.02em;">
+      Access Restricted
+    </h1>
+    
+    <p style="font-size: 0.95rem; color: #6B7280; line-height: 1.6; margin-bottom: 2rem; max-width: 420px; margin-left: auto; margin-right: auto;">
+      You do not have permission to access this protected academic module or resource. Please ensure you are authenticated with the authorized role.
+    </p>
+
+    <div style="display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap;">
+      <a href="{% url 'lms:course_catalog' %}" class="btn btn-outline" style="border-radius: 999px; display: inline-flex; align-items: center; gap: 0.5rem; font-weight: 700;">
+        <i class="fa-solid fa-compass"></i> Course Catalog
+      </a>
+      {% if user.is_authenticated %}
+        {% if user.role == 'STUDENT' %}
+          <a href="{% url 'lms:student_dashboard' %}" class="btn btn-primary" style="border-radius: 999px; display: inline-flex; align-items: center; gap: 0.5rem; font-weight: 700;">
+            <i class="fa-solid fa-house"></i> My Workspace
+          </a>
+        {% elif user.role == 'INSTRUCTOR' %}
+          <a href="{% url 'lms:faculty_dashboard' %}" class="btn btn-primary" style="border-radius: 999px; display: inline-flex; align-items: center; gap: 0.5rem; font-weight: 700;">
+            <i class="fa-solid fa-chalkboard-user"></i> Faculty Hub
+          </a>
+        {% elif user.role == 'ADMIN' %}
+          <a href="{% url 'lms:admin_dashboard' %}" class="btn btn-primary" style="border-radius: 999px; display: inline-flex; align-items: center; gap: 0.5rem; font-weight: 700;">
+            <i class="fa-solid fa-shield-halved"></i> Admin Center
+          </a>
+        {% endif %}
+      {% else %}
+        <a href="{% url 'accounts:login' %}" class="btn btn-accent" style="border-radius: 999px; display: inline-flex; align-items: center; gap: 0.5rem; font-weight: 700;">
+          <i class="fa-solid fa-arrow-right-to-bracket"></i> Sign In to Account
+        </a>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

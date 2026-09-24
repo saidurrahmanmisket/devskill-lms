@@ -1,0 +1,1751 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}DEVSKILL - Smart Learning Deeper &amp; More Amazing{% endblock %}
+
+{% block extra_css %}
+<!-- Google Fonts: Plus Jakarta Sans for clean modern typography -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,600&display=swap" rel="stylesheet">
+
+<style>
+/* ===================================================================
+   DEVSKILL EXACT DESIGN SYSTEM (Matched to original Dribbble Shot)
+   Colors:
+     - Hero / Navbar BG: #F6FAFA
+     - Transition Mist:  #FFF0EA -> #FFFFFF
+     - Primary Teal:     #0D9488 / #14B8A6 / #0FAE9A
+     - Accent Orange:    #FF6333 / #FF5722
+     - Dark Charcoal:    #111827 / #1E293B
+     - Grey Text:        #4B5563 / #6B7280
+   =================================================================== */
+
+:root {
+  --dev-bg-blush: #F6FAFA;
+  --dev-bg-mist: #FFF0EA;
+  --dev-bg-white: #FFFFFF;
+  --dev-teal: #0FAE9A;
+  --dev-teal-hover: #087F73;
+  --dev-teal-mint: #0FAE9A;
+  --dev-orange: #FF6333;
+  --dev-orange-hover: #E85924;
+  --dev-dark: #111827;
+  --dev-text: #64748B;
+  --dev-font: 'Plus Jakarta Sans', sans-serif;
+}
+
+body {
+  font-family: var(--dev-font);
+  color: var(--dev-text);
+  background-color: var(--dev-bg-blush);
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+
+.main-wrapper {
+  padding: 0 !important;
+  margin: 0 !important;
+  max-width: 100% !important;
+  background-color: var(--dev-bg-blush);
+}
+
+/* ===================================================================
+   1. NAVBAR
+   =================================================================== */
+.dev-navbar {
+  background: var(--dev-bg-blush);
+  padding: 1.25rem 6vw;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 999;
+  border-bottom: 1px solid #E2E8F0;
+}
+
+.dev-brand {
+  font-size: 1.85rem;
+  font-weight: 800;
+  text-decoration: none;
+  color: var(--dev-dark);
+  letter-spacing: -0.03em;
+}
+.dev-brand .brand-orange {
+  color: var(--dev-orange);
+}
+
+.dev-nav-menu {
+  display: flex;
+  align-items: center;
+  gap: 2.25rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.dev-nav-link {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #374151;
+  text-decoration: none;
+  transition: color 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+.dev-nav-link:hover {
+  color: var(--dev-orange);
+}
+.dev-nav-link.active {
+  color: var(--dev-orange);
+}
+.dev-nav-link.active::before {
+  content: '•';
+  color: var(--dev-orange);
+  font-size: 1.1rem;
+  margin-right: 0.1rem;
+}
+
+.dev-nav-right {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.dev-globe-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--dev-orange);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  font-size: 0.95rem;
+  transition: all 0.2s;
+  border: none;
+}
+.dev-globe-btn:hover {
+  background: var(--dev-orange-hover);
+  transform: translateY(-2px);
+}
+
+.dev-btn-join {
+  background: var(--dev-dark);
+  color: #fff;
+  font-size: 0.9rem;
+  font-weight: 700;
+  padding: 0.65rem 1.6rem;
+  border-radius: 999px;
+  text-decoration: none;
+  transition: all 0.2s;
+}
+.dev-btn-join:hover {
+  background: #1f2937;
+  transform: translateY(-2px);
+}
+
+/* Demo Switcher */
+.dev-role-switcher {
+  display: flex;
+  align-items: center;
+  background: rgba(0,0,0,0.06);
+  border-radius: 999px;
+  padding: 3px 6px;
+  gap: 3px;
+  font-size: 0.72rem;
+}
+.dev-role-pill {
+  padding: 0.25rem 0.6rem;
+  border-radius: 999px;
+  color: #4b5563;
+  text-decoration: none;
+  font-weight: 700;
+}
+.dev-role-pill.active {
+  background: var(--dev-orange);
+  color: #fff;
+}
+
+/* ===================================================================
+   STICKER TAG (Tilted badges from Dribbble shot)
+   =================================================================== */
+.dev-sticker-salmon {
+  display: inline-block;
+  background: #FFF0EA;
+  color: var(--dev-orange);
+  font-size: 0.85rem;
+  font-weight: 700;
+  padding: 0.4rem 1.15rem;
+  border-radius: 999px;
+  transform: rotate(-3deg);
+  margin-bottom: 1.5rem;
+  width: fit-content;
+}
+
+.dev-sticker-orange {
+  display: inline-block;
+  background: var(--dev-orange);
+  color: #FFFFFF;
+  font-size: 0.85rem;
+  font-weight: 800;
+  padding: 0.35rem 1.1rem;
+  border-radius: 999px;
+  transform: rotate(-3deg);
+  margin-bottom: 1.25rem;
+  width: fit-content;
+}
+
+/* ===================================================================
+   2. HERO SECTION
+   =================================================================== */
+.dev-hero {
+  background: var(--dev-bg-blush);
+  padding: 3rem 6vw 0 6vw;
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  align-items: center;
+  gap: 2rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.dev-hero-left {
+  position: relative;
+  z-index: 2;
+  padding-bottom: 3.5rem;
+}
+
+.dev-hero-title {
+  font-size: 3.8rem;
+  font-weight: 900;
+  line-height: 1.12;
+  color: var(--dev-dark);
+  letter-spacing: -0.035em;
+  margin: 0 0 1.5rem 0;
+}
+.dev-hero-title .title-orange {
+  color: var(--dev-orange);
+}
+
+.dev-hero-desc {
+  font-size: 1rem;
+  line-height: 1.7;
+  color: var(--dev-text);
+  max-width: 480px;
+  margin-bottom: 2.25rem;
+}
+
+.dev-hero-btn-row {
+  display: flex;
+  align-items: center;
+  gap: 1.75rem;
+}
+
+.dev-btn-mint {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--dev-teal);
+  color: #fff;
+  padding: 0.85rem 1.85rem;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  text-decoration: none;
+  transition: all 0.25s;
+  box-shadow: 0 4px 16px rgba(15, 174, 154, 0.25);
+}
+.dev-btn-mint:hover {
+  background: var(--dev-teal-hover);
+  transform: translateY(-2px);
+}
+
+.dev-btn-video {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: var(--dev-dark);
+  font-weight: 700;
+  font-size: 0.95rem;
+  text-decoration: none;
+  transition: all 0.2s;
+  cursor: pointer;
+}
+.dev-btn-video:hover {
+  color: var(--dev-orange);
+}
+.dev-video-circle {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: var(--dev-orange);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+  box-shadow: 0 4px 14px rgba(255, 107, 53, 0.35);
+  transition: transform 0.2s;
+}
+.dev-btn-video:hover .dev-video-circle {
+  transform: scale(1.08);
+}
+
+/* HERO RIGHT VISUAL */
+.dev-hero-right {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  position: relative;
+}
+
+.dev-hero-graphic {
+  width: 100%;
+  max-width: 485px;
+  height: auto;
+  display: block;
+}
+
+/* ===================================================================
+   3. ABOUT US & STATS STRIP
+   =================================================================== */
+.dev-about-strip {
+  background: var(--dev-bg-blush);
+  padding: 3rem 6vw 4.5rem 6vw;
+  text-align: center;
+}
+
+.dev-pill-solid-teal {
+  display: inline-block;
+  background: var(--dev-teal);
+  color: #fff;
+  font-size: 0.85rem;
+  font-weight: 800;
+  padding: 0.35rem 1.25rem;
+  border-radius: 999px;
+  margin-bottom: 1.5rem;
+}
+
+.dev-about-heading {
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1.6;
+  color: #111827;
+  max-width: 760px;
+  margin: 0 auto 3.5rem auto;
+}
+
+.dev-stats-grid {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3.5rem;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.dev-stat-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  text-align: left;
+}
+.dev-stat-num {
+  font-size: 3.25rem;
+  font-weight: 900;
+  color: var(--dev-dark);
+  line-height: 1;
+}
+.dev-stat-lbl {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #6B7280;
+  line-height: 1.35;
+  max-width: 160px;
+}
+.dev-stat-sep {
+  width: 1px;
+  height: 50px;
+  background: #E5D5C5;
+}
+
+/* ===================================================================
+   4. EXPLORE OUR COURSE
+   =================================================================== */
+.dev-courses-section {
+  background: var(--dev-bg-blush);
+  padding: 5rem 6vw;
+}
+
+.dev-section-top-flex {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin-bottom: 3rem;
+}
+
+.dev-section-title {
+  font-size: 2.5rem;
+  font-weight: 900;
+  color: var(--dev-dark);
+  margin: 0;
+  letter-spacing: -0.03em;
+}
+
+/* Search bar with Categories on right */
+.dev-search-filter-bar {
+  display: flex;
+  align-items: center;
+  background: #FFFFFF;
+  border: 1px solid #E5E7EB;
+  border-radius: 999px;
+  padding: 0.35rem 0.4rem 0.35rem 1.25rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+.dev-search-input {
+  border: none;
+  outline: none;
+  font-size: 0.88rem;
+  color: #374151;
+  font-family: inherit;
+  width: 130px;
+}
+.dev-search-input::placeholder {
+  color: #9CA3AF;
+}
+.dev-search-divider {
+  width: 1px;
+  height: 20px;
+  background: #E5E7EB;
+  margin: 0 0.75rem;
+}
+.dev-category-select {
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #374151;
+  font-family: inherit;
+  cursor: pointer;
+  padding-right: 0.75rem;
+}
+.dev-search-submit {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--dev-orange);
+  color: #fff;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: background 0.2s;
+}
+.dev-search-submit:hover {
+  background: var(--dev-orange-hover);
+}
+
+/* 6 Course Cards */
+.dev-courses-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2rem;
+  margin-bottom: 3.5rem;
+}
+
+.dev-course-card {
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+  transition: all 0.25s ease;
+  display: flex;
+  flex-direction: column;
+}
+.dev-course-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 14px 32px rgba(0,0,0,0.08);
+}
+
+.dev-course-img-box {
+  width: 100%;
+  height: 180px;
+  overflow: hidden;
+  background: #f8fafc;
+}
+.dev-course-img-box img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+.dev-course-card:hover .dev-course-img-box img {
+  transform: scale(1.04);
+}
+
+.dev-course-body {
+  padding: 1.35rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.dev-course-rating {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #6B7280;
+  margin-bottom: 0.65rem;
+}
+.dev-course-rating i {
+  color: #F59E0B;
+}
+
+.dev-course-title {
+  font-size: 1.15rem;
+  font-weight: 800;
+  line-height: 1.4;
+  color: var(--dev-dark);
+  margin: 0 0 1.25rem 0;
+  flex: 1;
+}
+.dev-course-title a {
+  color: inherit;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.dev-course-title a:hover {
+  color: var(--dev-teal);
+}
+
+.dev-course-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 1rem;
+  border-top: 1px solid #F3F4F6;
+  margin-top: auto;
+}
+
+.dev-author {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+.dev-author-pic {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #E0E7FF;
+  color: #3730A3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 0.75rem;
+}
+.dev-author-name {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #374151;
+}
+
+.dev-price {
+  font-size: 1.1rem;
+  font-weight: 900;
+  color: var(--dev-orange);
+}
+
+.dev-btn-teal-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--dev-teal);
+  color: #fff;
+  padding: 0.85rem 2.25rem;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  text-decoration: none;
+  transition: all 0.2s;
+}
+.dev-btn-teal-pill:hover {
+  background: var(--dev-teal-hover);
+  transform: translateY(-2px);
+}
+
+/* ===================================================================
+   5. CHOICE FAVOURITE COURSE FROM TOP CATEGORY
+   =================================================================== */
+.dev-cats-section {
+  background: var(--dev-bg-blush);
+  padding: 5.5rem 6vw;
+  text-align: center;
+}
+
+.dev-cats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.75rem;
+  max-width: 1140px;
+  margin: 3.5rem auto;
+  text-align: left;
+}
+
+.dev-cat-card {
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 20px;
+  padding: 1.75rem;
+  box-shadow: 0 4px 18px rgba(0,0,0,0.03);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.25s ease;
+}
+.dev-cat-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 28px rgba(0,0,0,0.06);
+}
+
+.dev-cat-icon-wrap {
+  width: 60px;
+  height: 60px;
+  border-radius: 18px;
+  margin-bottom: 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.dev-cat-card:hover .dev-cat-icon-wrap {
+  transform: translateY(-4px) scale(1.08);
+}
+.dev-cat-icon-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+.dev-cat-card h3 {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--dev-dark);
+  margin: 0 0 0.5rem 0;
+}
+.dev-cat-card p {
+  font-size: 0.85rem;
+  color: #6B7280;
+  line-height: 1.6;
+  margin: 0 0 1.5rem 0;
+}
+
+.dev-cat-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: auto;
+}
+
+.dev-cat-pill-courses {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: #FFF0EA;
+  color: #111827;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.25rem 0.85rem;
+  border-radius: 999px;
+}
+.dev-cat-pill-courses.active-orange {
+  background: var(--dev-orange);
+  color: #fff;
+}
+.dev-cat-pill-courses::before {
+  content: '•';
+  color: var(--dev-orange);
+  font-size: 1rem;
+}
+.dev-cat-pill-courses.active-orange::before {
+  color: #fff;
+}
+
+.dev-cat-num {
+  font-size: 1.75rem;
+  font-weight: 900;
+  color: #E8D8CC;
+}
+
+.dev-btn-black-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--dev-dark);
+  color: #fff;
+  padding: 0.85rem 2.25rem;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  text-decoration: none;
+  transition: all 0.2s;
+}
+.dev-btn-black-pill:hover {
+  background: #1f2937;
+  transform: translateY(-2px);
+}
+
+/* ===================================================================
+   6. GROWTH SKILL WITH DEVSKILL ACADEMY
+   =================================================================== */
+.dev-growth-section {
+  background: var(--dev-bg-blush);
+  padding: 5.5rem 6vw;
+  display: grid;
+  grid-template-columns: 1fr 1.15fr;
+  align-items: center;
+  gap: 4.5rem;
+}
+
+.dev-growth-left {
+  display: flex;
+  justify-content: center;
+}
+.dev-growth-graphic {
+  width: 100%;
+  max-width: 380px;
+  height: auto;
+  display: block;
+}
+
+.dev-growth-right h2 {
+  font-size: 2.75rem;
+  font-weight: 900;
+  line-height: 1.15;
+  color: var(--dev-dark);
+  letter-spacing: -0.03em;
+  margin: 0 0 1.5rem 0;
+}
+.dev-growth-right h2 .highlight-dev {
+  color: var(--dev-orange);
+}
+
+.dev-growth-text {
+  font-size: 0.98rem;
+  line-height: 1.75;
+  color: var(--dev-text);
+  margin-bottom: 1.25rem;
+  max-width: 520px;
+}
+
+/* ===================================================================
+   7. TESTIMONIAL (#1 IN ONLINE PLATFORM TECH)
+   =================================================================== */
+.dev-testimonial-section {
+  background: var(--dev-bg-blush);
+  padding: 5.5rem 6vw;
+  text-align: center;
+}
+
+.dev-testimonial-card {
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 28px;
+  padding: 3.5rem 4rem;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.04);
+  max-width: 780px;
+  margin: 3rem auto 0 auto;
+  position: relative;
+}
+
+/* Decorative Green Dot from Dribbble shot */
+.dev-dot-green {
+  position: absolute;
+  top: 15px;
+  right: -15px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--dev-teal);
+}
+
+.dev-test-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--dev-dark);
+  margin-bottom: 1.5rem;
+}
+.dev-test-logo-badge {
+  width: 24px;
+  height: 24px;
+  background: var(--dev-dark);
+  color: #fff;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+}
+
+.dev-test-quote {
+  font-size: 1.25rem;
+  font-weight: 600;
+  line-height: 1.7;
+  color: #374151;
+  margin-bottom: 2rem;
+}
+
+.dev-test-author-flex {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+}
+.dev-test-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+.dev-test-author-name {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--dev-dark);
+}
+.dev-test-author-role {
+  color: #6B7280;
+  font-weight: 500;
+}
+
+/* ===================================================================
+   8. FREQUENTLY ASKED QUESTIONS
+   =================================================================== */
+.dev-faq-section {
+  background: var(--dev-bg-blush);
+  padding: 5.5rem 6vw;
+}
+
+.dev-faq-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.6fr;
+  gap: 4.5rem;
+  align-items: start;
+}
+
+.dev-faq-left h2 {
+  font-size: 2.5rem;
+  font-weight: 900;
+  line-height: 1.2;
+  color: var(--dev-dark);
+  margin: 0 0 1rem 0;
+}
+.dev-faq-left p {
+  color: #6B7280;
+  font-size: 0.95rem;
+  line-height: 1.7;
+  max-width: 360px;
+}
+
+.dev-faq-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.dev-faq-row {
+  border-bottom: 1px solid #E2E8F0;
+  padding: 1.25rem 0;
+}
+
+.dev-faq-q {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--dev-dark);
+  cursor: pointer;
+  user-select: none;
+}
+.dev-faq-toggle {
+  font-size: 1.3rem;
+  color: #4B5563;
+  transition: transform 0.2s;
+  width: 24px;
+  text-align: center;
+}
+.dev-faq-row.active .dev-faq-toggle {
+  transform: rotate(45deg);
+  color: var(--dev-orange);
+}
+
+.dev-faq-a {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease, margin 0.3s ease;
+  font-size: 0.92rem;
+  line-height: 1.7;
+  color: #6B7280;
+}
+.dev-faq-row.active .dev-faq-a {
+  max-height: 200px;
+  margin-top: 0.85rem;
+}
+
+/* ===================================================================
+   9. WHAT YOU LOOKING FOR (DUAL CTA)
+   =================================================================== */
+.dev-dual-cta {
+  background: var(--dev-bg-blush);
+  padding: 5.5rem 6vw;
+  text-align: center;
+}
+
+.dev-dual-cta h2 {
+  font-size: 2.6rem;
+  font-weight: 900;
+  color: var(--dev-dark);
+  margin: 0 0 0.75rem 0;
+}
+.dev-dual-cta p {
+  font-size: 0.95rem;
+  color: #6B7280;
+  max-width: 580px;
+  margin: 0 auto 3.5rem auto;
+}
+
+.dev-dual-cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  max-width: 900px;
+  margin: 0 auto;
+  text-align: left;
+}
+
+.dev-cta-card-teach {
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 20px;
+  padding: 2.5rem;
+  box-shadow: 0 6px 24px rgba(0,0,0,0.04);
+}
+.dev-cta-icon-orange {
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  background: #FFF0EA;
+  color: var(--dev-orange);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.6rem;
+  margin-bottom: 1.5rem;
+}
+.dev-cta-card-teach h3 {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: var(--dev-dark);
+  margin: 0 0 0.75rem 0;
+}
+.dev-cta-card-teach p {
+  font-size: 0.9rem;
+  color: #64748B;
+  margin: 0 0 2rem 0;
+}
+
+.dev-cta-card-learn {
+  background: var(--dev-teal);
+  border-radius: 20px;
+  padding: 2.5rem;
+  box-shadow: 0 10px 30px rgba(15, 174, 154, 0.25);
+  color: #fff;
+}
+.dev-cta-icon-learn {
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  background: rgba(255,255,255,0.18);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.6rem;
+  margin-bottom: 1.5rem;
+}
+.dev-cta-card-learn h3 {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: #fff;
+  margin: 0 0 0.75rem 0;
+}
+.dev-cta-card-learn p {
+  font-size: 0.9rem;
+  color: rgba(255,255,255,0.85);
+  margin: 0 0 2rem 0;
+}
+
+.dev-btn-enroll {
+  background: var(--dev-orange);
+  color: #fff;
+  font-size: 0.92rem;
+  font-weight: 700;
+  padding: 0.75rem 1.85rem;
+  border-radius: 999px;
+  text-decoration: none;
+  display: inline-block;
+  transition: all 0.2s;
+}
+.dev-btn-enroll:hover {
+  background: var(--dev-orange-hover);
+  transform: translateY(-2px);
+}
+
+/* ===================================================================
+   10. FOOTER
+   =================================================================== */
+.dev-footer {
+  background: var(--dev-bg-blush);
+  padding: 5rem 6vw 2.5rem 6vw;
+  border-top: 1px solid #E2E8F0;
+}
+
+.dev-footer-cols {
+  display: grid;
+  grid-template-columns: 1.3fr 1fr 1fr 1.3fr;
+  gap: 3rem;
+  margin-bottom: 4rem;
+}
+
+.dev-footer-brand {
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: var(--dev-dark);
+  margin-bottom: 1rem;
+}
+.dev-footer-brand span {
+  color: var(--dev-orange);
+}
+
+.dev-footer-desc {
+  font-size: 0.88rem;
+  line-height: 1.7;
+  color: #6B7280;
+  margin-bottom: 1.75rem;
+  max-width: 300px;
+}
+
+.dev-socials {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+.dev-social-circle {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #fff;
+  border: 1px solid #E5E7EB;
+  color: #374151;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  font-size: 0.85rem;
+  transition: all 0.2s;
+}
+.dev-social-circle.orange-active {
+  background: var(--dev-orange);
+  color: #fff;
+  border-color: var(--dev-orange);
+}
+.dev-social-circle:hover {
+  background: var(--dev-orange);
+  color: #fff;
+  border-color: var(--dev-orange);
+  transform: translateY(-2px);
+}
+
+.dev-footer-col h4 {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: var(--dev-dark);
+  margin: 0 0 1.25rem 0;
+}
+
+.dev-footer-links {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+.dev-footer-links a {
+  font-size: 0.88rem;
+  color: #4B5563;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.dev-footer-links a:hover {
+  color: var(--dev-orange);
+}
+
+.dev-contact-row {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  font-size: 0.85rem;
+  color: #4B5563;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+}
+
+.dev-app-buttons {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+}
+.dev-app-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  background: #111827;
+  color: #fff;
+  padding: 0.55rem 1rem;
+  border-radius: 10px;
+  text-decoration: none;
+  font-size: 0.7rem;
+}
+.dev-app-btn i {
+  font-size: 1.3rem;
+}
+.dev-app-btn strong {
+  display: block;
+  font-size: 0.82rem;
+}
+
+.dev-payments-row {
+  border-top: 1px solid #E5D5C5;
+  padding-top: 2rem;
+  margin-bottom: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.dev-payments-lbl {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #374151;
+}
+.dev-payment-badges {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  font-size: 1.4rem;
+  color: #6B7280;
+}
+
+.dev-footer-bottom {
+  text-align: center;
+  font-size: 0.85rem;
+  color: #6B7280;
+}
+
+/* ===================================================================
+   RESPONSIVE
+   =================================================================== */
+@media (max-width: 1024px) {
+  .dev-hero { grid-template-columns: 1fr; text-align: center; }
+  .dev-hero-title { font-size: 3rem; }
+  .dev-hero-desc { margin: 0 auto 2rem auto; }
+  .dev-hero-btn-row { justify-content: center; }
+  .dev-courses-grid { grid-template-columns: repeat(2, 1fr); }
+  .dev-cats-grid { grid-template-columns: repeat(2, 1fr); }
+  .dev-growth-section { grid-template-columns: 1fr; }
+  .dev-growth-right { text-align: center; }
+  .dev-growth-text { margin: 0 auto 1.5rem auto; }
+  .dev-faq-grid { grid-template-columns: 1fr; }
+  .dev-dual-cards { grid-template-columns: 1fr; }
+  .dev-footer-cols { grid-template-columns: 1fr 1fr; }
+}
+
+@media (max-width: 680px) {
+  .dev-nav-menu { display: none; }
+  .dev-hero-title { font-size: 2.35rem; }
+  .dev-courses-grid { grid-template-columns: 1fr; }
+  .dev-cats-grid { grid-template-columns: 1fr; }
+  .dev-stats-grid { flex-direction: column; gap: 1.5rem; }
+  .dev-stat-sep { display: none; }
+  .dev-footer-cols { grid-template-columns: 1fr; }
+  .dev-payments-row { flex-direction: column; gap: 1rem; text-align: center; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- ===================================================================
+     2. HERO SECTION
+     =================================================================== -->
+<section class="dev-hero">
+  <div class="dev-hero-left">
+    <!-- Tilted Salmon Sticker -->
+    <div class="dev-sticker-salmon">
+      eLearning Platform
+    </div>
+
+    <h1 class="dev-hero-title">
+      Smart Learning<br>
+      Deeper &amp; More<br>
+      <span class="title-orange">-Amazing</span>
+    </h1>
+
+    <p class="dev-hero-desc">
+      Phosfluorescently deploy unique intellectual capital without enterprise- after bricks &amp; clicks synergy. Enthusiastically revolutionize intuitive.
+    </p>
+
+    <div class="dev-hero-btn-row">
+      <a href="{% url 'lms:course_catalog' %}" class="dev-btn-mint">
+        Start Free Trial <i class="fa-solid fa-arrow-trend-up"></i>
+      </a>
+
+      <a href="#how-it-works" class="dev-btn-video" onclick="document.getElementById('video-modal').style.display='flex';return false;">
+        <span class="dev-video-circle">
+          <i class="fa-solid fa-play"></i>
+        </span>
+        How it Work
+      </a>
+    </div>
+  </div>
+
+  <div class="dev-hero-right">
+    <!-- The exact original hero composition graphic from Dribbble -->
+    <img src="{% static 'images/hero_devskill.png' %}" alt="DevSkill Smart Learning" class="dev-hero-graphic">
+  </div>
+</section>
+
+<!-- ===================================================================
+     3. ABOUT US & STATS STRIP
+     =================================================================== -->
+<section class="dev-about-strip">
+  <div class="dev-pill-solid-teal">About Us</div>
+
+  <h2 class="dev-about-heading">
+    We are passionate about empowering learners Worldwide with<br>
+    high-quality, accessible &amp; engaging education. Our mission offering<br>
+    a diverse range of courses.
+  </h2>
+
+  <div class="dev-stats-grid">
+    <div class="dev-stat-item">
+      <div class="dev-stat-num">25+</div>
+      <div class="dev-stat-lbl">Years of eLearning<br>Education Experience</div>
+    </div>
+
+    <div class="dev-stat-sep"></div>
+
+    <div class="dev-stat-item">
+      <div class="dev-stat-num">56k</div>
+      <div class="dev-stat-lbl">Students Enrolled in<br>LMSZONE Courses</div>
+    </div>
+
+    <div class="dev-stat-sep"></div>
+
+    <div class="dev-stat-item">
+      <div class="dev-stat-num">170+</div>
+      <div class="dev-stat-lbl">Experienced Teacher's<br>service.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================================================================
+     4. EXPLORE OUR COURSE
+     =================================================================== -->
+<section class="dev-courses-section">
+  <div class="dev-section-top-flex">
+    <div>
+      <div class="dev-sticker-orange">Our Course</div>
+      <h2 class="dev-section-title">Explore Our Course</h2>
+    </div>
+
+    <!-- Search Courses & Categories Bar -->
+    <div class="dev-search-filter-bar">
+      <input type="text" placeholder="Search Courses" class="dev-search-input" id="courseSearchInput">
+      <div class="dev-search-divider"></div>
+      <select class="dev-category-select" id="courseCategorySelect" onchange="filterCourses()">
+        <option value="all">All Categories</option>
+        <option value="design">UI/UX Design</option>
+        <option value="illustration">Illustration</option>
+        <option value="leadership">Leadership</option>
+      </select>
+      <button class="dev-search-submit" onclick="filterCourses()" aria-label="Search">
+        <i class="fa-solid fa-magnifying-glass"></i>
+      </button>
+    </div>
+  </div>
+
+  <div class="dev-courses-grid">
+    {% for course in featured_courses %}
+      <div class="dev-course-card" data-cat="{{ course.department|lower }}">
+        <div class="dev-course-img-box">
+          <a href="{% url 'lms:public_course_detail' course.id %}">
+            <img src="{% static course.image_url %}" alt="{{ course.title }}">
+          </a>
+        </div>
+        <div class="dev-course-body">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
+            <span style="font-size:0.75rem; font-weight:800; color:#0FAE9A; text-transform:uppercase; letter-spacing:0.04em;">
+              {{ course.course_code }}
+            </span>
+            <div class="dev-course-rating" style="margin-bottom:0;">
+              <i class="fa-solid fa-star"></i> 5.0 ({{ course.total_students }})
+            </div>
+          </div>
+          <h3 class="dev-course-title">
+            <a href="{% url 'lms:public_course_detail' course.id %}">{{ course.title }}</a>
+          </h3>
+          <div class="dev-course-footer">
+            <div class="dev-author">
+              <img src="{% static course.instructor.mentor_avatar_url %}" alt="{{ course.instructor.get_full_name }}" style="width:32px; height:32px; border-radius:50%; object-fit:cover;">
+              <span class="dev-author-name">{{ course.instructor.get_full_name }}</span>
+            </div>
+            <div class="dev-price">${{ course.credit_count|add:40 }}.00</div>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+
+  <div style="text-align:center;">
+    <a href="{% url 'lms:course_catalog' %}" class="dev-btn-teal-pill">
+      See All Course
+    </a>
+  </div>
+</section>
+
+<!-- ===================================================================
+     5. CHOICE FAVOURITE COURSE FROM TOP CATEGORY
+     =================================================================== -->
+<section class="dev-cats-section">
+  <div class="dev-sticker-orange">Categories</div>
+  <h2 class="dev-section-title">
+    Choice Favourite Course<br>
+    from top category
+  </h2>
+
+  <div class="dev-cats-grid">
+    <!-- Category 1 -->
+    <div class="dev-cat-card">
+      <div class="dev-cat-icon-wrap">
+        <img src="{% static 'images/categories/cat_01_wordpress.svg' %}" alt="WordPress Development">
+      </div>
+      <h3>WordPress Development</h3>
+      <p>This introductory course is for students with little to no English.</p>
+      <div class="dev-cat-foot">
+        <span class="dev-cat-pill-courses">4+ Courses</span>
+        <span class="dev-cat-num">01</span>
+      </div>
+    </div>
+
+    <!-- Category 2 -->
+    <div class="dev-cat-card">
+      <div class="dev-cat-icon-wrap">
+        <img src="{% static 'images/categories/cat_02_webdev.svg' %}" alt="Web Development">
+      </div>
+      <h3>Web Development</h3>
+      <p>This introductory course is for students with little to no English.</p>
+      <div class="dev-cat-foot">
+        <span class="dev-cat-pill-courses active-orange">4+ Courses</span>
+        <span class="dev-cat-num">02</span>
+      </div>
+    </div>
+
+    <!-- Category 3 -->
+    <div class="dev-cat-card">
+      <div class="dev-cat-icon-wrap">
+        <img src="{% static 'images/categories/cat_03_appdev.svg' %}" alt="App Development">
+      </div>
+      <h3>App Development</h3>
+      <p>This introductory course is for students with little to no English.</p>
+      <div class="dev-cat-foot">
+        <span class="dev-cat-pill-courses">4+ Courses</span>
+        <span class="dev-cat-num">03</span>
+      </div>
+    </div>
+
+    <!-- Category 4 -->
+    <div class="dev-cat-card">
+      <div class="dev-cat-icon-wrap">
+        <img src="{% static 'images/categories/cat_04_javascript.svg' %}" alt="JavaScript">
+      </div>
+      <h3>Java Script</h3>
+      <p>This introductory course is for students with little to no English.</p>
+      <div class="dev-cat-foot">
+        <span class="dev-cat-pill-courses">4+ Courses</span>
+        <span class="dev-cat-num">04</span>
+      </div>
+    </div>
+
+    <!-- Category 5 -->
+    <div class="dev-cat-card">
+      <div class="dev-cat-icon-wrap">
+        <img src="{% static 'images/categories/cat_05_itsoftware.svg' %}" alt="IT & Software">
+      </div>
+      <h3>IT &amp; Software</h3>
+      <p>This introductory course is for students with little to no English.</p>
+      <div class="dev-cat-foot">
+        <span class="dev-cat-pill-courses">4+ Courses</span>
+        <span class="dev-cat-num">05</span>
+      </div>
+    </div>
+
+    <!-- Category 6 -->
+    <div class="dev-cat-card">
+      <div class="dev-cat-icon-wrap">
+        <img src="{% static 'images/categories/cat_06_graphics.svg' %}" alt="Graphics Designer">
+      </div>
+      <h3>Graphics Designer</h3>
+      <p>This introductory course is for students with little to no English.</p>
+      <div class="dev-cat-foot">
+        <span class="dev-cat-pill-courses">4+ Courses</span>
+        <span class="dev-cat-num">06</span>
+      </div>
+    </div>
+  </div>
+
+  <div style="text-align:center;">
+    <a href="{% url 'lms:course_catalog' %}" class="dev-btn-black-pill">
+      See All Category
+    </a>
+  </div>
+</section>
+
+<!-- ===================================================================
+     6. GROWTH SKILL WITH DEVSKILL ACADEMY
+     =================================================================== -->
+<section class="dev-growth-section">
+  <div class="dev-growth-left">
+    <!-- The exact original Growth section artwork from Dribbble -->
+    <img src="{% static 'images/growth_dribbble_clean.jpg' %}" alt="Growth Skill With Devskill Academy" class="dev-growth-graphic">
+  </div>
+
+  <div class="dev-growth-right">
+    <div class="dev-sticker-orange">Why Us</div>
+    <h2>
+      Growth Skill With <span class="highlight-dev">Dev</span>skill<br>
+      Academy &amp; Accelerate to<br>
+      your Better future
+    </h2>
+
+    <p class="dev-growth-text">
+      Embrace the transformative journey of learning with Devskill knowledge becomes a catalyst for progress.
+    </p>
+
+    <p class="dev-growth-text">
+      Our dynamic educational platform offers you the tools and resources to propel yourself towards a brighter future. With expert guidance &amp; a supportive community,
+    </p>
+
+    <div style="margin-top:2.25rem;">
+      <a href="{% url 'lms:course_catalog' %}" class="dev-btn-teal-pill">
+        Browse Course
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ===================================================================
+     7. TESTIMONIAL (#1 IN ONLINE PLATFORM TECH)
+     =================================================================== -->
+<section class="dev-testimonial-section">
+  <div class="dev-sticker-orange">Testimonial</div>
+  <h2 class="dev-section-title">
+    See why We're rated #1 in<br>
+    Online <span style="color:var(--dev-orange);">Platform tech</span>
+  </h2>
+
+  <div class="dev-testimonial-card">
+    <div class="dev-dot-green"></div>
+
+    <div class="dev-test-logo">
+      <span class="dev-test-logo-badge">C</span> CodeLine
+    </div>
+
+    <p class="dev-test-quote">
+      &ldquo;Our dynamic educational platform offers you the tools and resources to propel yourself towards a brighter future. With expert guidance &amp; a supportive community,&rdquo;
+    </p>
+
+    <div class="dev-test-author-flex">
+      <img src="{% static 'images/testimonial_avatar.jpg' %}" alt="Breanna Butler" class="dev-test-avatar">
+      <div class="dev-test-author-name">
+        Breanna Butler <span class="dev-test-author-role">&bull; Project Manager</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================================================================
+     8. MENTORS SHOWCASE SECTION
+     =================================================================== -->
+<section style="padding: 4.5rem 6vw; background: linear-gradient(180deg, #FFFFFF 0%, #F6FAFA 100%);">
+  <div style="text-align: center; max-width: 700px; margin: 0 auto 3.5rem auto;">
+    <div class="dev-sticker-orange">Faculty Mentors</div>
+    <h2 class="dev-section-title" style="margin-bottom: 0.75rem;">
+      Learn From Top <span style="color:var(--dev-orange);">Engineering Leaders</span>
+    </h2>
+    <p style="color: #6B7280; font-size: 0.95rem; line-height: 1.6;">
+      Get direct guidance, detailed project evaluations, and industry insights from our accomplished university professors and technical leads.
+    </p>
+  </div>
+
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 2rem; max-width: 1200px; margin: 0 auto 3rem auto;">
+    {% for mentor in mentors %}
+      <div class="dev-card-modern" style="display:flex; flex-direction:column; overflow:hidden;">
+        <div style="height: 240px; position:relative; overflow:hidden; background:#F6FAFA;">
+          <img src="{% static mentor.mentor_avatar_url %}" alt="{{ mentor.get_full_name }}" style="width:100%; height:100%; object-fit:cover; transition:transform 0.35s ease;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+          <div style="position:absolute; inset:0; background:linear-gradient(to top, rgba(17,24,39,0.7) 0%, transparent 60%);"></div>
+          <span style="position:absolute; top:1rem; left:1rem; background:rgba(17,24,39,0.8); backdrop-filter:blur(6px); color:#FFFFFF; font-size:0.75rem; font-weight:800; padding:0.3rem 0.75rem; border-radius:999px;">
+            {{ mentor.academic_id|default:"FACULTY" }}
+          </span>
+          <span style="position:absolute; top:1rem; right:1rem; background:#FF6333; color:#FFFFFF; font-size:0.75rem; font-weight:800; padding:0.3rem 0.75rem; border-radius:999px;">
+            <i class="fa-solid fa-star" style="font-size:0.7rem;"></i> {{ mentor.mentor_rating }}
+          </span>
+          <div style="position:absolute; bottom:0.85rem; left:1rem; right:1rem; color:#FFFFFF; font-size:0.82rem; font-weight:700;">
+            <span><i class="fa-solid fa-graduation-cap" style="color:#0FAE9A; margin-right:4px;"></i> {{ mentor.instructed_courses.count }} Course{{ mentor.instructed_courses.count|pluralize }} Taught</span>
+          </div>
+        </div>
+
+        <div style="padding: 1.5rem; display:flex; flex-direction:column; flex:1;">
+          <div style="font-size:0.75rem; font-weight:800; color:#0FAE9A; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:0.35rem;">
+            {{ mentor.mentor_department }}
+          </div>
+          <h3 style="font-size:1.25rem; font-weight:800; color:#111827; margin:0 0 0.35rem 0;">
+            {{ mentor.get_full_name }}
+          </h3>
+          <div style="font-size:0.85rem; font-weight:700; color:#FF6333; margin-bottom:0.75rem;">
+            {{ mentor.mentor_title }}
+          </div>
+          <p style="color:#6B7280; font-size:0.88rem; line-height:1.6; margin-bottom:1.25rem; flex:1;">
+            {{ mentor.mentor_bio|truncatewords:20 }}
+          </p>
+          <div style="display:flex; justify-content:space-between; align-items:center; padding-top:0.85rem; border-top:1px solid #F3EDE8;">
+            <div style="display:flex; align-items:center; gap:0.4rem;">
+              <a href="#" class="dev-social-circle" aria-label="LinkedIn"><i class="fa-brands fa-linkedin-in"></i></a>
+              <a href="#" class="dev-social-circle" aria-label="GitHub"><i class="fa-brands fa-github"></i></a>
+              <a href="mailto:{{ mentor.email }}" class="dev-social-circle" aria-label="Email"><i class="fa-solid fa-envelope"></i></a>
+            </div>
+            <a href="{% url 'lms:mentors' %}" class="btn btn-outline btn-sm" style="border-radius:999px; font-weight:700;">
+              Profile <i class="fa-solid fa-arrow-right" style="font-size:0.75rem; margin-left:2px;"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+
+  <div style="text-align: center;">
+    <a href="{% url 'lms:mentors' %}" class="dev-btn-teal-pill">
+      View All Mentors <i class="fa-solid fa-arrow-right" style="font-size:0.85rem; margin-left:4px;"></i>
+    </a>
+  </div>
+</section>
+
+<!-- ===================================================================
+     9. FREQUENTLY ASKED QUESTIONS
+     =================================================================== -->
+<section class="dev-faq-section">
+  <div class="dev-faq-grid">
+    <div class="dev-faq-left">
+      <div class="dev-sticker-orange">Testimonial</div>
+      <h2>
+        Frequently asked<br>
+        Questions
+      </h2>
+      <p>
+        For any unanswered questions, reach out to our support team via email. We'll respond as soon as possible to assist you.
+      </p>
+    </div>
+
+    <div class="dev-faq-list">
+      <!-- FAQ 1 -->
+      <div class="dev-faq-row active">
+        <div class="dev-faq-q" onclick="toggleFaqRow(this)">
+          <span>How do I get started with your product?</span>
+          <span class="dev-faq-toggle">&minus;</span>
+        </div>
+        <div class="dev-faq-a">
+          Sign up on our website, explore features, customize your profile, and start using our product. We're here to help!
+        </div>
+      </div>
+
+      <!-- FAQ 2 -->
+      <div class="dev-faq-row">
+        <div class="dev-faq-q" onclick="toggleFaqRow(this)">
+          <span>What payment methods do you accept?</span>
+          <span class="dev-faq-toggle">+</span>
+        </div>
+        <div class="dev-faq-a">
+          We accept all major credit cards, PayPal, Apple Pay, Google Pay, and international bank transfers.
+        </div>
+      </div>
+
+      <!-- FAQ 3 -->
+      <div class="dev-faq-row">
+        <div class="dev-faq-q" onclick="toggleFaqRow(this)">
+          <span>Is there a free trial available?</span>
+          <span class="dev-faq-toggle">+</span>
+        </div>
+        <div class="dev-faq-a">
+          Yes! You can start with our 14-day free trial on all verified masterclass courses with full access to project repositories.
+        </div>
+      </div>
+
+      <!-- FAQ 4 -->
+      <div class="dev-faq-row">
+        <div class="dev-faq-q" onclick="toggleFaqRow(this)">
+          <span>Is technical support available?</span>
+          <span class="dev-faq-toggle">+</span>
+        </div>
+        <div class="dev-faq-a">
+          Our dedicated student and instructor support team is available 24/7 via live chat and institutional ticketing.
+        </div>
+      </div>
+
+      <!-- FAQ 5 -->
+      <div class="dev-faq-row">
+        <div class="dev-faq-q" onclick="toggleFaqRow(this)">
+          <span>Can I cancel my subscription?</span>
+          <span class="dev-faq-toggle">+</span>
+        </div>
+        <div class="dev-faq-a">
+          You can cancel your subscription anytime directly from your account settings without any hidden fees.
+        </div>
+      </div>
+
+      <!-- FAQ 6 -->
+      <div class="dev-faq-row">
+        <div class="dev-faq-q" onclick="toggleFaqRow(this)">
+          <span>Is my data secure with your product?</span>
+          <span class="dev-faq-toggle">+</span>
+        </div>
+        <div class="dev-faq-a">
+          We enforce enterprise grade TLS encryption, immutable audit trails, and strict role-based access control.
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================================================================
+     9. WHAT YOU LOOKING FOR (DUAL CTA)
+     =================================================================== -->
+<section class="dev-dual-cta">
+  <h2>What You Looking for?</h2>
+  <p>
+    Our dynamic educational platform offers you the tools and resources to propel yourself towards a brighter future.
+  </p>
+
+  <div class="dev-dual-cards">
+    <!-- Card 1: Teach -->
+    <div class="dev-cta-card-teach">
+      <div class="dev-cta-icon-orange">
+        <i class="fa-solid fa-chalkboard-user"></i>
+      </div>
+      <h3>Do You Want Teach Here</h3>
+      <p>
+        Our dynamic educational platform offers you the tools supportive community,
+      </p>
+      <a href="{% url 'accounts:login' %}" class="dev-btn-black-pill">
+        Get started
+      </a>
+    </div>
+
+    <!-- Card 2: Learn -->
+    <div class="dev-cta-card-learn">
+      <div class="dev-cta-icon-learn">
+        <i class="fa-solid fa-book-open-reader"></i>
+      </div>
+      <h3>Do You Want Learn Here</h3>
+      <p>
+        Our dynamic educational platform offers you the tools supportive community,
+      </p>
+      <a href="{% url 'accounts:register' %}" class="dev-btn-enroll">
+        Enroll Now
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- Video Modal Popup -->
+<div id="video-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:9999;align-items:center;justify-content:center;padding:2rem;">
+  <div style="background:#fff;border-radius:24px;max-width:680px;width:100%;overflow:hidden;box-shadow:0 25px 50px rgba(0,0,0,0.25);">
+    <div style="padding:1.5rem;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #f0f0f0;">
+      <h3 style="margin:0;font-weight:800;">DevSkill Platform Overview</h3>
+      <button onclick="document.getElementById('video-modal').style.display='none';" style="background:none;border:none;font-size:1.5rem;cursor:pointer;color:#666;">&times;</button>
+    </div>
+    <div style="padding:2.5rem;text-align:center;">
+      <div style="width:72px;height:72px;border-radius:50%;background:#FFF0EA;color:#FF6333;display:inline-flex;align-items:center;justify-content:center;font-size:2rem;margin-bottom:1.5rem;">
+        <i class="fa-solid fa-play"></i>
+      </div>
+      <h4 style="font-size:1.3rem;margin-bottom:0.75rem;">Interactive Learning Tour</h4>
+      <p style="color:#666;font-size:0.95rem;line-height:1.7;max-width:480px;margin:0 auto 1.5rem auto;">
+        Learn how DevSkill pairs masterclass instruction with milestone assignments and real-time grading metrics.
+      </p>
+      <a href="{% url 'lms:course_catalog' %}" class="dev-btn-teal-pill" onclick="document.getElementById('video-modal').style.display='none';">
+        Explore Courses
+      </a>
+    </div>
+  </div>
+</div>
+
+<script>
+function toggleFaqRow(el) {
+  const row = el.closest('.dev-faq-row');
+  const wasActive = row.classList.contains('active');
+  document.querySelectorAll('.dev-faq-row').forEach(r => {
+    r.classList.remove('active');
+    r.querySelector('.dev-faq-toggle').innerHTML = '+';
+  });
+  if (!wasActive) {
+    row.classList.add('active');
+    row.querySelector('.dev-faq-toggle').innerHTML = '&minus;';
+  }
+}
+
+function filterCourses() {
+  const cat = document.getElementById('courseCategorySelect').value;
+  const query = document.getElementById('courseSearchInput').value.toLowerCase().trim();
+  const cards = document.querySelectorAll('.dev-course-card');
+
+  cards.forEach(card => {
+    const cardCat = card.getAttribute('data-cat') || '';
+    const title = card.querySelector('.dev-course-title').innerText.toLowerCase();
+    const matchesCat = (cat === 'all' || cardCat === cat);
+    const matchesQuery = (!query || title.includes(query));
+
+    if (matchesCat && matchesQuery) {
+      card.style.display = 'flex';
+    } else {
+      card.style.display = 'none';
+    }
+  });
+}
+</script>
+
+{% endblock %}
+
+

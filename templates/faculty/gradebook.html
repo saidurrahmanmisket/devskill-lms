@@ -1,0 +1,147 @@
+{% extends 'admin/base_admin.html' %}
+{% load static %}
+
+{% block title %}Vuexy – Master Course Gradebook{% endblock %}
+
+{% block admin_content %}
+<!-- Breadcrumb Header -->
+<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; flex-wrap:wrap; gap:1rem;">
+  <div>
+    <h1 style="font-size:1.5rem; font-weight:700; color:var(--vx-text-heading); margin-bottom:0.25rem;">
+      Master Course Gradebook
+    </h1>
+    <div style="font-size:0.8125rem; color:var(--vx-muted); display:flex; align-items:center; gap:0.5rem;">
+      <a href="{% url 'lms:faculty_dashboard' %}" style="color:var(--vx-primary); text-decoration:none; font-weight:600;">Faculty Hub</a>
+      <span>/</span>
+      <span>Evaluations &amp; Records</span>
+      <span>/</span>
+      <span style="font-weight:600; color:var(--vx-text-heading);">Master Ledger</span>
+    </div>
+  </div>
+
+  {% if selected_course %}
+    <div style="display:flex; gap:0.75rem; flex-wrap:wrap;">
+      <a href="?course_id={{ selected_course.id }}&export=csv" class="vx-btn vx-btn-outline-primary vx-btn-sm">
+        <i class="fa-solid fa-file-csv"></i> Export CSV
+      </a>
+      <a href="?course_id={{ selected_course.id }}&export=pdf" class="vx-btn vx-btn-primary vx-btn-sm">
+        <i class="fa-solid fa-file-pdf"></i> Export Official PDF
+      </a>
+    </div>
+  {% endif %}
+</div>
+
+<!-- Course Selection Card -->
+<div class="vx-card" style="margin-bottom:1.5rem;">
+  <div class="vx-card-body" style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:1rem;">
+    <form method="get" style="display:flex; align-items:center; gap:1rem; flex-wrap:wrap;">
+      <label for="course_id" style="font-weight:700; font-size:0.875rem; color:var(--vx-text-heading); display:flex; align-items:center; gap:0.4rem;">
+        <i class="fa-solid fa-filter" style="color:var(--vx-primary);"></i> Filter Course:
+      </label>
+      <select name="course_id" id="course_id" class="vx-form-control" onchange="this.form.submit()" style="min-width:280px; font-weight:600;">
+        {% for c in courses %}
+          <option value="{{ c.id }}" {% if selected_course and selected_course.id == c.id %}selected{% endif %}>
+            {{ c.course_code }} &ndash; {{ c.title }}
+          </option>
+        {% endfor %}
+      </select>
+    </form>
+
+    {% if selected_course %}
+      <div style="font-size:0.875rem; color:var(--vx-muted);">
+        Recorded Submissions: <strong style="color:var(--vx-text-heading);">{{ submissions|length }}</strong>
+      </div>
+    {% endif %}
+  </div>
+</div>
+
+<!-- Gradebook Ledger Table Card -->
+<div class="vx-card">
+  <div class="vx-card-header">
+    <div>
+      <h2 class="vx-card-title">
+        {% if selected_course %}
+          Evaluation Ledger: {{ selected_course.course_code }} &ndash; {{ selected_course.title }}
+        {% else %}
+          Evaluation Ledger
+        {% endif %}
+      </h2>
+      <div class="vx-card-subtitle">Official records, timestamps, and evaluation feedback</div>
+    </div>
+  </div>
+
+  <div style="overflow-x:auto;">
+    <table class="vx-table">
+      <thead>
+        <tr>
+          <th>Student</th>
+          <th>Academic ID</th>
+          <th>Assignment Task</th>
+          <th>Artifact Solution</th>
+          <th>Submitted At</th>
+          <th>Timeliness</th>
+          <th>Awarded Score</th>
+          <th style="text-align:right;">Grading Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for sub in submissions %}
+          <tr>
+            <td>
+              <div style="font-weight:700; color:var(--vx-text-heading);">{{ sub.student.get_full_name_or_username }}</div>
+            </td>
+            <td>
+              <span class="vx-badge-pill primary" style="font-size:0.75rem;">
+                {{ sub.student.academic_id|default:"STU" }}
+              </span>
+            </td>
+            <td style="font-weight:600; color:var(--vx-text-heading); max-width:240px;">
+              {{ sub.assignment.title }}
+            </td>
+            <td>
+              <a href="{% url 'lms:download_submission' sub.id %}" class="vx-btn vx-btn-outline vx-btn-sm" style="padding:0.25rem 0.6rem; font-size:0.75rem;" title="Download Artifact">
+                <i class="fa-solid fa-file-arrow-down"></i> Solution
+              </a>
+            </td>
+            <td style="font-size:0.8125rem; color:var(--vx-muted);">
+              {{ sub.submitted_at|date:"M d, Y H:i" }}
+            </td>
+            <td>
+              {% if sub.is_late %}
+                <span class="vx-badge-pill danger">Late</span>
+              {% else %}
+                <span class="vx-badge-pill success">On-Time</span>
+              {% endif %}
+            </td>
+            <td>
+              {% if sub.is_graded %}
+                <span class="vx-badge-pill success" style="font-size:0.85rem; font-weight:800;">
+                  {{ sub.score }} <span style="font-size:0.7rem; font-weight:600; opacity:0.8;">/ {{ sub.assignment.max_points }}</span>
+                </span>
+              {% else %}
+                <span class="vx-badge-pill warning">Needs Grading</span>
+              {% endif %}
+            </td>
+            <td style="text-align:right;">
+              <a href="{% url 'lms:grade_submission' sub.id %}" class="vx-btn vx-btn-primary vx-btn-sm" style="padding:0.35rem 0.75rem; font-size:0.78rem;">
+                {% if sub.is_graded %}
+                  <i class="fa-solid fa-pen"></i> Edit
+                {% else %}
+                  <i class="fa-solid fa-check"></i> Grade
+                {% endif %}
+              </a>
+            </td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="8" style="text-align:center; padding:3.5rem; color:var(--vx-muted);">
+              <i class="fa-solid fa-clipboard-check" style="font-size:2.5rem; opacity:0.3; margin-bottom:0.75rem; display:block;"></i>
+              No submissions recorded for this course yet.
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

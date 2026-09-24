@@ -1,0 +1,184 @@
+{% extends 'admin/base_admin.html' %}
+{% load static %}
+
+{% block title %}Vuexy – Submit Assignment: {{ assignment.title }}{% endblock %}
+
+{% block admin_extra_css %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+{% endblock %}
+
+{% block admin_content %}
+<!-- Breadcrumb Header -->
+<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; flex-wrap:wrap; gap:1rem;">
+  <div>
+    <div style="font-size:0.8125rem; color:var(--vx-muted); display:flex; align-items:center; gap:0.5rem; margin-bottom:0.25rem;">
+      <a href="{% url 'lms:student_dashboard' %}" style="color:var(--vx-primary); text-decoration:none; font-weight:600;">Student Hub</a>
+      <span>/</span>
+      <a href="{% url 'lms:course_detail' assignment.course.id %}" style="color:var(--vx-primary); text-decoration:none;">{{ assignment.course.course_code }}</a>
+      <span>/</span>
+      <span style="font-weight:700; color:var(--vx-text-heading);">Assignment Submission</span>
+    </div>
+    <h1 style="font-size:1.5rem; font-weight:800; color:var(--vx-text-heading); margin:0;">
+      {{ assignment.title }}
+    </h1>
+  </div>
+
+  <a href="{% url 'lms:course_detail' assignment.course.id %}?tab=jobs" class="vx-btn vx-btn-outline vx-btn-sm">
+    <i class="fa-solid fa-arrow-left"></i> Back to Course Workspace
+  </a>
+</div>
+
+<div style="display:grid; grid-template-columns: 1.45fr 1fr; gap:1.5rem; align-items:start;" class="vx-submit-grid">
+  <!-- Left Column: Assignment Details & Instructions -->
+  <div class="vx-card" style="margin-bottom:0;">
+    <div class="vx-card-header">
+      <div>
+        <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.35rem;">
+          <span class="vx-badge-pill primary" style="font-size:0.75rem; font-weight:800;">
+            {{ assignment.course.course_code }}
+          </span>
+          <span style="font-size:0.78rem; color:var(--vx-muted);">
+            Max Points: <strong style="color:var(--vx-text-heading);">{{ assignment.max_points }}</strong>
+          </span>
+        </div>
+        <h2 class="vx-card-title">{{ assignment.title }}</h2>
+      </div>
+
+      <div>
+        {% if is_past_deadline %}
+          <span class="vx-badge-pill danger" style="font-size:0.8rem; font-weight:800;">
+            <i class="fa-solid fa-triangle-exclamation"></i> Past Deadline
+          </span>
+        {% else %}
+          <span class="vx-badge-pill success" style="font-size:0.8rem; font-weight:800;">
+            <i class="fa-solid fa-clock"></i> Open for Submission
+          </span>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="vx-card-body">
+      <div style="font-size:0.75rem; font-weight:800; text-transform:uppercase; color:var(--vx-muted); margin-bottom:0.75rem; display:flex; align-items:center; gap:0.4rem;">
+        <i class="fa-solid fa-file-lines" style="color:var(--vx-primary);"></i> Assignment Instructions &amp; Requirements
+      </div>
+
+      <div class="markdown-body" style="font-size:0.9375rem; color:var(--vx-text-heading); line-height:1.75; margin-bottom:1.5rem;">
+        {% if instructions_rendered %}
+          {{ instructions_rendered|safe }}
+        {% else %}
+          <p style="color:var(--vx-muted);">Refer to course lecture materials and lab exercises for detailed submission instructions.</p>
+        {% endif %}
+      </div>
+
+      <!-- Existing Submission Details if already submitted -->
+      {% if submission %}
+        <div style="border:1px solid var(--vx-border); border-radius:var(--vx-radius-sm); padding:1.25rem; background:var(--vx-border-subtle); margin-top:1.5rem;">
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-bottom:0.75rem;">
+            <div>
+              <div style="font-weight:700; font-size:0.9rem; color:var(--vx-text-heading);">
+                Your Current Submission Artifact
+              </div>
+              <div style="font-size:0.78rem; color:var(--vx-muted);">
+                Recorded: {{ submission.submitted_at|date:"M d, Y H:i:s" }}
+                {% if submission.is_late %}
+                  <span class="vx-badge-pill danger" style="margin-left:0.35rem;">Late</span>
+                {% else %}
+                  <span class="vx-badge-pill success" style="margin-left:0.35rem;">On-Time</span>
+                {% endif %}
+              </div>
+            </div>
+
+            <a href="{% url 'lms:download_submission' submission.id %}" class="vx-btn vx-btn-outline vx-btn-sm">
+              <i class="fa-solid fa-file-arrow-down"></i> Download Solution
+            </a>
+          </div>
+
+          {% if submission.is_graded %}
+            <div style="background:var(--vx-card-bg); border-left:3px solid var(--vx-success); border-radius:var(--vx-radius-sm); padding:1rem; margin-top:0.75rem;">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.25rem;">
+                <span style="font-weight:700; font-size:0.85rem; color:var(--vx-text-heading);">Official Grade:</span>
+                <span class="vx-badge-pill success" style="font-size:0.9rem; font-weight:800;">
+                  {{ submission.score }} / {{ assignment.max_points }} pts
+                </span>
+              </div>
+              <div style="font-size:0.85rem; color:var(--vx-text-heading);">
+                {{ submission.feedback_markdown|default:"Satisfactory completion." }}
+              </div>
+            </div>
+          {% endif %}
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Right Column: Submission Upload Form -->
+  <div class="vx-card" style="margin-bottom:0;">
+    <div class="vx-card-header">
+      <div>
+        <h2 class="vx-card-title">Upload Solution Artifact</h2>
+        <div class="vx-card-subtitle">Submit project documents, source code, or lab reports</div>
+      </div>
+    </div>
+
+    <div class="vx-card-body">
+      <!-- Deadline Countdown Notice -->
+      <div style="background:var(--vx-border-subtle); border-radius:var(--vx-radius-sm); padding:1rem; margin-bottom:1.5rem; display:flex; align-items:center; gap:0.75rem;">
+        <div style="width:36px; height:36px; border-radius:50%; background:var(--vx-warning-light); color:var(--vx-warning); display:flex; align-items:center; justify-content:center; font-size:1.1rem;">
+          <i class="fa-solid fa-stopwatch"></i>
+        </div>
+        <div>
+          <div style="font-size:0.75rem; text-transform:uppercase; color:var(--vx-muted); font-weight:700;">Official Deadline</div>
+          <div style="font-weight:700; font-size:0.875rem; color:var(--vx-text-heading);">
+            {{ assignment.deadline|date:"M d, Y H:i:s" }}
+          </div>
+          {% if is_past_deadline %}
+            <div style="font-size:0.72rem; color:var(--vx-danger); font-weight:700; margin-top:2px;">
+              Assignment deadline has elapsed. Submissions will be flagged as Late.
+            </div>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Submission Form -->
+      <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <input type="hidden" name="next" value="{% url 'lms:course_detail' assignment.course.id %}?tab=jobs">
+
+        <div style="margin-bottom:1.5rem;">
+          <label class="vx-form-label" for="submission_file">
+            Select Solution File
+          </label>
+          <input 
+            type="file" 
+            name="submission_file" 
+            id="submission_file" 
+            class="vx-form-control" 
+            accept=".pdf,.zip,.docx" 
+            required 
+            style="width:100%; font-size:0.85rem;"
+          >
+          <div style="font-size:0.75rem; color:var(--vx-muted); margin-top:0.4rem;">
+            Accepted formats: <strong>.pdf, .zip, .docx</strong> (maximum 25 MB).
+          </div>
+        </div>
+
+        <button type="submit" class="vx-btn vx-btn-primary" style="width:100%; padding:0.85rem; font-size:0.95rem;">
+          <i class="fa-solid fa-paper-plane"></i>
+          <span>{% if submission %}Update Solution Artifact{% else %}Submit Assignment Solution{% endif %}</span>
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block admin_extra_js %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  document.querySelectorAll('pre code').forEach(function(block) {
+    hljs.highlightElement(block);
+  });
+});
+</script>
+{% endblock %}

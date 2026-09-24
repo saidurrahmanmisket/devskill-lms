@@ -1,0 +1,718 @@
+{% extends 'admin/base_admin.html' %}
+{% load static %}
+
+{% block title %}Vuexy – {{ course.course_code }}: {{ course.title }}{% endblock %}
+
+{% block admin_extra_css %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+<style>
+  .vx-course-tab-btn {
+    padding: 0.65rem 1.25rem;
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: var(--vx-muted);
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid transparent;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.2s ease;
+    font-family: inherit;
+    text-decoration: none;
+  }
+  .vx-course-tab-btn:hover {
+    color: var(--vx-primary);
+  }
+  .vx-course-tab-btn.active {
+    color: var(--vx-primary);
+    border-bottom-color: var(--vx-primary);
+    background: var(--vx-primary-light);
+    border-radius: var(--vx-radius-sm) var(--vx-radius-sm) 0 0;
+  }
+
+  .vx-video-wrapper {
+    position: relative;
+    padding-bottom: 56.25%; /* 16:9 aspect ratio */
+    height: 0;
+    overflow: hidden;
+    border-radius: var(--vx-radius-md);
+    background: #0B1120;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+    margin-bottom: 1.5rem;
+  }
+  .vx-video-wrapper video,
+  .vx-video-wrapper iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
+  }
+
+  .vx-lesson-nav-item {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    padding: 0.7rem 0.9rem;
+    font-size: 0.85rem;
+    text-decoration: none;
+    color: var(--vx-text-heading);
+    border-bottom: 1px solid var(--vx-border-subtle);
+    transition: background 0.18s, color 0.18s;
+  }
+  .vx-lesson-nav-item:hover {
+    background: var(--vx-border-subtle);
+    color: var(--vx-primary);
+  }
+  .vx-lesson-nav-item.active {
+    background: var(--vx-primary-light);
+    color: var(--vx-primary);
+    font-weight: 700;
+    border-left: 3px solid var(--vx-primary);
+  }
+
+  .markdown-body pre {
+    background: #0F172A;
+    border-radius: 8px;
+    padding: 1rem;
+    overflow-x: auto;
+    margin: 1rem 0;
+  }
+  .markdown-body code {
+    font-family: Consolas, Monaco, monospace;
+    font-size: 0.88rem;
+  }
+  .markdown-body p {
+    margin-bottom: 1rem;
+    line-height: 1.7;
+  }
+  .markdown-body h2, .markdown-body h3 {
+    color: var(--vx-text-heading);
+    margin: 1.5rem 0 0.75rem 0;
+    font-weight: 700;
+  }
+  .markdown-body ul, .markdown-body ol {
+    margin-left: 1.5rem;
+    margin-bottom: 1rem;
+  }
+</style>
+{% endblock %}
+
+{% block admin_content %}
+<!-- Breadcrumb Header -->
+<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; flex-wrap:wrap; gap:1rem;">
+  <div>
+    <div style="font-size:0.8125rem; color:var(--vx-muted); display:flex; align-items:center; gap:0.5rem; margin-bottom:0.25rem;">
+      <a href="{% url 'lms:student_dashboard' %}" style="color:var(--vx-primary); text-decoration:none; font-weight:600;">Student Hub</a>
+      <span>/</span>
+      <a href="{% url 'lms:student_my_courses' %}" style="color:var(--vx-primary); text-decoration:none; font-weight:600;">My Courses</a>
+      <span>/</span>
+      <span style="font-weight:700; color:var(--vx-text-heading);">{{ course.course_code }}</span>
+    </div>
+  </div>
+
+  <div style="display:flex; gap:0.75rem; flex-wrap:wrap;">
+    <button type="button" class="vx-btn vx-btn-outline-primary vx-btn-sm" onclick="document.getElementById('courseInfoModal').style.display='flex'">
+      <i class="fa-solid fa-circle-info"></i> Course Info
+    </button>
+    <a href="{% url 'lms:student_grades' %}" class="vx-btn vx-btn-outline vx-btn-sm">
+      <i class="fa-solid fa-award"></i> Course Grades
+    </a>
+  </div>
+</div>
+
+<!-- ===================================================================
+     TAB NAVIGATION BAR
+     =================================================================== -->
+<div style="display:flex; gap:0.5rem; margin-bottom:1.5rem; border-bottom:1px solid var(--vx-border);">
+  <button type="button" class="vx-course-tab-btn {% if active_tab == 'learn' %}active{% endif %}" onclick="switchTab('learnTab', this)">
+    <i class="fa-solid fa-circle-play"></i> Video Lectures &amp; Workspace
+  </button>
+  <button type="button" class="vx-course-tab-btn {% if active_tab == 'jobs' %}active{% endif %}" onclick="switchTab('jobsTab', this)">
+    <i class="fa-solid fa-file-signature"></i> Course Assignments &amp; Jobs
+    <span class="vx-badge-pill warning" style="font-size:0.7rem; margin-left:0.25rem;">{{ total_assignments_count }}</span>
+  </button>
+  <button type="button" class="vx-course-tab-btn {% if active_tab == 'syllabus' %}active{% endif %}" onclick="switchTab('syllabusTab', this)">
+    <i class="fa-solid fa-book-open"></i> Syllabus &amp; Curriculum Guide
+  </button>
+</div>
+
+<!-- ===================================================================
+     SECTION 1: VIDEO LECTURES & LEARNING WORKSPACE
+     =================================================================== -->
+<div id="learnTab" class="vx-tab-content" style="{% if active_tab != 'learn' %}display:none;{% endif %}">
+  <div style="display:grid; grid-template-columns: 310px 1fr; gap:1.5rem; align-items:start;" class="vx-course-grid">
+
+    <!-- Left Column: Modules & Lessons Navigation Drawer -->
+    <div class="vx-card" style="margin-bottom:0; position:sticky; top:5.5rem;">
+      <div class="vx-card-header" style="padding-bottom:0.75rem;">
+        <div>
+          <h2 class="vx-card-title" style="font-size:1rem; display:flex; align-items:center; gap:0.4rem;">
+            <i class="fa-solid fa-book" style="color:var(--vx-primary);"></i> {{ course.title }}
+          </h2>
+          <div class="vx-card-subtitle">{{ all_lessons_count }} total video lectures</div>
+        </div>
+      </div>
+
+      <div style="padding:0.5rem 0; max-height:calc(100vh - 240px); overflow-y:auto;">
+        {% for mod in modules %}
+          <div style="margin-bottom:0.4rem;">
+            <!-- Module Header Accordion Trigger -->
+            <button type="button" onclick="toggleModule('mod-{{ mod.id }}')"
+                    style="width:100%; display:flex; align-items:center; justify-content:space-between; padding:0.65rem 1rem; border:none; {% if current_lesson %}{% if current_lesson.module.id == mod.id %}background:var(--vx-border-subtle); box-shadow:0 2px 10px rgba(0,0,0,0.08);{% else %}background:transparent;{% endif %}{% elif forloop.first %}background:var(--vx-border-subtle); box-shadow:0 2px 10px rgba(0,0,0,0.08);{% else %}background:transparent;{% endif %} cursor:pointer; text-align:left; font-family:inherit;">
+              <span style="font-weight:700; font-size:0.8125rem; color:var(--vx-text-heading); line-height:1.3;">
+                Mod {{ mod.order_index }}: {{ mod.title }}
+              </span>
+              <i id="icon-mod-{{ mod.id }}" class="fa-solid fa-chevron-down" style="font-size:0.75rem; color:var(--vx-primary); transition:transform 0.2s; {% if current_lesson %}{% if current_lesson.module.id != mod.id %}transform:rotate(-90deg);{% endif %}{% elif not forloop.first %}transform:rotate(-90deg);{% endif %}"></i>
+            </button>
+
+            <!-- Lessons in this module -->
+            <div id="list-mod-{{ mod.id }}" style="{% if current_lesson %}{% if current_lesson.module.id == mod.id %}display:block;{% else %}display:none;{% endif %}{% elif forloop.first %}display:block;{% else %}display:none;{% endif %}">
+              {% for lesson in mod.lessons.all %}
+                <a href="?lesson={{ lesson.id }}&tab=learn" class="vx-lesson-nav-item {% if current_lesson and current_lesson.id == lesson.id %}active{% endif %}">
+                  <i class="fa-solid fa-circle-play" style="font-size:0.85rem; {% if current_lesson and current_lesson.id == lesson.id %}color:var(--vx-primary);{% else %}color:var(--vx-muted);{% endif %}"></i>
+                  <div style="flex:1; overflow:hidden;">
+                    <div style="text-overflow:ellipsis; overflow:hidden; white-space:nowrap; font-weight:600;">
+                      {{ lesson.order_index }}. {{ lesson.title }}
+                    </div>
+                    <div style="font-size:0.7rem; color:var(--vx-muted);">
+                      Lecture &middot; 18 mins
+                    </div>
+                  </div>
+                </a>
+              {% empty %}
+                <div style="padding:0.65rem 1rem; font-size:0.78rem; color:var(--vx-muted);">No lessons in this module.</div>
+              {% endfor %}
+            </div>
+          </div>
+        {% empty %}
+          <div style="padding:1.5rem; text-align:center; color:var(--vx-muted); font-size:0.85rem;">
+            No modules published yet.
+          </div>
+        {% endfor %}
+
+        <!-- Quick Jump to Assignments / Jobs -->
+        {% if assignments_list %}
+          <div style="padding:0.75rem 1rem; border-top:1px solid var(--vx-border); margin-top:0.5rem;">
+            <button type="button" onclick="switchTab('jobsTab', document.querySelectorAll('.vx-course-tab-btn')[1])" style="width:100%; border:none; background:var(--vx-warning-light); color:var(--vx-warning); padding:0.6rem; border-radius:var(--vx-radius-sm); font-weight:700; font-size:0.8125rem; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:0.4rem; font-family:inherit;">
+              <i class="fa-solid fa-file-pen"></i> View {{ total_assignments_count }} Course Tasks &rarr;
+            </button>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Right Column: Video Lecture Player & Lesson Notes -->
+    <div>
+      <div class="vx-card" style="margin-bottom:1.5rem; padding:1.75rem;">
+        {% if current_lesson %}
+          <!-- Lesson Header moved below video -->
+
+          <!-- 1. Dedicated Interactive Video Lecture Player -->
+          <div class="vx-video-wrapper">
+            {% if current_lesson.media_file and current_lesson.media_file.url|slice:"-4:" == ".mp4" %}
+              <video controls poster="{% static course.image_url %}" preload="metadata">
+                <source src="{{ current_lesson.media_file.url }}" type="video/mp4">
+                Your browser does not support the video tag.
+              </video>
+            {% else %}
+              <!-- Interactive Video Lecture Simulation & Player -->
+              <div style="position:absolute; inset:0; display:flex; flex-direction:column; justify-content:space-between; padding:1.5rem; background:linear-gradient(180deg, rgba(15,23,42,0.6) 0%, rgba(15,23,42,0.92) 100%), url('{% static course.image_url %}') center/cover no-repeat;">
+                
+                <!-- Video Top Bar -->
+                <div style="display:flex; justify-content:space-between; align-items:center; z-index:2;">
+                  <div style="display:flex; align-items:center; gap:0.6rem;">
+                    <span style="background:var(--vx-primary); color:#FFFFFF; font-size:0.7rem; font-weight:800; padding:0.2rem 0.55rem; border-radius:4px; text-transform:uppercase;">
+                      HD 1080p
+                    </span>
+                    <span style="color:#F8FAFC; font-size:0.85rem; font-weight:700;">
+                      {{ course.course_code }} &middot; {{ current_lesson.title }}
+                    </span>
+                  </div>
+                  <div style="background:rgba(0,0,0,0.5); padding:0.25rem 0.65rem; border-radius:999px; color:#F8FAFC; font-size:0.75rem; font-weight:600;">
+                    Prof. {{ course.instructor.get_full_name_or_username }}
+                  </div>
+                </div>
+
+                <!-- Video Center Play Button -->
+                <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; gap:0.75rem; z-index:2;">
+                  <button type="button" onclick="togglePlayState()" id="centerPlayBtn"
+                          style="width:68px; height:68px; border-radius:50%; background:var(--vx-primary); color:#FFFFFF; border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:1.75rem; box-shadow:0 0 25px rgba(15,174,154,0.6); transition:transform 0.2s;"
+                          onmouseover="this.style.transform='scale(1.1)';" onmouseout="this.style.transform='scale(1)';">
+                    <i class="fa-solid fa-play" style="margin-left:4px;"></i>
+                  </button>
+                  <span style="color:rgba(255,255,255,0.9); font-size:0.85rem; font-weight:600; text-shadow:0 1px 3px rgba(0,0,0,0.8);" id="videoStatusLabel">
+                    Click to Start Video Lecture (18:45)
+                  </span>
+                </div>
+
+                <!-- Video Bottom Controls Bar -->
+                <div style="z-index:2; background:rgba(15,23,42,0.85); backdrop-filter:blur(6px); border-radius:8px; padding:0.65rem 1rem; display:flex; align-items:center; justify-content:space-between; gap:1rem;">
+                  <div style="display:flex; align-items:center; gap:0.75rem;">
+                    <button type="button" onclick="togglePlayState()" style="border:none; background:transparent; color:#FFFFFF; cursor:pointer; font-size:1rem;" title="Play / Pause">
+                      <i class="fa-solid fa-play" id="miniPlayIcon"></i>
+                    </button>
+                    <button type="button" style="border:none; background:transparent; color:#94A3B8; cursor:pointer; font-size:0.9rem;" title="Mute">
+                      <i class="fa-solid fa-volume-high"></i>
+                    </button>
+                    <span style="color:#E2E8F0; font-size:0.78rem; font-weight:600;">
+                      <span id="currentTime">04:15</span> / 18:45
+                    </span>
+                  </div>
+
+                  <!-- Timeline Slider -->
+                  <div style="flex:1; height:4px; background:rgba(255,255,255,0.25); border-radius:2px; position:relative; cursor:pointer;">
+                    <div style="width:23%; height:100%; background:var(--vx-primary); border-radius:2px;"></div>
+                  </div>
+
+                  <div style="display:flex; align-items:center; gap:0.75rem;">
+                    <!-- Speed toggle -->
+                    <span style="background:rgba(255,255,255,0.15); color:#FFFFFF; font-size:0.72rem; font-weight:700; padding:0.15rem 0.45rem; border-radius:4px; cursor:pointer;" title="Playback Speed">
+                      1.0x
+                    </span>
+                    <button type="button" style="border:none; background:transparent; color:#94A3B8; cursor:pointer; font-size:0.9rem;" title="Captions (CC)">
+                      <i class="fa-solid fa-closed-captioning"></i>
+                    </button>
+                    <button type="button" style="border:none; background:transparent; color:#94A3B8; cursor:pointer; font-size:0.9rem;" title="Fullscreen">
+                      <i class="fa-solid fa-expand"></i>
+                    </button>
+                  </div>
+                </div>
+
+              </div>
+            {% endif %}
+          </div>
+
+          <!-- Lesson Header (Moved Below Video) -->
+          <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:1rem; border-bottom:1px solid var(--vx-border); padding-bottom:1rem; margin-bottom:1.5rem; margin-top:1.5rem;">
+            <div>
+              <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.4rem;">
+                <span class="vx-badge-pill primary" style="font-size:0.72rem; font-weight:800;">
+                  Module {{ current_lesson.module.order_index }}
+                </span>
+                <span class="vx-badge-pill warning" style="font-size:0.72rem;">
+                  Lesson {{ current_lesson.order_index }}
+                </span>
+                <span style="font-size:0.75rem; color:var(--vx-muted); display:inline-flex; align-items:center; gap:0.3rem;">
+                  <i class="fa-solid fa-clock"></i> 18m 45s Duration
+                </span>
+              </div>
+              <h2 style="font-size:1.45rem; font-weight:800; color:var(--vx-text-heading); margin:0;">
+                {{ current_lesson.title }}
+              </h2>
+            </div>
+
+            <!-- Mark as Watched Toggle -->
+            <button type="button" id="markWatchedBtn" onclick="toggleWatched()" class="vx-btn vx-btn-outline-primary vx-btn-sm" style="font-size:0.8125rem;">
+              <i class="fa-solid fa-circle-check" id="watchedIcon"></i>
+              <span id="watchedText">Mark as Completed</span>
+            </button>
+          </div>
+          <!-- Video Chapter Markers -->
+          <div style="display:flex; gap:0.5rem; flex-wrap:wrap; margin-bottom:2rem; padding:0.75rem 1rem; background:var(--vx-border-subtle); border-radius:var(--vx-radius-sm);">
+            <span style="font-size:0.75rem; font-weight:700; color:var(--vx-muted); display:inline-flex; align-items:center; gap:0.3rem;">
+              <i class="fa-solid fa-bookmark" style="color:var(--vx-primary);"></i> Chapters:
+            </span>
+            <span class="vx-badge-pill primary" style="font-size:0.72rem; cursor:pointer;">00:00 Intro</span>
+            <span class="vx-badge-pill outline" style="font-size:0.72rem; cursor:pointer; background:var(--vx-card-bg); border:1px solid var(--vx-border);">03:45 Architecture &amp; Setup</span>
+            <span class="vx-badge-pill outline" style="font-size:0.72rem; cursor:pointer; background:var(--vx-card-bg); border:1px solid var(--vx-border);">08:15 Live Code Implementation</span>
+            <span class="vx-badge-pill outline" style="font-size:0.72rem; cursor:pointer; background:var(--vx-card-bg); border:1px solid var(--vx-border);">14:30 Testing &amp; Verification</span>
+          </div>
+
+          <!-- 2. Lecture Markdown Documentation -->
+          <div style="margin-bottom:2rem;">
+            <h3 style="font-size:1.15rem; font-weight:800; color:var(--vx-text-heading); margin-bottom:1rem; display:flex; align-items:center; gap:0.5rem;">
+              <i class="fa-solid fa-file-lines" style="color:var(--vx-primary);"></i> Lecture Notes &amp; Code Companion
+            </h3>
+            <div class="markdown-body" style="color:var(--vx-text-heading); font-size:0.9375rem; line-height:1.75;">
+              {% if rendered_markdown %}
+                {{ rendered_markdown|safe }}
+              {% else %}
+                <p style="color:var(--vx-muted); font-style:italic;">No written notes attached to this lesson.</p>
+              {% endif %}
+            </div>
+          </div>
+
+          <!-- 3. Attached Resource File Download -->
+          {% if current_lesson.media_file %}
+            <div style="background:var(--vx-border-subtle); border:1px solid var(--vx-border); border-radius:var(--vx-radius-sm); padding:1.25rem; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-bottom:2rem;">
+              <div style="display:flex; align-items:center; gap:0.75rem;">
+                <div style="width:40px; height:40px; border-radius:8px; background:var(--vx-primary-light); color:var(--vx-primary); display:flex; align-items:center; justify-content:center; font-size:1.2rem;">
+                  <i class="fa-solid fa-paperclip"></i>
+                </div>
+                <div>
+                  <div style="font-weight:700; color:var(--vx-text-heading); font-size:0.9rem;">
+                    Download Attached Lesson Resource
+                  </div>
+                  <div style="font-size:0.75rem; color:var(--vx-muted);">
+                    Slides, datasets, and starter code for {{ current_lesson.title }}
+                  </div>
+                </div>
+              </div>
+              <a href="{{ current_lesson.media_file.url }}" download class="vx-btn vx-btn-primary vx-btn-sm">
+                <i class="fa-solid fa-download"></i> Download Artifact
+              </a>
+            </div>
+          {% endif %}
+
+          <!-- Prev / Next Lesson Navigation -->
+          <div style="display:flex; justify-content:space-between; align-items:center; padding-top:1.5rem; border-top:1px solid var(--vx-border); margin-top:2rem;">
+            {% if prev_lesson %}
+              <a href="?lesson={{ prev_lesson.id }}&tab=learn" class="vx-btn vx-btn-outline vx-btn-sm">
+                <i class="fa-solid fa-arrow-left"></i> Previous: {{ prev_lesson.title|truncatechars:24 }}
+              </a>
+            {% else %}
+              <div></div>
+            {% endif %}
+
+            {% if next_lesson %}
+              <a href="?lesson={{ next_lesson.id }}&tab=learn" class="vx-btn vx-btn-primary vx-btn-sm">
+                Next: {{ next_lesson.title|truncatechars:24 }} <i class="fa-solid fa-arrow-right"></i>
+              </a>
+            {% else %}
+              <button type="button" onclick="switchTab('jobsTab', document.querySelectorAll('.vx-course-tab-btn')[1])" class="vx-btn vx-btn-primary vx-btn-sm">
+                Proceed to Course Tasks &rarr;
+              </button>
+            {% endif %}
+          </div>
+
+        {% else %}
+          <div style="text-align:center; padding:4rem 2rem; color:var(--vx-muted);">
+            <i class="fa-solid fa-film" style="font-size:3rem; opacity:0.3; margin-bottom:1rem; display:block;"></i>
+            <h3 style="font-size:1.25rem; font-weight:800; color:var(--vx-text-heading); margin-bottom:0.5rem;">Select a Lesson from the Curriculum</h3>
+            <p style="font-size:0.9rem; max-width:480px; margin:0 auto;">Click any lecture on the left navigation drawer to watch video lectures and read code notes.</p>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ===================================================================
+     SECTION 2: COURSE ASSIGNMENTS & JOBS QUEUE WITH SUBMISSION
+     =================================================================== -->
+<div id="jobsTab" class="vx-tab-content" style="{% if active_tab != 'jobs' %}display:none;{% endif %}">
+  
+  <!-- Jobs Summary Cards Row -->
+  <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap:1.25rem; margin-bottom:1.5rem;" class="vx-kpi-grid">
+    <div class="vx-card" style="margin-bottom:0; padding:1.25rem;">
+      <div style="font-size:0.75rem; text-transform:uppercase; color:var(--vx-muted); font-weight:700;">Total Course Jobs</div>
+      <div style="font-size:1.6rem; font-weight:800; color:var(--vx-text-heading); margin-top:0.25rem;">{{ total_assignments_count }}</div>
+    </div>
+    <div class="vx-card" style="margin-bottom:0; padding:1.25rem;">
+      <div style="font-size:0.75rem; text-transform:uppercase; color:var(--vx-muted); font-weight:700;">Completed Submissions</div>
+      <div style="font-size:1.6rem; font-weight:800; color:var(--vx-primary); margin-top:0.25rem;">{{ submitted_jobs_count }}</div>
+    </div>
+    <div class="vx-card" style="margin-bottom:0; padding:1.25rem;">
+      <div style="font-size:0.75rem; text-transform:uppercase; color:var(--vx-muted); font-weight:700;">Evaluated Grades</div>
+      <div style="font-size:1.6rem; font-weight:800; color:var(--vx-success); margin-top:0.25rem;">{{ graded_jobs_count }}</div>
+    </div>
+    <div class="vx-card" style="margin-bottom:0; padding:1.25rem;">
+      <div style="font-size:0.75rem; text-transform:uppercase; color:var(--vx-muted); font-weight:700;">Completion Rate</div>
+      <div style="font-size:1.6rem; font-weight:800; color:var(--vx-warning); margin-top:0.25rem;">{{ course_progress }}%</div>
+    </div>
+  </div>
+
+  <!-- Detailed Assignments & Jobs List -->
+  <div style="display:flex; flex-direction:column; gap:1.5rem;">
+    {% for item in assignments_list %}
+      <div class="vx-card" id="job-{{ item.assignment.id }}" style="margin-bottom:0; border-left:4px solid {% if item.is_graded %}var(--vx-success){% elif item.is_submitted %}var(--vx-primary){% elif item.is_past_deadline %}var(--vx-danger){% else %}var(--vx-warning){% endif %};">
+        <div class="vx-card-header">
+          <div>
+            <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.35rem;">
+              <span class="vx-badge-pill primary" style="font-size:0.75rem; font-weight:800;">
+                Task #{{ forloop.counter }}
+              </span>
+              <span style="font-size:0.78rem; color:var(--vx-muted);">
+                Max Points: <strong style="color:var(--vx-text-heading);">{{ item.assignment.max_points }}</strong>
+              </span>
+              <span style="font-size:0.78rem; color:var(--vx-muted); margin-left:0.5rem;">
+                <i class="fa-regular fa-clock"></i> Deadline: <strong style="color:var(--vx-text-heading);">{{ item.assignment.deadline|date:"M d, Y H:i" }}</strong>
+              </span>
+            </div>
+            <h2 class="vx-card-title" style="font-size:1.25rem;">{{ item.assignment.title }}</h2>
+          </div>
+
+          <!-- Status Badge -->
+          <div>
+            {% if item.is_graded %}
+              <span class="vx-badge-pill success" style="font-size:0.85rem; font-weight:800; padding:0.35rem 0.85rem;">
+                <i class="fa-solid fa-circle-check"></i> Graded: {{ item.score }} / {{ item.assignment.max_points }}
+              </span>
+            {% elif item.is_submitted %}
+              <span class="vx-badge-pill primary" style="font-size:0.85rem; font-weight:800; padding:0.35rem 0.85rem;">
+                <i class="fa-solid fa-clock-rotate-left"></i> Submitted (Awaiting Faculty Review)
+              </span>
+            {% elif item.is_past_deadline %}
+              <span class="vx-badge-pill danger" style="font-size:0.85rem; font-weight:800; padding:0.35rem 0.85rem;">
+                <i class="fa-solid fa-triangle-exclamation"></i> Past Deadline
+              </span>
+            {% else %}
+              <span class="vx-badge-pill warning" style="font-size:0.85rem; font-weight:800; padding:0.35rem 0.85rem;">
+                <i class="fa-solid fa-hourglass-start"></i> Open For Submission
+              </span>
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="vx-card-body" style="padding-top:0.5rem;">
+          <!-- Instructions Markdown -->
+          <div style="margin-bottom:1.5rem; background:var(--vx-border-subtle); border-radius:var(--vx-radius-sm); padding:1.25rem;">
+            <div style="font-size:0.75rem; font-weight:800; text-transform:uppercase; color:var(--vx-muted); margin-bottom:0.5rem; display:flex; align-items:center; gap:0.4rem;">
+              <i class="fa-solid fa-list-check" style="color:var(--vx-primary);"></i> Job Instructions &amp; Requirements
+            </div>
+            <div class="markdown-body" style="font-size:0.9rem; color:var(--vx-text-heading);">
+              {% if item.instructions_html %}
+                {{ item.instructions_html|safe }}
+              {% else %}
+                <p style="color:var(--vx-muted);">Refer to course repository and lecture recordings for job requirements.</p>
+              {% endif %}
+            </div>
+          </div>
+
+          <!-- Existing Submission & Feedback Details (If submitted) -->
+          {% if item.is_submitted %}
+            <div style="border:1px solid var(--vx-border); border-radius:var(--vx-radius-sm); padding:1.25rem; margin-bottom:1.5rem; background:var(--vx-card-bg);">
+              <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-bottom:1rem;">
+                <div>
+                  <div style="font-size:0.85rem; font-weight:700; color:var(--vx-text-heading);">
+                    Submitted Solution Artifact
+                  </div>
+                  <div style="font-size:0.75rem; color:var(--vx-muted);">
+                    Timestamp: {{ item.submission.submitted_at|date:"M d, Y H:i:s" }}
+                    {% if item.submission.is_late %}
+                      <span class="vx-badge-pill danger" style="margin-left:0.4rem;">Late Submission</span>
+                    {% else %}
+                      <span class="vx-badge-pill success" style="margin-left:0.4rem;">On-Time</span>
+                    {% endif %}
+                  </div>
+                </div>
+
+                <a href="{% url 'lms:download_submission' item.submission.id %}" class="vx-btn vx-btn-outline vx-btn-sm">
+                  <i class="fa-solid fa-file-arrow-down"></i> Download Submitted Solution
+                </a>
+              </div>
+
+              <!-- Evaluated Feedback (If graded) -->
+              {% if item.is_graded %}
+                <div style="background:var(--vx-border-subtle); border-left:3px solid var(--vx-success); border-radius:var(--vx-radius-sm); padding:1rem; margin-top:0.75rem;">
+                  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.35rem;">
+                    <span style="font-weight:700; font-size:0.8125rem; color:var(--vx-text-heading);">
+                      Faculty Assessment &amp; Critique
+                    </span>
+                    <span style="font-weight:800; font-size:0.95rem; color:var(--vx-success);">
+                      Awarded: {{ item.score }} / {{ item.assignment.max_points }} pts
+                    </span>
+                  </div>
+                  <div style="font-size:0.85rem; color:var(--vx-text-heading); line-height:1.5;">
+                    {{ item.feedback|default:"Satisfactory completion." }}
+                  </div>
+                  {% if item.submission.graded_by %}
+                    <div style="font-size:0.72rem; color:var(--vx-muted); margin-top:0.4rem;">
+                      Evaluated by Prof. {{ item.submission.graded_by.get_full_name_or_username }} on {{ item.submission.graded_at|date:"M d, Y" }}
+                    </div>
+                  {% endif %}
+                </div>
+              {% endif %}
+            </div>
+          {% endif %}
+
+          <!-- In-Page Solution Submission Box -->
+          {% if not item.is_submitted or item.assignment.allow_resubmissions %}
+            <div style="background:var(--vx-border-subtle); border:1px dashed var(--vx-primary); border-radius:var(--vx-radius-sm); padding:1.25rem;">
+              <h4 style="font-size:0.95rem; font-weight:700; color:var(--vx-text-heading); margin-bottom:0.25rem; display:flex; align-items:center; gap:0.4rem;">
+                <i class="fa-solid fa-cloud-arrow-up" style="color:var(--vx-primary);"></i>
+                {% if item.is_submitted %}Resubmit Solution Artifact{% else %}Upload &amp; Submit Solution{% endif %}
+              </h4>
+              <p style="font-size:0.78rem; color:var(--vx-muted); margin-bottom:1rem;">
+                Supported archive and document formats: <strong>.pdf, .zip, .docx</strong> (maximum file size 25 MB).
+              </p>
+
+              <form method="post" action="{% url 'lms:assignment_submit' item.assignment.id %}" enctype="multipart/form-data" style="display:flex; align-items:center; gap:1rem; flex-wrap:wrap;">
+                {% csrf_token %}
+                <input type="hidden" name="next" value="{{ request.get_full_path }}#job-{{ item.assignment.id }}">
+                <input type="file" name="submission_file" class="vx-form-control" accept=".pdf,.zip,.docx" required style="flex:1; min-width:240px; font-size:0.8125rem;">
+                <button type="submit" class="vx-btn vx-btn-primary" style="padding:0.6rem 1.25rem;">
+                  <i class="fa-solid fa-paper-plane"></i>
+                  <span>{% if item.is_submitted %}Update Solution{% else %}Submit Job Solution{% endif %}</span>
+                </button>
+              </form>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    {% empty %}
+      <div class="vx-card" style="text-align:center; padding:4rem 2rem; color:var(--vx-muted);">
+        <i class="fa-solid fa-clipboard-check" style="font-size:3rem; opacity:0.3; margin-bottom:1rem; display:block;"></i>
+        <h3 style="font-size:1.25rem; font-weight:800; color:var(--vx-text-heading); margin-bottom:0.5rem;">No assignments or jobs posted yet</h3>
+        <p style="font-size:0.9rem; max-width:480px; margin:0 auto;">Your instructor has not yet released any assignment tasks or lab jobs for this curriculum.</p>
+      </div>
+    {% endfor %}
+  </div>
+
+</div>
+
+<!-- ===================================================================
+     SECTION 3: COURSE SYLLABUS & OVERVIEW
+     =================================================================== -->
+<div id="syllabusTab" class="vx-tab-content" style="{% if active_tab != 'syllabus' %}display:none;{% endif %}">
+  <div class="vx-card">
+    <div class="vx-card-header">
+      <div>
+        <h2 class="vx-card-title">Course Syllabus &amp; Academic Curriculum</h2>
+        <div class="vx-card-subtitle">Official learning goals, evaluation criteria, and course roadmap</div>
+      </div>
+    </div>
+    <div class="vx-card-body">
+      <div class="markdown-body" style="font-size:0.95rem; color:var(--vx-text-heading); line-height:1.75;">
+        {% if syllabus_rendered %}
+          {{ syllabus_rendered|safe }}
+        {% else %}
+          <p style="color:var(--vx-muted); font-style:italic;">No formal syllabus outline published for this course yet.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Course Info Modal -->
+<div id="courseInfoModal" style="display:none; position:fixed; inset:0; background:rgba(17,24,39,0.85); z-index:9999; align-items:center; justify-content:center; padding:1.5rem; backdrop-filter:blur(4px);">
+  <div class="vx-card" style="width:100%; max-width:600px; margin:0; padding:2rem; position:relative; box-shadow:0 20px 40px rgba(0,0,0,0.4);">
+    <button type="button" onclick="document.getElementById('courseInfoModal').style.display='none'" style="position:absolute; top:1rem; right:1rem; background:transparent; border:none; font-size:1.5rem; color:var(--vx-muted); cursor:pointer;">
+      <i class="fa-solid fa-xmark"></i>
+    </button>
+    <h2 style="font-size:1.5rem; font-weight:800; color:var(--vx-text-heading); margin:0 0 0.5rem 0;">{{ course.title }}</h2>
+    <div style="font-size:0.85rem; color:var(--vx-muted); margin-bottom:1.5rem;">
+      <span class="vx-badge-pill primary" style="font-size:0.75rem;">{{ course.course_code }}</span>
+      <span style="margin-left:0.5rem;">{{ course.department }}</span>
+    </div>
+
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.5rem; margin-bottom:2rem;">
+      <div>
+        <div style="font-size:0.75rem; text-transform:uppercase; font-weight:700; color:var(--vx-muted); margin-bottom:0.25rem;">Instructor</div>
+        <div style="font-size:0.95rem; font-weight:600; color:var(--vx-text-heading);">Prof. {{ course.instructor.get_full_name_or_username }}</div>
+      </div>
+      <div>
+        <div style="font-size:0.75rem; text-transform:uppercase; font-weight:700; color:var(--vx-muted); margin-bottom:0.25rem;">Credits</div>
+        <div style="font-size:0.95rem; font-weight:600; color:var(--vx-text-heading);">{{ course.credit_count }} Academic Credits</div>
+      </div>
+      <div>
+        <div style="font-size:0.75rem; text-transform:uppercase; font-weight:700; color:var(--vx-muted); margin-bottom:0.25rem;">Content</div>
+        <div style="font-size:0.95rem; font-weight:600; color:var(--vx-text-heading);">{{ modules|length }} Modules</div>
+      </div>
+      <div>
+        <div style="font-size:0.75rem; text-transform:uppercase; font-weight:700; color:var(--vx-muted); margin-bottom:0.25rem;">Assignments</div>
+        <div style="font-size:0.95rem; font-weight:600; color:var(--vx-text-heading);">{{ total_assignments_count }} Tasks</div>
+      </div>
+    </div>
+
+    <div style="background:var(--vx-border-subtle); padding:1.25rem; border-radius:var(--vx-radius-md);">
+      <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.8rem; margin-bottom:0.5rem; font-weight:700; color:var(--vx-text-heading);">
+        <span>Course Progress</span>
+        <span style="color:var(--vx-primary);">{{ course_progress }}%</span>
+      </div>
+      <div style="width:100%; height:8px; background:var(--vx-border); border-radius:999px; overflow:hidden;">
+        <div style="width:{{ course_progress }}%; height:100%; background:var(--vx-primary); border-radius:999px;"></div>
+      </div>
+      <div style="font-size:0.75rem; color:var(--vx-muted); margin-top:0.5rem; text-align:right;">
+        {{ submitted_jobs_count }} of {{ total_assignments_count }} Tasks Completed
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block admin_extra_js %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script>
+// Tab switcher between Video Lectures, Assignments / Jobs, and Syllabus
+function switchTab(tabId, btn) {
+  document.querySelectorAll('.vx-tab-content').forEach(tab => {
+    tab.style.display = 'none';
+  });
+  document.querySelectorAll('.vx-course-tab-btn').forEach(b => {
+    b.classList.remove('active');
+  });
+
+  const selectedTab = document.getElementById(tabId);
+  if (selectedTab) {
+    selectedTab.style.display = 'block';
+  }
+  if (btn) {
+    btn.classList.add('active');
+  }
+
+  // Update URL search param without reload
+  const url = new URL(window.location);
+  if (tabId === 'jobsTab') {
+    url.searchParams.set('tab', 'jobs');
+  } else if (tabId === 'syllabusTab') {
+    url.searchParams.set('tab', 'syllabus');
+  } else {
+    url.searchParams.set('tab', 'learn');
+  }
+  window.history.replaceState({}, '', url);
+}
+
+// Module Accordion Drawer
+function toggleModule(modId) {
+  const list = document.getElementById('list-' + modId);
+  const icon = document.getElementById('icon-' + modId);
+  if (!list) return;
+  const isHidden = list.style.display === 'none';
+  list.style.display = isHidden ? 'block' : 'none';
+  if (icon) {
+    icon.style.transform = isHidden ? 'rotate(0deg)' : 'rotate(-90deg)';
+  }
+}
+
+// Mark Lecture Watched Toggle
+function toggleWatched() {
+  const icon = document.getElementById('watchedIcon');
+  const text = document.getElementById('watchedText');
+  const btn = document.getElementById('markWatchedBtn');
+  if (text.innerText === 'Completed') {
+    text.innerText = 'Mark as Completed';
+    icon.className = 'fa-regular fa-circle';
+    btn.className = 'vx-btn vx-btn-outline-primary vx-btn-sm';
+  } else {
+    text.innerText = 'Completed';
+    icon.className = 'fa-solid fa-circle-check';
+    btn.className = 'vx-btn vx-btn-primary vx-btn-sm';
+  }
+}
+
+// Simulated Video Play State
+let isPlaying = false;
+function togglePlayState() {
+  isPlaying = !isPlaying;
+  const centerBtn = document.getElementById('centerPlayBtn');
+  const label = document.getElementById('videoStatusLabel');
+  const miniIcon = document.getElementById('miniPlayIcon');
+  if (isPlaying) {
+    if (centerBtn) centerBtn.innerHTML = '<i class="fa-solid fa-pause"></i>';
+    if (label) label.innerText = 'Lecture Playing... (Streaming 1080p)';
+    if (miniIcon) miniIcon.className = 'fa-solid fa-pause';
+  } else {
+    if (centerBtn) centerBtn.innerHTML = '<i class="fa-solid fa-play" style="margin-left:4px;"></i>';
+    if (label) label.innerText = 'Lecture Paused';
+    if (miniIcon) miniIcon.className = 'fa-solid fa-play';
+  }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  document.querySelectorAll('pre code').forEach(function(block) {
+    hljs.highlightElement(block);
+  });
+
+  // Check URL hash for direct tab switching
+  if (window.location.hash.includes('job')) {
+    const jobsTabBtn = document.querySelectorAll('.vx-course-tab-btn')[1];
+    if (jobsTabBtn) switchTab('jobsTab', jobsTabBtn);
+  }
+});
+</script>
+{% endblock %}

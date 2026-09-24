@@ -1,0 +1,163 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Create Account – DEVSKILL Academic Platform{% endblock %}
+
+{% block content %}
+<div style="min-height: 80vh; display: flex; align-items: center; justify-content: center; padding: 3rem 1.5rem; background: var(--bg-main);">
+  <div class="dev-card-modern" style="width: 100%; max-width: 580px; overflow: hidden; box-shadow: 0 10px 35px rgba(0,0,0,0.06);">
+    
+    <!-- Top Branding Header -->
+    <div style="background: linear-gradient(180deg, #FFF0EA 0%, #FFFFFF 100%); padding: 2.5rem 2rem 1.75rem 2rem; text-align: center; border-bottom: 1px solid #E2E8F0;">
+      <div style="font-size: 2rem; font-weight: 800; color: #111827; letter-spacing: -0.03em; margin-bottom: 0.35rem;">
+        <span style="color: var(--accent, #FF6333);">DEV</span>SKILL<span style="color: var(--accent, #FF6333);">.</span>
+      </div>
+      <h2 style="font-size: 1.25rem; font-weight: 700; color: #111827; margin-bottom: 0.35rem;">Join DEVSKILL Platform</h2>
+      <p style="font-size: 0.88rem; color: #64748B;">Create your account to start learning or teaching</p>
+    </div>
+
+    <div style="padding: 2.25rem;">
+      <form method="post" action="{% url 'accounts:register' %}">
+        {% csrf_token %}
+
+        {% if form.errors %}
+          <div class="alert alert-error" style="margin-bottom: 1.5rem; border-radius: 12px; background: #FEF2F2; border: 1px solid #FCA5A5; color: #DC2626; padding: 0.85rem 1rem; font-size: 0.88rem; display: flex; align-items: center; gap: 0.5rem;">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+            <span>Please resolve the highlighted validation errors below.</span>
+          </div>
+        {% endif %}
+
+        <!-- Role Selector Option Cards -->
+        <div class="form-group" style="margin-bottom: 1.75rem;">
+          <label class="form-label" style="font-weight: 700; color: #111827; font-size: 0.88rem; margin-bottom: 0.75rem; display: block;">Select Your Role</label>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+            <!-- Student Option -->
+            <label id="role-student-card" class="role-select-box" style="border: 2px solid #0FAE9A; background: #E6F7F5; border-radius: 16px; padding: 1.25rem 1rem; cursor: pointer; text-align: center; transition: all 0.2s;">
+              <input type="radio" name="role" value="STUDENT" id="role_student" style="display: none;" {% if form.role.value != 'INSTRUCTOR' %}checked{% endif %} onchange="updateRoleUI('STUDENT')">
+              <div style="font-size: 1.6rem; color: #0FAE9A; margin-bottom: 0.4rem;">
+                <i class="fa-solid fa-user-graduate"></i>
+              </div>
+              <div style="font-weight: 800; color: #111827; font-size: 0.95rem;">Student</div>
+              <div style="font-size: 0.75rem; color: #64748B; margin-top: 0.25rem;">Learn, take quizzes &amp; submit work</div>
+            </label>
+
+            <!-- Instructor Option -->
+            <label id="role-instructor-card" class="role-select-box" style="border: 2px solid #E2E8F0; background: #FFFFFF; border-radius: 16px; padding: 1.25rem 1rem; cursor: pointer; text-align: center; transition: all 0.2s;">
+              <input type="radio" name="role" value="INSTRUCTOR" id="role_instructor" style="display: none;" {% if form.role.value == 'INSTRUCTOR' %}checked{% endif %} onchange="updateRoleUI('INSTRUCTOR')">
+              <div style="font-size: 1.6rem; color: #94A3B8; margin-bottom: 0.4rem;">
+                <i class="fa-solid fa-chalkboard-user"></i>
+              </div>
+              <div style="font-weight: 800; color: #111827; font-size: 0.95rem;">Instructor</div>
+              <div style="font-size: 0.75rem; color: #6B7280; margin-top: 0.25rem;">Publish courses &amp; evaluate students</div>
+            </label>
+          </div>
+          {{ form.role.errors }}
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+          <div class="form-group" style="margin-bottom: 1.25rem;">
+            <label class="form-label" for="id_first_name" style="font-weight: 700; color: #374151; font-size: 0.88rem;">First Name</label>
+            {{ form.first_name }}
+            {{ form.first_name.errors }}
+          </div>
+          <div class="form-group" style="margin-bottom: 1.25rem;">
+            <label class="form-label" for="id_last_name" style="font-weight: 700; color: #374151; font-size: 0.88rem;">Last Name</label>
+            {{ form.last_name }}
+            {{ form.last_name.errors }}
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 1.25rem;">
+          <label class="form-label" for="id_username" style="font-weight: 700; color: #374151; font-size: 0.88rem;">Username</label>
+          {{ form.username }}
+          {{ form.username.errors }}
+        </div>
+
+        <div class="form-group" style="margin-bottom: 1.25rem;">
+          <label class="form-label" for="id_email" style="font-weight: 700; color: #374151; font-size: 0.88rem;">Email Address</label>
+          {{ form.email }}
+          {{ form.email.errors }}
+        </div>
+
+        <div class="form-group" style="margin-bottom: 1.25rem;">
+          <label class="form-label" for="id_academic_id" id="academic_id_label" style="font-weight: 700; color: #374151; font-size: 0.88rem;">Academic ID (optional)</label>
+          {{ form.academic_id }}
+          {{ form.academic_id.errors }}
+          <div id="academic_id_hint" style="font-size: 0.75rem; color: #9CA3AF; margin-top: 0.25rem;">
+            e.g. STU-102 (Student) or FAC-301 (Faculty)
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 1.25rem;">
+          <label class="form-label" for="id_password" style="font-weight: 700; color: #374151; font-size: 0.88rem;">Password</label>
+          {{ form.password }}
+          <div style="font-size: 0.75rem; color: #9CA3AF; margin-top: 0.25rem;">
+            Min 8 characters; include letters and numbers.
+          </div>
+          {{ form.password.errors }}
+        </div>
+
+        <div class="form-group" style="margin-bottom: 1.75rem;">
+          <label class="form-label" for="id_password_confirm" style="font-weight: 700; color: #374151; font-size: 0.88rem;">Confirm Password</label>
+          {{ form.password_confirm }}
+          {{ form.password_confirm.errors }}
+        </div>
+
+        <button type="submit" id="submit-btn" class="btn btn-accent" style="width: 100%; padding: 0.85rem; font-size: 1rem; border-radius: 999px; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: #0FAE9A;">
+          <span id="btn-text">Create Student Account</span>
+          <i class="fa-solid fa-arrow-right"></i>
+        </button>
+      </form>
+
+      <div style="text-align: center; margin-top: 1.75rem; font-size: 0.88rem; color: #64748B;">
+        Already registered? <a href="{% url 'accounts:login' %}" style="color: #0FAE9A; font-weight: 700; text-decoration: none;">Sign in here</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function updateRoleUI(role) {
+  const studentCard = document.getElementById('role-student-card');
+  const instructorCard = document.getElementById('role-instructor-card');
+  const btnText = document.getElementById('btn-text');
+  const academicIdLabel = document.getElementById('academic_id_label');
+  const studentIcon = studentCard.querySelector('i');
+  const instructorIcon = instructorCard.querySelector('i');
+
+  if (role === 'INSTRUCTOR') {
+    instructorCard.style.borderColor = '#0FAE9A';
+    instructorCard.style.background = '#E6F7F5';
+    instructorCard.querySelector('div:nth-child(3)').style.color = '#111827';
+    instructorIcon.parentElement.style.color = '#0FAE9A';
+
+    studentCard.style.borderColor = '#E2E8F0';
+    studentCard.style.background = '#FFFFFF';
+    studentCard.querySelector('div:nth-child(3)').style.color = '#64748B';
+    studentIcon.parentElement.style.color = '#94A3B8';
+
+    btnText.textContent = 'Create Instructor Account';
+    academicIdLabel.textContent = 'Faculty Academic ID (optional)';
+  } else {
+    studentCard.style.borderColor = '#0FAE9A';
+    studentCard.style.background = '#E6F7F5';
+    studentCard.querySelector('div:nth-child(3)').style.color = '#111827';
+    studentIcon.parentElement.style.color = '#0FAE9A';
+
+    instructorCard.style.borderColor = '#E2E8F0';
+    instructorCard.style.background = '#FFFFFF';
+    instructorCard.querySelector('div:nth-child(3)').style.color = '#64748B';
+    instructorIcon.parentElement.style.color = '#94A3B8';
+
+    btnText.textContent = 'Create Student Account';
+    academicIdLabel.textContent = 'Student Academic ID (optional)';
+  }
+}
+
+// Initial state on load
+document.addEventListener('DOMContentLoaded', () => {
+  const isInstructor = document.getElementById('role_instructor').checked;
+  updateRoleUI(isInstructor ? 'INSTRUCTOR' : 'STUDENT');
+});
+</script>
+{% endblock %}

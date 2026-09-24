@@ -1,0 +1,598 @@
+{% extends 'admin/base_admin.html' %}
+{% load static %}
+
+{% block title %}Vuexy – Analytics Dashboard &amp; Governance{% endblock %}
+
+{% block admin_content %}
+<!-- Breadcrumb Header -->
+<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; flex-wrap:wrap; gap:1rem;">
+  <div>
+    <h1 style="font-size:1.5rem; font-weight:700; color:var(--vx-text-heading); margin-bottom:0.25rem;">
+      Analytics Dashboard
+    </h1>
+    <div style="font-size:0.8125rem; color:var(--vx-muted); display:flex; align-items:center; gap:0.5rem;">
+      <a href="{% url 'lms:admin_dashboard' %}" style="color:var(--vx-primary); text-decoration:none; font-weight:600;">Dashboards</a>
+      <span>/</span>
+      <span>Analytics &amp; Platform Governance</span>
+    </div>
+  </div>
+
+  <div style="display:flex; gap:0.75rem; flex-wrap:wrap;">
+    <a href="{% url 'lms:admin_import_csv' %}" class="vx-btn vx-btn-outline-primary vx-btn-sm">
+      <i class="fa-solid fa-file-import"></i> Bulk Import CSV
+    </a>
+    <a href="{% url 'lms:admin_users' %}" class="vx-btn vx-btn-primary vx-btn-sm">
+      <i class="fa-solid fa-user-plus"></i> Manage Identities
+    </a>
+  </div>
+</div>
+
+<!-- ===================================================================
+     ROW 2: 4 STAT METRICS CARDS WITH VUEXY ICONS
+     =================================================================== -->
+<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:1.5rem; margin-bottom:1.5rem;">
+  
+  <!-- Stat 1: Students -->
+  <div class="vx-card" style="margin-bottom:0; padding:1.25rem 1.5rem; display:flex; align-items:center; gap:1.25rem;">
+    <div style="width:50px; height:50px; border-radius:12px; background:var(--vx-primary-light); color:var(--vx-primary); display:flex; align-items:center; justify-content:center; font-size:1.4rem;">
+      <i class="fa-solid fa-user-graduate"></i>
+    </div>
+    <div style="flex:1;">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <div style="font-size:1.6rem; font-weight:800; color:var(--vx-text-heading); line-height:1.1;">{{ total_students }}</div>
+        <span style="font-size:0.75rem; font-weight:700; color:var(--vx-success);">+14.2%</span>
+      </div>
+      <div style="font-size:0.8125rem; color:var(--vx-muted); margin-top:0.25rem; font-weight:500;">Active Enrolled Students</div>
+    </div>
+  </div>
+
+  <!-- Stat 2: Faculty -->
+  <div class="vx-card" style="margin-bottom:0; padding:1.25rem 1.5rem; display:flex; align-items:center; gap:1.25rem;">
+    <div style="width:50px; height:50px; border-radius:12px; background:var(--vx-success-light); color:var(--vx-success); display:flex; align-items:center; justify-content:center; font-size:1.4rem;">
+      <i class="fa-solid fa-chalkboard-user"></i>
+    </div>
+    <div style="flex:1;">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <div style="font-size:1.6rem; font-weight:800; color:var(--vx-text-heading); line-height:1.1;">{{ total_faculty }}</div>
+        <span class="vx-badge-pill success">100% Vetted</span>
+      </div>
+      <div style="font-size:0.8125rem; color:var(--vx-muted); margin-top:0.25rem; font-weight:500;">Faculty Instructors</div>
+    </div>
+  </div>
+
+  <!-- Stat 3: Courses -->
+  <div class="vx-card" style="margin-bottom:0; padding:1.25rem 1.5rem; display:flex; align-items:center; gap:1.25rem;">
+    <div style="width:50px; height:50px; border-radius:12px; background:var(--vx-warning-light); color:var(--vx-warning); display:flex; align-items:center; justify-content:center; font-size:1.4rem;">
+      <i class="fa-solid fa-book-open"></i>
+    </div>
+    <div style="flex:1;">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <div style="font-size:1.6rem; font-weight:800; color:var(--vx-text-heading); line-height:1.1;">{{ total_courses }}</div>
+        <span class="vx-badge-pill warning">Catalog</span>
+      </div>
+      <div style="font-size:0.8125rem; color:var(--vx-muted); margin-top:0.25rem; font-weight:500;">Active Academic Courses</div>
+    </div>
+  </div>
+
+  <!-- Stat 4: Submissions -->
+  <div class="vx-card" style="margin-bottom:0; padding:1.25rem 1.5rem; display:flex; align-items:center; gap:1.25rem;">
+    <div style="width:50px; height:50px; border-radius:12px; background:var(--vx-info-light); color:var(--vx-info); display:flex; align-items:center; justify-content:center; font-size:1.4rem;">
+      <i class="fa-solid fa-file-signature"></i>
+    </div>
+    <div style="flex:1;">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <div style="font-size:1.6rem; font-weight:800; color:var(--vx-text-heading); line-height:1.1;">{{ total_submissions }}</div>
+        <span style="font-size:0.75rem; font-weight:700; color:var(--vx-info);">{{ graded_submissions }} Evaluated</span>
+      </div>
+      <div style="font-size:0.8125rem; color:var(--vx-muted); margin-top:0.25rem; font-weight:500;">Projects &amp; Submissions</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ===================================================================
+     ROW 3: MONTHLY ENROLLMENT TREND & DEPARTMENT DONUT
+     =================================================================== -->
+<div style="display:grid; grid-template-columns: 2fr 1fr; gap:1.5rem; margin-bottom:1.5rem;" class="vx-charts-grid">
+
+  <!-- Area Spline Chart: Enrollment Growth -->
+  <div class="vx-card" style="margin-bottom:0;">
+    <div class="vx-card-header">
+      <div>
+        <h2 class="vx-card-title">Enrollment &amp; Platform Growth</h2>
+        <div class="vx-card-subtitle">Monthly active student onboarding trend &amp; tuition metrics</div>
+      </div>
+      <div style="display:flex; gap:0.5rem;">
+        <span class="vx-badge-pill primary">Year 2026</span>
+      </div>
+    </div>
+    <div class="vx-card-body">
+      <div id="enrollmentTrendChart" style="min-height:300px;"></div>
+    </div>
+  </div>
+
+  <!-- Donut Chart: Course Distribution -->
+  <div class="vx-card" style="margin-bottom:0;">
+    <div class="vx-card-header">
+      <div>
+        <h2 class="vx-card-title">Course Distribution</h2>
+        <div class="vx-card-subtitle">Academic departments breakdown</div>
+      </div>
+      <i class="fa-solid fa-ellipsis-vertical" style="color:var(--vx-muted); cursor:pointer;"></i>
+    </div>
+    <div class="vx-card-body" style="display:flex; flex-direction:column; justify-content:center; align-items:center;">
+      <div id="deptDonutChart" style="min-height:280px; width:100%;"></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ===================================================================
+     ROW 1: WEBSITE ANALYTICS HERO + SUPPORT TRACKER + SALES
+     =================================================================== -->
+<div style="display:grid; grid-template-columns: 1.5fr 1fr 1fr; gap:1.5rem; margin-bottom:1.5rem;" class="vx-top-grid">
+
+  <!-- Card 1: Vuexy Signature Website Analytics Hero Card -->
+  <div class="vx-card" style="background: linear-gradient(72.47deg, #0FAE9A 22.16%, #087F73 76.47%); color:#FFFFFF; margin-bottom:0; display:flex; flex-direction:column; justify-content:space-between; position:relative; overflow:hidden;">
+    <div style="padding:1.75rem 1.75rem 1rem 1.75rem;">
+      <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+        <div>
+          <h2 style="font-size:1.35rem; font-weight:700; color:#FFFFFF; margin-bottom:0.35rem;">Website Analytics</h2>
+          <div style="font-size:0.875rem; color:rgba(255,255,255,0.85);">Total 28.5% Conversion Rate Across Academic Terms</div>
+        </div>
+        <div style="width:48px; height:48px; border-radius:12px; background:rgba(255,255,255,0.18); display:flex; align-items:center; justify-content:center; font-size:1.5rem;">
+          <i class="fa-solid fa-chart-line"></i>
+        </div>
+      </div>
+
+      <div style="margin-top:1.5rem; display:grid; grid-template-columns: 1fr 1fr; gap:1rem;">
+        <div style="background:rgba(255,255,255,0.14); border-radius:8px; padding:0.85rem 1rem;">
+          <div style="font-size:0.75rem; text-transform:uppercase; letter-spacing:0.04em; color:rgba(255,255,255,0.8);">Enrollments</div>
+          <div style="font-size:1.5rem; font-weight:800; color:#FFFFFF; margin-top:0.2rem;">{{ total_enrollments }}</div>
+        </div>
+        <div style="background:rgba(255,255,255,0.14); border-radius:8px; padding:0.85rem 1rem;">
+          <div style="font-size:0.75rem; text-transform:uppercase; letter-spacing:0.04em; color:rgba(255,255,255,0.8);">Evaluations</div>
+          <div style="font-size:1.5rem; font-weight:800; color:#FFFFFF; margin-top:0.2rem;">{{ graded_submissions }}</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="padding:1rem 1.75rem 1.5rem 1.75rem; display:flex; justify-content:space-between; align-items:center; border-top:1px solid rgba(255,255,255,0.15);">
+      <div style="font-size:0.8125rem; color:rgba(255,255,255,0.9);">
+        <i class="fa-solid fa-circle-check" style="margin-right:4px;"></i> {{ satisfaction_rate }}% Student Satisfaction
+      </div>
+      <a href="{% url 'lms:admin_audit_logs' %}" style="color:#FFFFFF; font-weight:700; font-size:0.8125rem; text-decoration:none; display:inline-flex; align-items:center; gap:0.35rem;">
+        Audit Log <i class="fa-solid fa-arrow-right"></i>
+      </a>
+    </div>
+  </div>
+
+  <!-- Card 2: Support / Task Tracker Radial -->
+  <div class="vx-card" style="margin-bottom:0; display:flex; flex-direction:column;">
+    <div class="vx-card-header">
+      <div>
+        <h2 class="vx-card-title">Support Tracker</h2>
+        <div class="vx-card-subtitle">Last 7 Days Academic Tickets</div>
+      </div>
+      <div style="font-size:1.25rem; font-weight:800; color:var(--vx-text-heading);">{{ total_submissions }}</div>
+    </div>
+    <div class="vx-card-body" style="padding-top:0; display:flex; flex-direction:column; justify-content:space-between; flex:1;">
+      <div id="supportTrackerChart" style="min-height:190px;"></div>
+      <div style="display:flex; justify-content:space-around; text-align:center; padding-top:0.75rem; border-top:1px solid var(--vx-border);">
+        <div>
+          <div style="font-size:0.75rem; color:var(--vx-muted);">New Tickets</div>
+          <div style="font-weight:700; color:var(--vx-text-heading); font-size:1.05rem;">{{ pending_submissions }}</div>
+        </div>
+        <div>
+          <div style="font-size:0.75rem; color:var(--vx-muted);">Completed</div>
+          <div style="font-weight:700; color:var(--vx-success); font-size:1.05rem;">{{ graded_submissions }}</div>
+        </div>
+        <div>
+          <div style="font-size:0.75rem; color:var(--vx-muted);">Response</div>
+          <div style="font-weight:700; color:var(--vx-primary); font-size:1.05rem;">1.2h</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Card 3: Revenue / Enrollment Velocity -->
+  <div class="vx-card" style="margin-bottom:0; display:flex; flex-direction:column;">
+    <div class="vx-card-header">
+      <div>
+        <h2 class="vx-card-title">Revenue Overview</h2>
+        <div class="vx-card-subtitle">Annual Tuition &amp; Course Sales</div>
+      </div>
+      <span class="vx-badge-pill success">+18.2%</span>
+    </div>
+    <div class="vx-card-body" style="padding-top:0; display:flex; flex-direction:column; justify-content:space-between; flex:1;">
+      <div style="display:flex; align-items:baseline; gap:0.5rem; margin-bottom:0.5rem;">
+        <span style="font-size:1.75rem; font-weight:800; color:var(--vx-text-heading);">$42,850</span>
+        <span style="font-size:0.8125rem; color:var(--vx-muted);">vs $36,200 last term</span>
+      </div>
+      <div id="revenueOverviewChart" style="min-height:140px;"></div>
+      <div style="font-size:0.8125rem; color:var(--vx-muted); text-align:center; margin-top:0.5rem;">
+        <i class="fa-solid fa-arrow-trend-up" style="color:var(--vx-success); margin-right:4px;"></i> Target projection met for Fall 2026
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ===================================================================
+     ROW 4: USER DIRECTORY & AUDIT TRAIL TIMELINE
+     =================================================================== -->
+<div style="display:grid; grid-template-columns: 1.8fr 1.2fr; gap:1.5rem; margin-bottom:1.5rem;" class="vx-bottom-grid">
+
+  <!-- Quick User Management Table -->
+  <div class="vx-card" style="margin-bottom:0;">
+    <div class="vx-card-header">
+      <div>
+        <h2 class="vx-card-title">Institutional User Directory</h2>
+        <div class="vx-card-subtitle">Recent student &amp; faculty identity records</div>
+      </div>
+      <a href="{% url 'lms:admin_users' %}" class="vx-btn vx-btn-outline vx-btn-sm">
+        View All Users <i class="fa-solid fa-arrow-right" style="font-size:0.75rem;"></i>
+      </a>
+    </div>
+
+    <div style="overflow-x:auto;">
+      <table class="vx-table">
+        <thead>
+          <tr>
+            <th>User</th>
+            <th>Role</th>
+            <th>Academic ID</th>
+            <th>Status</th>
+            <th style="text-align:right;">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for u in recent_users %}
+            <tr>
+              <td>
+                <div style="display:flex; align-items:center; gap:0.75rem;">
+                  <div style="width:34px; height:34px; border-radius:50%; background:var(--vx-primary-light); color:var(--vx-primary); font-weight:800; font-size:0.85rem; display:flex; align-items:center; justify-content:center;">
+                    {{ u.first_name|first|default:u.username|first|upper }}
+                  </div>
+                  <div>
+                    <div style="font-weight:700; color:var(--vx-text-heading); font-size:0.88rem;">{{ u.get_full_name_or_username }}</div>
+                    <div style="font-size:0.75rem; color:var(--vx-muted);">{{ u.email }}</div>
+                  </div>
+                </div>
+              </td>
+              <td>
+                {% if u.role == 'ADMIN' %}
+                  <span class="vx-badge-pill danger">Admin</span>
+                {% elif u.role == 'INSTRUCTOR' %}
+                  <span class="vx-badge-pill primary">Instructor</span>
+                {% else %}
+                  <span class="vx-badge-pill success">Student</span>
+                {% endif %}
+              </td>
+              <td>
+                <span style="font-family:monospace; font-size:0.8125rem; font-weight:600; color:var(--vx-muted);">
+                  {{ u.academic_id|default:"—" }}
+                </span>
+              </td>
+              <td>
+                {% if u.is_active %}
+                  <span style="display:inline-flex; align-items:center; gap:0.35rem; font-size:0.75rem; font-weight:700; color:var(--vx-success);">
+                    <i class="fa-solid fa-circle" style="font-size:0.5rem;"></i> Active
+                  </span>
+                {% else %}
+                  <span style="display:inline-flex; align-items:center; gap:0.35rem; font-size:0.75rem; font-weight:700; color:var(--vx-danger);">
+                    <i class="fa-solid fa-circle" style="font-size:0.5rem;"></i> Inactive
+                  </span>
+                {% endif %}
+              </td>
+              <td style="text-align:right;">
+                <form method="post" action="{% url 'lms:admin_toggle_user_active' u.id %}" style="display:inline;">
+                  {% csrf_token %}
+                  <button type="submit" class="vx-btn vx-btn-outline vx-btn-sm" style="padding:0.25rem 0.6rem; font-size:0.75rem;" title="Toggle Account Status">
+                    {% if u.is_active %}Deactivate{% else %}Activate{% endif %}
+                  </button>
+                </form>
+              </td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="5" style="text-align:center; padding:2rem; color:var(--vx-muted);">No users found.</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- System Audit Trail Timeline -->
+  <div class="vx-card" style="margin-bottom:0;">
+    <div class="vx-card-header">
+      <div>
+        <h2 class="vx-card-title">Activity Timeline</h2>
+        <div class="vx-card-subtitle">Real-time immutable security audit trail</div>
+      </div>
+      <a href="{% url 'lms:admin_audit_logs' %}" class="vx-btn vx-btn-outline vx-btn-sm">
+        Full Log
+      </a>
+    </div>
+
+    <div class="vx-card-body" style="padding-top:1rem;">
+      <div style="display:flex; flex-direction:column; gap:1.25rem; position:relative;">
+        {% for log in recent_audits %}
+          <div style="display:flex; gap:1rem; position:relative;">
+            <!-- Timeline Icon Circle -->
+            <div style="width:32px; height:32px; border-radius:50%; background:var(--vx-primary-light); color:var(--vx-primary); display:flex; align-items:center; justify-content:center; font-size:0.85rem; flex-shrink:0;">
+              {% if 'USER' in log.action_type %}
+                <i class="fa-solid fa-user-shield"></i>
+              {% elif 'COURSE' in log.action_type %}
+                <i class="fa-solid fa-book"></i>
+              {% elif 'IMPORT' in log.action_type %}
+                <i class="fa-solid fa-file-import"></i>
+              {% else %}
+                <i class="fa-solid fa-shield-halved"></i>
+              {% endif %}
+            </div>
+
+            <div style="flex:1;">
+              <div style="display:flex; justify-content:space-between; align-items:baseline;">
+                <span style="font-weight:700; font-size:0.88rem; color:var(--vx-text-heading);">
+                  {{ log.action_type }}
+                </span>
+                <span style="font-size:0.75rem; color:var(--vx-muted);">
+                  {{ log.timestamp|timesince }} ago
+                </span>
+              </div>
+              <div style="font-size:0.8125rem; color:var(--vx-muted); margin-top:0.2rem;">
+                {{ log.target_entity }}
+              </div>
+              <div style="font-size:0.75rem; color:var(--vx-placeholder); margin-top:0.15rem;">
+                Actor: <strong style="color:var(--vx-text-heading);">{{ log.actor.username|default:"System" }}</strong>
+              </div>
+            </div>
+          </div>
+        {% empty %}
+          <div style="text-align:center; padding:2rem; color:var(--vx-muted);">
+            No audit records logged yet.
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block admin_extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  // Chart Colors based on Vuexy palette
+  const colors = {
+    primary: '#0FAE9A',
+    primaryLight: '#E6F7F5',
+    success: '#087F73',
+    warning: '#FF6333',
+    danger: '#EA5455',
+    info: '#0FAE9A',
+    dark: '#111827',
+    muted: '#64748B',
+    grid: 'rgba(17, 24, 39, 0.08)'
+  };
+
+  // 1. Support Tracker Radial Gauge Chart
+  const radialOptions = {
+    series: [85],
+    chart: {
+      height: 220,
+      type: 'radialBar',
+      sparkline: { enabled: true }
+    },
+    plotOptions: {
+      radialBar: {
+        startAngle: -135,
+        endAngle: 135,
+        hollow: {
+          size: '72%',
+        },
+        track: {
+          background: colors.grid,
+          strokeWidth: '97%',
+        },
+        dataLabels: {
+          name: {
+            show: true,
+            fontSize: '13px',
+            color: colors.muted,
+            offsetY: 20
+          },
+          value: {
+            offsetY: -15,
+            fontSize: '26px',
+            fontWeight: 800,
+            color: colors.dark,
+            formatter: function (val) {
+              return val + '%';
+            }
+          }
+        }
+      }
+    },
+    fill: {
+      type: 'gradient',
+      gradient: {
+        shade: 'dark',
+        type: 'horizontal',
+        shadeIntensity: 0.5,
+        gradientToColors: ['#087F73'],
+        inverseColors: true,
+        opacityFrom: 1,
+        opacityTo: 1,
+        stops: [0, 100]
+      }
+    },
+    stroke: {
+      dashArray: 4
+    },
+    labels: ['Completed Tasks']
+  };
+  const supportChart = new ApexCharts(document.querySelector("#supportTrackerChart"), radialOptions);
+  supportChart.render();
+
+  // 2. Revenue Mini Bar Chart
+  const revenueOptions = {
+    series: [{
+      name: 'Enrollment Tuition',
+      data: [35, 45, 30, 60, 48, 70, 85]
+    }],
+    chart: {
+      type: 'bar',
+      height: 140,
+      toolbar: { show: false },
+      sparkline: { enabled: true }
+    },
+    plotOptions: {
+      bar: {
+        columnWidth: '35%',
+        borderRadius: 4,
+        colors: {
+          ranges: [{
+            from: 0,
+            to: 100,
+            color: colors.primary
+          }]
+        }
+      }
+    },
+    tooltip: {
+      y: {
+        formatter: function (val) {
+          return "$" + (val * 100);
+        }
+      }
+    }
+  };
+  const revenueChart = new ApexCharts(document.querySelector("#revenueOverviewChart"), revenueOptions);
+  revenueChart.render();
+
+  // 3. Monthly Enrollment Trend Area Spline Chart
+  const monthsData = {{ months_json|safe }};
+  const enrollmentData = {{ monthly_enrollments_json|safe }};
+  const revenueData = {{ monthly_revenue_json|safe }};
+
+  const trendOptions = {
+    series: [
+      {
+        name: 'Active Enrollments',
+        data: enrollmentData
+      },
+      {
+        name: 'Gross Tuition ($)',
+        data: revenueData
+      }
+    ],
+    chart: {
+      type: 'area',
+      height: 310,
+      toolbar: { show: false },
+      parentHeightOffset: 0
+    },
+    colors: [colors.primary, colors.success],
+    dataLabels: { enabled: false },
+    stroke: {
+      curve: 'smooth',
+      width: 2.5
+    },
+    fill: {
+      type: 'gradient',
+      gradient: {
+        shadeIntensity: 1,
+        opacityFrom: 0.45,
+        opacityTo: 0.05,
+        stops: [0, 90, 100]
+      }
+    },
+    xaxis: {
+      categories: monthsData,
+      labels: {
+        style: { colors: colors.muted, fontSize: '12px' }
+      },
+      axisBorder: { show: false },
+      axisTicks: { show: false }
+    },
+    yaxis: {
+      labels: {
+        style: { colors: colors.muted, fontSize: '12px' }
+      }
+    },
+    grid: {
+      borderColor: colors.grid,
+      strokeDashArray: 4
+    },
+    tooltip: {
+      theme: 'light'
+    },
+    legend: {
+      position: 'top',
+      horizontalAlign: 'right',
+      labels: { colors: colors.muted }
+    }
+  };
+  const trendChart = new ApexCharts(document.querySelector("#enrollmentTrendChart"), trendOptions);
+  trendChart.render();
+
+  // 4. Department Course Distribution Donut Chart
+  const deptLabels = {{ dept_labels_json|safe }};
+  const deptSeries = {{ dept_series_json|safe }};
+
+  const donutOptions = {
+    series: deptSeries.length ? deptSeries : [1, 1, 1, 1, 1, 1],
+    labels: deptLabels.length ? deptLabels : ['CS', 'Data', 'UX', 'Security', 'Cloud', 'AI'],
+    chart: {
+      type: 'donut',
+      height: 290
+    },
+    colors: ['#0FAE9A', '#087F73', '#FF6333', '#111827', '#64748B', '#00CFE8'],
+    dataLabels: { enabled: false },
+    legend: {
+      position: 'bottom',
+      fontSize: '11px',
+      labels: { colors: colors.muted },
+      markers: { width: 8, height: 8, radius: 4 }
+    },
+    plotOptions: {
+      pie: {
+        donut: {
+          size: '70%',
+          labels: {
+            show: true,
+            total: {
+              show: true,
+              label: 'Total Courses',
+              fontSize: '12px',
+              color: colors.muted,
+              formatter: function (w) {
+                return w.globals.seriesTotals.reduce((a, b) => a + b, 0);
+              }
+            },
+            value: {
+              fontSize: '22px',
+              fontWeight: 800,
+              color: colors.dark
+            }
+          }
+        }
+      }
+    }
+  };
+  const donutChart = new ApexCharts(document.querySelector("#deptDonutChart"), donutOptions);
+  donutChart.render();
+});
+</script>
+
+<style>
+@media (max-width: 1200px) {
+  .vx-top-grid { grid-template-columns: 1fr !important; }
+  .vx-charts-grid { grid-template-columns: 1fr !important; }
+  .vx-bottom-grid { grid-template-columns: 1fr !important; }
+}
+</style>
+{% endblock %}

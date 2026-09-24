@@ -1,0 +1,167 @@
+{% extends 'admin/base_admin.html' %}
+
+{% block title %}User Management &amp; Directory – Vuexy Admin{% endblock %}
+
+{% block admin_content %}
+<!-- Vuexy Breadcrumb & Header -->
+<div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem;">
+  <div>
+    <h4 style="font-size: 1.35rem; font-weight: 700; color: var(--vx-text-heading); margin: 0; display: flex; align-items: center; gap: 0.5rem;">
+      <i class="fa-solid fa-users" style="color: var(--vx-primary);"></i>
+      User Management Directory
+    </h4>
+    <div style="font-size: 0.8125rem; color: var(--vx-muted); margin-top: 0.25rem;">
+      Administer registered accounts, permissions, academic IDs, and security activation states.
+    </div>
+  </div>
+  <div style="display: flex; gap: 0.75rem;">
+    <a href="{% url 'lms:admin_import_csv' %}" class="vx-btn vx-btn-primary">
+      <i class="fa-solid fa-cloud-arrow-up"></i>
+      <span>Bulk CSV Import</span>
+    </a>
+    <a href="{% url 'lms:admin_dashboard' %}" class="vx-btn vx-btn-outline-primary">
+      <i class="fa-solid fa-chart-pie"></i>
+      <span>Analytics Dashboard</span>
+    </a>
+  </div>
+</div>
+
+<!-- Filters Card -->
+<div class="vx-card" style="margin-bottom: 1.5rem;">
+  <div class="vx-card-body" style="padding: 1.25rem 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+    <form method="get" style="display: flex; gap: 0.75rem; flex: 1; max-width: 520px;">
+      <div style="position: relative; flex: 1;">
+        <i class="fa-solid fa-magnifying-glass" style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: var(--vx-placeholder); font-size: 0.85rem;"></i>
+        <input type="text" name="q" value="{{ query }}" class="vx-form-control" placeholder="Search by name, email, or academic ID..." style="padding-left: 2.5rem; width: 100%;">
+      </div>
+      {% if selected_role %}
+        <input type="hidden" name="role" value="{{ selected_role }}">
+      {% endif %}
+      <button type="submit" class="vx-btn vx-btn-primary" style="padding: 0.6rem 1rem;">
+        <i class="fa-solid fa-filter"></i> Search
+      </button>
+      {% if query %}
+        <a href="{% url 'lms:admin_users' %}{% if selected_role %}?role={{ selected_role }}{% endif %}" class="vx-btn vx-btn-outline-primary" style="padding: 0.6rem 1rem;">
+          <i class="fa-solid fa-xmark"></i> Clear
+        </a>
+      {% endif %}
+    </form>
+
+    <!-- Role Filter Pills -->
+    <div style="display: flex; gap: 0.5rem; align-items: center;">
+      <span style="font-size: 0.8rem; font-weight: 600; color: var(--vx-muted); margin-right: 0.25rem;">Role:</span>
+      <a href="{% url 'lms:admin_users' %}{% if query %}?q={{ query }}{% endif %}" 
+         class="vx-badge-pill {% if not selected_role %}primary{% else %}warning{% endif %}"
+         style="text-decoration: none; padding: 0.4rem 0.85rem; font-size: 0.8rem; cursor: pointer;">
+        All Roles
+      </a>
+      <a href="{% url 'lms:admin_users' %}?role=STUDENT{% if query %}&q={{ query }}{% endif %}" 
+         class="vx-badge-pill {% if selected_role == 'STUDENT' %}primary{% else %}warning{% endif %}"
+         style="text-decoration: none; padding: 0.4rem 0.85rem; font-size: 0.8rem; cursor: pointer;">
+        Students
+      </a>
+      <a href="{% url 'lms:admin_users' %}?role=INSTRUCTOR{% if query %}&q={{ query }}{% endif %}" 
+         class="vx-badge-pill {% if selected_role == 'INSTRUCTOR' %}primary{% else %}warning{% endif %}"
+         style="text-decoration: none; padding: 0.4rem 0.85rem; font-size: 0.8rem; cursor: pointer;">
+        Instructors
+      </a>
+      <a href="{% url 'lms:admin_users' %}?role=ADMIN{% if query %}&q={{ query }}{% endif %}" 
+         class="vx-badge-pill {% if selected_role == 'ADMIN' %}primary{% else %}warning{% endif %}"
+         style="text-decoration: none; padding: 0.4rem 0.85rem; font-size: 0.8rem; cursor: pointer;">
+        Admins
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- Users Table Card -->
+<div class="vx-card">
+  <div class="vx-card-header" style="border-bottom: 1px solid var(--vx-border-subtle); padding: 1.25rem 1.5rem;">
+    <div>
+      <h5 class="vx-card-title">Registered Accounts Directory</h5>
+      <div class="vx-card-subtitle">Complete registry of institutional students, faculty members, and system administrators</div>
+    </div>
+    <span class="vx-badge-pill primary">{{ users|length }} User Accounts</span>
+  </div>
+  <div style="overflow-x: auto;">
+    <table class="vx-table">
+      <thead>
+        <tr>
+          <th>User / Identity</th>
+          <th>Academic ID</th>
+          <th>Contact Email</th>
+          <th>Assigned Role</th>
+          <th>Access Status</th>
+          <th>Registration Date</th>
+          <th style="text-align: right;">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for u in users %}
+          <tr>
+            <td>
+              <div style="display: flex; align-items: center; gap: 0.75rem;">
+                <div class="vx-avatar" style="width: 36px; height: 36px; font-size: 0.85rem; background: {% cycle 'linear-gradient(135deg, #7367F0, #9E95F5)' 'linear-gradient(135deg, #28C76F, #48DA89)' 'linear-gradient(135deg, #00CFE8, #1CE7FF)' 'linear-gradient(135deg, #FF9F43, #FFB86C)' %};">
+                  {{ u.first_name|first|default:u.username|first|upper }}
+                </div>
+                <div>
+                  <div style="font-weight: 700; color: var(--vx-text-heading); font-size: 0.88rem;">{{ u.get_full_name_or_username }}</div>
+                  <div style="font-size: 0.75rem; color: var(--vx-muted);">@{{ u.username }}</div>
+                </div>
+              </div>
+            </td>
+            <td>
+              <span style="font-family: monospace; font-size: 0.8rem; background: var(--vx-border-subtle); padding: 0.2rem 0.5rem; border-radius: var(--vx-radius-sm); color: var(--vx-text-heading);">
+                {{ u.academic_id|default:"—" }}
+              </span>
+            </td>
+            <td style="color: var(--vx-muted); font-size: 0.84rem;">{{ u.email }}</td>
+            <td>
+              {% if u.role == 'ADMIN' %}
+                <span class="vx-badge-pill danger">Admin</span>
+              {% elif u.role == 'INSTRUCTOR' %}
+                <span class="vx-badge-pill warning">Instructor</span>
+              {% else %}
+                <span class="vx-badge-pill primary">Student</span>
+              {% endif %}
+            </td>
+            <td>
+              {% if u.is_active %}
+                <span class="vx-badge-pill success"><i class="fa-solid fa-circle-check" style="font-size: 0.7rem; margin-right: 0.2rem;"></i> Active</span>
+              {% else %}
+                <span class="vx-badge-pill danger"><i class="fa-solid fa-circle-xmark" style="font-size: 0.7rem; margin-right: 0.2rem;"></i> Inactive</span>
+              {% endif %}
+            </td>
+            <td style="color: var(--vx-muted); font-size: 0.82rem;">{{ u.date_joined|date:"M d, Y" }}</td>
+            <td style="text-align: right;">
+              {% if u != user %}
+                <a href="{% url 'lms:admin_toggle_user_active' u.id %}" 
+                   class="vx-btn {% if u.is_active %}vx-btn-outline-primary{% else %}vx-btn-primary{% endif %}"
+                   style="padding: 0.35rem 0.75rem; font-size: 0.78rem;"
+                   onclick="return confirm('Confirm change of active status for {{ u.username }}?')">
+                  {% if u.is_active %}
+                    <i class="fa-solid fa-user-slash"></i> Deactivate
+                  {% else %}
+                    <i class="fa-solid fa-user-check"></i> Activate
+                  {% endif %}
+                </a>
+              {% else %}
+                <span style="font-size: 0.78rem; color: var(--vx-primary); font-weight: 600;">
+                  <i class="fa-solid fa-lock" style="font-size: 0.75rem;"></i> Active Session
+                </span>
+              {% endif %}
+            </td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="7" style="text-align: center; padding: 3rem; color: var(--vx-muted);">
+              <i class="fa-regular fa-folder-open" style="font-size: 2.5rem; color: var(--vx-placeholder); display: block; margin-bottom: 0.75rem;"></i>
+              No user accounts found matching current search criteria.
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

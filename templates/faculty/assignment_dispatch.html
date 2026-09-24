@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Dispatch Assignment – DEVSKILL Platform{% endblock %}
+
+{% block content %}
+<!-- DEVSKILL Header Banner -->
+<div class="dev-header-banner">
+  <div style="max-width:850px; margin:0 auto; display:flex; justify-content:space-between; align-items:flex-end; flex-wrap:wrap; gap:1.5rem;">
+    <div>
+      <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.5rem;">
+        <span style="background:var(--primary,#0FAE9A); color:#FFFFFF; font-size:0.75rem; font-weight:800; padding:0.25rem 0.75rem; border-radius:999px;">
+          {{ course.course_code }}
+        </span>
+        <span style="color:#6B7280; font-size:0.85rem; font-weight:600;">Course Assignment Dispatch</span>
+      </div>
+      <h1 class="dev-page-title" style="font-size:1.85rem;">Create Course Assignment</h1>
+      <p class="dev-page-subtitle">Publish a new graded coursework task for enrolled students in {{ course.title }}</p>
+    </div>
+    <a href="{% url 'lms:faculty_dashboard' %}" class="btn btn-outline" style="border-radius:999px;">
+      <i class="fa-solid fa-arrow-left"></i> Faculty Hub
+    </a>
+  </div>
+</div>
+
+<div style="max-width:850px; margin:0 auto; padding:2.5rem 6vw 5rem 6vw;">
+  <div class="dev-card-modern" style="padding:2.25rem;">
+    <form method="post">
+      {% csrf_token %}
+
+      <div class="form-group" style="margin-bottom:1.25rem;">
+        <label class="form-label" for="title" style="font-weight:700; color:#374151; font-size:0.88rem;">Assignment Title</label>
+        <input type="text" name="title" id="title" class="form-control" placeholder="e.g. Project 2: High-Throughput RESTful API Architecture" required style="border-radius:12px; border:1px solid #E5E7EB; background:#F6FAFA; height:46px;">
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin-bottom:1.25rem;">
+        <div class="form-group">
+          <label class="form-label" for="release_at" style="font-weight:700; color:#374151; font-size:0.88rem;">Release Time</label>
+          <input type="datetime-local" name="release_at" id="release_at" class="form-control" required style="border-radius:12px; border:1px solid #E5E7EB; background:#F6FAFA; height:46px;">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="deadline" style="font-weight:700; color:#374151; font-size:0.88rem;">Deadline</label>
+          <input type="datetime-local" name="deadline" id="deadline" class="form-control" required style="border-radius:12px; border:1px solid #E5E7EB; background:#F6FAFA; height:46px;">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="max_points" style="font-weight:700; color:#374151; font-size:0.88rem;">Max Points</label>
+          <input type="number" step="0.5" name="max_points" id="max_points" class="form-control" value="100.00" required style="border-radius:12px; border:1px solid #E5E7EB; background:#F6FAFA; height:46px;">
+        </div>
+      </div>
+
+      <div class="form-group" style="margin-bottom: 1.5rem;">
+        <label class="form-label" for="instructions" style="font-weight:700; color:#374151; font-size:0.88rem;">Instructions &amp; Criteria (Markdown)</label>
+        <textarea name="instructions" id="instructions" class="form-control" rows="8" placeholder="Specify deliverables, grading criteria, rubric, and accepted formats (.pdf, .zip, .docx up to 25MB)..." style="border-radius:12px; border:1px solid #E5E7EB; background:#F6FAFA; line-height:1.6;"></textarea>
+      </div>
+
+      <div class="form-group" style="margin-bottom: 2rem; background: #F6FAFA; padding: 1.25rem; border-radius: 14px; border: 1px solid #EFE4DC;">
+        <label style="display: flex; align-items: center; gap: 0.65rem; cursor: pointer; font-size: 0.92rem; font-weight: 700; color: #111827;">
+          <input type="checkbox" name="allow_resubmissions" id="allow_resubmissions" checked style="width: 18px; height: 18px; accent-color: var(--primary, #0FAE9A);">
+          <span>Allow students to resubmit solutions prior to evaluation</span>
+        </label>
+      </div>
+
+      <button type="submit" class="btn btn-accent" style="border-radius:999px; padding: 0.85rem 2.25rem; font-weight:700; font-size:1rem; display:inline-flex; align-items:center; gap:0.5rem;">
+        <i class="fa-solid fa-paper-plane"></i>
+        <span>Publish &amp; Dispatch Assignment</span>
+      </button>
+    </form>
+  </div>
+</div>
+
+<script>
+  // Set default dates if empty
+  document.addEventListener('DOMContentLoaded', () => {
+    const now = new Date();
+    const deadline = new Date();
+    deadline.setDate(deadline.getDate() + 7);
+
+    const pad = (n) => n < 10 ? '0' + n : n;
+    const formatDateTime = (d) => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+
+    if (!document.getElementById('release_at').value) {
+      document.getElementById('release_at').value = formatDateTime(now);
+    }
+    if (!document.getElementById('deadline').value) {
+      document.getElementById('deadline').value = formatDateTime(deadline);
+    }
+  });
+</script>
+{% endblock %}

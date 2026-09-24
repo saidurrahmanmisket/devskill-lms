@@ -1,0 +1,171 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Course Catalog – DEVSKILL Academic Platform{% endblock %}
+
+{% block content %}
+<!-- DEVSKILL Header Banner -->
+<div class="dev-header-banner">
+  <div style="max-width:100%; margin:0 auto; padding:0 3rem; display:flex; justify-content:space-between; align-items:flex-end; flex-wrap:wrap; gap:1.5rem;">
+    <div>
+      <div class="dev-header-pill">
+        <i class="fa-solid fa-graduation-cap"></i> EXPLORE CATALOGUE
+      </div>
+      <h1 class="dev-page-title">Discover Our Top Rated Courses</h1>
+      <p class="dev-page-subtitle">
+        {{ courses|length }} verified academic course{{ courses|length|pluralize }} &middot; Fall 2026 Semester
+      </p>
+    </div>
+    {% if user.is_authenticated and user.role == 'STUDENT' %}
+      <a href="{% url 'lms:student_dashboard' %}" class="btn btn-outline" style="border-radius:999px;">
+        <i class="fa-solid fa-arrow-left"></i> My Learning Workspace
+      </a>
+    {% endif %}
+  </div>
+</div>
+
+<div style="max-width:100%; margin:0 auto; padding:2.5rem 3rem 5rem 3rem;">
+  <!-- Search & Filter Bar -->
+  <form method="get" style="margin-bottom:3rem;">
+    <div style="background:#FFFFFF; border:1px solid #EFE4DC; border-radius:24px; padding:1.25rem 1.5rem; box-shadow:0 4px 20px rgba(0,0,0,0.03); display:flex; gap:1rem; flex-wrap:wrap; align-items:center;">
+      <div style="flex:1; min-width:260px; position:relative;">
+        <span style="position:absolute; left:1.1rem; top:50%; transform:translateY(-50%); color:#9CA3AF; font-size:1rem;">
+          <i class="fa-solid fa-magnifying-glass"></i>
+        </span>
+        <input type="text" name="q" value="{{ query }}" placeholder="Search courses by title, instructor, or code..."
+               class="form-control" style="padding-left:2.8rem; border-radius:999px; border:1px solid #E5E7EB; background:#F6FAFA; height:48px;">
+      </div>
+
+      <div style="min-width:200px;">
+        <select name="dept" class="form-control" style="border-radius:999px; border:1px solid #E5E7EB; background:#F6FAFA; height:48px; font-weight:600; color:#374151;">
+          <option value="">All Academic Departments</option>
+          {% for d in departments %}
+            <option value="{{ d }}" {% if d == selected_dept %}selected{% endif %}>{{ d }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <button type="submit" class="btn btn-primary" style="border-radius:999px; height:48px; padding:0 1.75rem; font-weight:700;">
+        <i class="fa-solid fa-filter"></i> Filter
+      </button>
+
+      {% if query or selected_dept %}
+        <a href="{% url 'lms:course_catalog' %}" class="btn btn-outline" style="border-radius:999px; height:48px; display:inline-flex; align-items:center;">
+          <i class="fa-solid fa-xmark"></i> Clear
+        </a>
+      {% endif %}
+    </div>
+  </form>
+
+  <!-- Courses Grid -->
+  <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:2rem 1rem;">
+    {% for course in courses %}
+      <div class="dev-card-modern" style="display:flex; flex-direction:column;">
+        <!-- Card Thumbnail -->
+        <div style="height:280px; position:relative; overflow:hidden; background:#F3E8E2;"
+             onmouseover="this.querySelector('.course-hover-info').style.opacity='1'; this.querySelector('.course-img').style.transform='scale(1.05)'"
+             onmouseout="this.querySelector('.course-hover-info').style.opacity='0'; this.querySelector('.course-img').style.transform='scale(1)'">
+          <img src="{% static course.image_url %}" alt="{{ course.title }}" class="course-img" style="width:100%; height:100%; object-fit:cover; transition:transform 0.35s ease;">
+
+          <div class="course-hover-info" style="opacity:0; transition:opacity 0.3s ease; position:absolute; inset:0; pointer-events:none;">
+            <!-- Overlay gradient -->
+            <div style="position:absolute; inset:0; background:linear-gradient(to top, rgba(17,24,39,0.85) 0%, rgba(17,24,39,0.2) 100%); pointer-events:none;"></div>
+
+            <!-- Centered Play Icon -->
+            <div style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; pointer-events:none;">
+              <i class="fa-regular fa-circle-play" style="font-size:4rem; color:rgba(255,255,255,0.9); filter:drop-shadow(0 4px 12px rgba(0,0,0,0.5)); transition:transform 0.2s ease; pointer-events:auto; cursor:pointer;" onmouseover="this.style.transform='scale(1.15)'" onmouseout="this.style.transform='none'" onclick="window.location.href='{% url 'lms:public_course_detail' course.id %}'"></i>
+            </div>
+
+            <!-- Badges -->
+            <span style="position:absolute; top:1rem; left:1rem; background:rgba(17,24,39,0.75); backdrop-filter:blur(6px); color:#FFFFFF; font-size:0.75rem; font-weight:800; padding:0.35rem 0.85rem; border-radius:999px; letter-spacing:0.03em;">
+              {{ course.course_code }}
+            </span>
+            <span style="position:absolute; top:1rem; right:1rem; background:var(--accent,#FF6333); color:#FFFFFF; font-size:0.75rem; font-weight:800; padding:0.35rem 0.85rem; border-radius:999px;">
+              {{ course.credit_count }} Cr.
+            </span>
+
+            <!-- Meta on Thumbnail -->
+            <div style="position:absolute; bottom:0.85rem; left:1rem; right:1rem; display:flex; justify-content:space-between; align-items:center; color:#FFFFFF; font-size:0.8rem; font-weight:600;">
+              <span><i class="fa-solid fa-users" style="color:var(--primary,#0FAE9A); margin-right:4px;"></i> {{ course.total_students }} students</span>
+              <span><i class="fa-solid fa-layer-group" style="color:var(--accent,#FF6333); margin-right:4px;"></i> {{ course.total_modules }} modules</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Body -->
+        <div style="padding:1.5rem; display:flex; flex-direction:column; flex:1;">
+          <div style="flex:1;">
+            <div style="font-size:0.75rem; font-weight:800; text-transform:uppercase; color:var(--primary,#0FAE9A); letter-spacing:0.06em; margin-bottom:0.4rem;">
+              {{ course.department }}
+            </div>
+
+            <h3 style="font-size:1.15rem; font-weight:800; margin:0 0 0.65rem 0; line-height:1.4;">
+              <a href="{% url 'lms:public_course_detail' course.id %}" style="color:#111827; text-decoration:none; transition:color 0.2s;" onmouseover="this.style.color='var(--accent,#FF6333)'" onmouseout="this.style.color='#111827'">
+                {{ course.title }}
+              </a>
+            </h3>
+          </div>
+
+          <!-- Module / Assignment details -->
+          <div style="display:flex; align-items:center; gap:1.25rem; padding:0.85rem 0; border-top:1px solid #F3EDE8; border-bottom:1px solid #F3EDE8; margin-bottom:1.25rem; font-size:0.82rem; color:#4B5563;">
+            <div style="display:flex; align-items:center; gap:0.4rem;">
+              <i class="fa-solid fa-book-open" style="color:var(--primary,#0FAE9A);"></i>
+              <span>{{ course.total_modules }} module{{ course.total_modules|pluralize }}</span>
+            </div>
+            <div style="display:flex; align-items:center; gap:0.4rem;">
+              <i class="fa-solid fa-file-signature" style="color:var(--accent,#FF6333);"></i>
+              <span>{{ course.total_assignments }} assignment{{ course.total_assignments|pluralize }}</span>
+            </div>
+            <div style="margin-left:auto; display:flex; align-items:center; gap:0.25rem; color:#F59E0B; font-weight:700;">
+              <i class="fa-solid fa-star"></i> 5.0
+            </div>
+          </div>
+
+          <!-- Footer -->
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <div style="display:flex; align-items:center; gap:0.65rem;">
+              <div style="width:34px; height:34px; border-radius:50%; background:var(--primary-subtle,#E6F7F5); color:var(--primary,#0FAE9A); font-weight:800; font-size:0.85rem; display:flex; align-items:center; justify-content:center;">
+                {{ course.instructor.first_name|first|upper }}
+              </div>
+              <div>
+                <div style="font-size:0.82rem; font-weight:700; color:#111827;">{{ course.instructor.get_full_name }}</div>
+                <div style="font-size:0.72rem; color:#9CA3AF;">{{ course.instructor.academic_id }}</div>
+              </div>
+            </div>
+
+            <div style="display:flex; align-items:center; gap:0.5rem;">
+              <a href="{% url 'lms:public_course_detail' course.id %}" class="btn btn-outline btn-sm" style="border-radius:999px; padding:0.4rem 0.9rem;" title="View Syllabus">
+                Details
+              </a>
+              {% if user.is_authenticated and user.role == 'STUDENT' %}
+                {% if course.id in enrolled_ids %}
+                  <a href="{% url 'lms:course_detail' course.id %}" class="btn btn-primary btn-sm" style="border-radius:999px; padding:0.4rem 1.1rem;">
+                    Continue <i class="fa-solid fa-arrow-right" style="font-size:0.75rem;"></i>
+                  </a>
+                {% else %}
+                  <a href="{% url 'lms:enroll_course' course.id %}" class="btn btn-accent btn-sm" style="border-radius:999px; padding:0.4rem 1.1rem;">
+                    Enroll Now
+                  </a>
+                {% endif %}
+              {% else %}
+                <a href="{% url 'accounts:login' %}" class="btn btn-accent btn-sm" style="border-radius:999px; padding:0.4rem 1.1rem;">
+                  Enroll Now
+                </a>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+    {% empty %}
+      <div style="grid-column:1/-1; text-align:center; padding:5rem 2rem; background:#FFFFFF; border-radius:24px; border:1px solid #EFE4DC;">
+        <div style="width:70px; height:70px; margin:0 auto 1.5rem auto; background:#FFF0EA; color:#FF6333; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:2rem;">
+          <i class="fa-solid fa-magnifying-glass"></i>
+        </div>
+        <h3 style="color:#111827; font-size:1.4rem; font-weight:800; margin-bottom:0.5rem;">No courses found</h3>
+        <p style="color:#6B7280; font-size:0.95rem; margin-bottom:1.75rem;">Try modifying your keyword search or clear the academic department filter.</p>
+        <a href="{% url 'lms:course_catalog' %}" class="btn btn-primary" style="border-radius:999px;">Clear All Filters</a>
+      </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

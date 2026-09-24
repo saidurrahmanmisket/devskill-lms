@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <defs>
+    <!-- Background Gradient (Purple / Indigo) -->
+    <linearGradient id="it_bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#9E8CF8" />
+      <stop offset="50%" stop-color="#7367F0" />
+      <stop offset="100%" stop-color="#4D3CE0" />
+    </linearGradient>
+    
+    <!-- Spherical Highlight -->
+    <radialGradient id="it_highlight" cx="35%" cy="25%" r="65%">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.65" />
+      <stop offset="40%" stop-color="#FFFFFF" stop-opacity="0.15" />
+      <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0" />
+    </radialGradient>
+
+    <!-- Drop Shadow Filter -->
+    <filter id="it_shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="8" stdDeviation="6" flood-color="#7367F0" flood-opacity="0.4" />
+    </filter>
+    
+    <!-- Server Bevel Filter -->
+    <filter id="it_bevel" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="3" stdDeviation="2" flood-color="#2D1BA4" flood-opacity="0.45" />
+    </filter>
+  </defs>
+
+  <!-- Base Circle with Shadow -->
+  <circle cx="50" cy="50" r="42" fill="url(#it_bg)" filter="url(#it_shadow)" />
+  
+  <!-- Outer Bevel Ring -->
+  <circle cx="50" cy="50" r="39" fill="none" stroke="#FFFFFF" stroke-opacity="0.25" stroke-width="2" />
+  
+  <!-- 3D Server Stack / Cloud Network -->
+  <g filter="url(#it_bevel)">
+    <!-- Server 1 (Top) -->
+    <rect x="31" y="32" width="38" height="10" rx="3.5" fill="none" stroke="#FFFFFF" stroke-width="3.2" />
+    <circle cx="38" cy="37" r="1.8" fill="#28C76F" />
+    <circle cx="44" cy="37" r="1.8" fill="#00CFE8" />
+    <line x1="53" y1="37" x2="62" y2="37" stroke="#FFFFFF" stroke-width="2.2" stroke-linecap="round" />
+
+    <!-- Server 2 (Middle) -->
+    <rect x="31" y="46" width="38" height="10" rx="3.5" fill="none" stroke="#FFFFFF" stroke-width="3.2" />
+    <circle cx="38" cy="51" r="1.8" fill="#FF9F43" />
+    <circle cx="44" cy="51" r="1.8" fill="#28C76F" />
+    <line x1="53" y1="51" x2="62" y2="51" stroke="#FFFFFF" stroke-width="2.2" stroke-linecap="round" />
+
+    <!-- Server 3 (Bottom) -->
+    <rect x="31" y="60" width="38" height="10" rx="3.5" fill="none" stroke="#FFFFFF" stroke-width="3.2" />
+    <circle cx="38" cy="65" r="1.8" fill="#28C76F" />
+    <circle cx="44" cy="65" r="1.8" fill="#00CFE8" />
+    <line x1="53" y1="65" x2="62" y2="65" stroke="#FFFFFF" stroke-width="2.2" stroke-linecap="round" />
+  </g>
+
+  <!-- Spherical Top Glaze Highlight -->
+  <ellipse cx="44" cy="30" rx="22" ry="13" fill="url(#it_highlight)" transform="rotate(-15 44 30)" />
+</svg>

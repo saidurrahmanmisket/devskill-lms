@@ -1,0 +1,148 @@
+{% extends 'admin/base_admin.html' %}
+{% load static %}
+
+{% block title %}Vuexy – Evaluate Submission #{{ submission.id }}{% endblock %}
+
+{% block admin_content %}
+<!-- Breadcrumb Header -->
+<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; flex-wrap:wrap; gap:1rem;">
+  <div>
+    <h1 style="font-size:1.5rem; font-weight:700; color:var(--vx-text-heading); margin-bottom:0.25rem;">
+      Evaluate Submission #{{ submission.id }}
+    </h1>
+    <div style="font-size:0.8125rem; color:var(--vx-muted); display:flex; align-items:center; gap:0.5rem;">
+      <a href="{% url 'lms:faculty_dashboard' %}" style="color:var(--vx-primary); text-decoration:none; font-weight:600;">Faculty Hub</a>
+      <span>/</span>
+      <a href="{% url 'lms:faculty_gradebook' %}?course_id={{ submission.assignment.course.id }}" style="color:var(--vx-primary); text-decoration:none;">Gradebook</a>
+      <span>/</span>
+      <span>{{ submission.assignment.title }}</span>
+    </div>
+  </div>
+
+  <a href="{% url 'lms:faculty_gradebook' %}?course_id={{ submission.assignment.course.id }}" class="vx-btn vx-btn-outline vx-btn-sm">
+    <i class="fa-solid fa-arrow-left"></i> Back to Gradebook
+  </a>
+</div>
+
+<div style="display:grid; grid-template-columns: 1fr 1.35fr; gap:1.5rem; align-items:start;" class="vx-eval-grid">
+  <!-- Left Column: Candidate & Submission Details -->
+  <div class="vx-card" style="margin-bottom:0;">
+    <div class="vx-card-header">
+      <div>
+        <h2 class="vx-card-title">Submission Details</h2>
+        <div class="vx-card-subtitle">Student Candidate &amp; Uploaded Solution</div>
+      </div>
+      <span class="vx-badge-pill primary">{{ submission.assignment.course.course_code }}</span>
+    </div>
+
+    <div class="vx-card-body" style="display:flex; flex-direction:column; gap:1.25rem;">
+      <div>
+        <div style="font-size:0.75rem; text-transform:uppercase; color:var(--vx-muted); font-weight:700;">Candidate</div>
+        <div style="font-weight:800; font-size:1.1rem; color:var(--vx-text-heading); margin-top:0.2rem;">
+          {{ submission.student.get_full_name_or_username }}
+        </div>
+        <div style="font-size:0.8125rem; color:var(--vx-muted);">
+          Academic ID: <strong style="color:var(--vx-text-heading);">{{ submission.student.academic_id|default:"STU-ONLINE" }}</strong>
+        </div>
+      </div>
+
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1rem; padding:1rem 0; border-top:1px solid var(--vx-border); border-bottom:1px solid var(--vx-border);">
+        <div>
+          <div style="font-size:0.72rem; text-transform:uppercase; color:var(--vx-muted); font-weight:700;">Submitted At</div>
+          <div style="font-weight:700; color:var(--vx-text-heading); font-size:0.875rem; margin-top:0.2rem;">
+            {{ submission.submitted_at|date:"M d, Y H:i" }}
+          </div>
+          <div style="margin-top:0.35rem;">
+            {% if submission.is_late %}
+              <span class="vx-badge-pill danger">Late Submission</span>
+            {% else %}
+              <span class="vx-badge-pill success">On-Time</span>
+            {% endif %}
+          </div>
+        </div>
+
+        <div>
+          <div style="font-size:0.72rem; text-transform:uppercase; color:var(--vx-muted); font-weight:700;">Assignment Deadline</div>
+          <div style="font-weight:700; color:var(--vx-text-heading); font-size:0.875rem; margin-top:0.2rem;">
+            {{ submission.assignment.deadline|date:"M d, Y H:i" }}
+          </div>
+          <div style="font-size:0.75rem; color:var(--vx-muted); margin-top:0.35rem;">
+            Max Points: {{ submission.assignment.max_points }}
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div style="font-size:0.75rem; text-transform:uppercase; color:var(--vx-muted); font-weight:700; margin-bottom:0.5rem;">Solution Artifact</div>
+        <a href="{% url 'lms:download_submission' submission.id %}" class="vx-btn vx-btn-primary" style="width:100%;">
+          <i class="fa-solid fa-file-arrow-down"></i> Download Solution File &darr;
+        </a>
+      </div>
+
+      {% if submission.is_graded %}
+        <div style="background:var(--vx-warning-light); border-left:4px solid var(--vx-warning); padding:1rem; border-radius:var(--vx-radius-sm); font-size:0.8125rem; color:var(--vx-text-heading);">
+          <strong style="color:var(--vx-warning);">Current Evaluation:</strong> {{ submission.score }} / {{ submission.assignment.max_points }}<br>
+          <span style="font-size:0.75rem; color:var(--vx-muted);">Updating will log a formal GRADE_OVERRIDE audit event.</span>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Right Column: Grade Input & Feedback -->
+  <div class="vx-card" style="margin-bottom:0;">
+    <div class="vx-card-header">
+      <div>
+        <h2 class="vx-card-title">Evaluation Entry</h2>
+        <div class="vx-card-subtitle">Assign numerical score &amp; qualitative rubric feedback</div>
+      </div>
+    </div>
+
+    <div class="vx-card-body">
+      <form method="post">
+        {% csrf_token %}
+
+        <div style="margin-bottom:1.5rem;">
+          <label class="vx-form-label" for="score">
+            Numerical Score (Scale: 0 &ndash; {{ submission.assignment.max_points }})
+          </label>
+          <input 
+            type="number" 
+            step="0.25" 
+            name="score" 
+            id="score" 
+            class="vx-form-control" 
+            value="{{ submission.score|default:'' }}" 
+            min="0" 
+            max="{{ submission.assignment.max_points }}" 
+            placeholder="e.g. 95.00" 
+            required
+            style="font-size:1.15rem; font-weight:800; height:48px; width:100%;"
+          >
+        </div>
+
+        <div style="margin-bottom:1.75rem;">
+          <label class="vx-form-label" for="feedback_markdown">
+            Constructive Feedback &amp; Rubric Critique (Markdown)
+          </label>
+          <textarea 
+            name="feedback_markdown" 
+            id="feedback_markdown" 
+            class="vx-form-control" 
+            rows="8" 
+            placeholder="Provide constructive assessment, code critique, architectural strengths, and areas for improvement..."
+            style="width:100%; line-height:1.6;"
+          >{{ submission.feedback_markdown|default:'' }}</textarea>
+        </div>
+
+        <button type="submit" class="vx-btn vx-btn-primary" style="width:100%; padding:0.85rem; font-size:1rem;">
+          {% if submission.is_graded %}
+            <i class="fa-solid fa-arrows-rotate"></i> Update &amp; Record Grade
+          {% else %}
+            <i class="fa-solid fa-check"></i> Submit Official Evaluation
+          {% endif %}
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

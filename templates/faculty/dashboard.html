@@ -1,0 +1,535 @@
+{% extends 'admin/base_admin.html' %}
+{% load static %}
+
+{% block title %}Vuexy – Faculty Instruction Hub &amp; Teaching Analytics{% endblock %}
+
+{% block admin_content %}
+<!-- Breadcrumb Header -->
+<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; flex-wrap:wrap; gap:1rem;">
+  <div>
+    <h1 style="font-size:1.5rem; font-weight:700; color:var(--vx-text-heading); margin-bottom:0.25rem;">
+      Faculty Instruction Hub
+    </h1>
+    <div style="font-size:0.8125rem; color:var(--vx-muted); display:flex; align-items:center; gap:0.5rem;">
+      <a href="{% url 'lms:faculty_dashboard' %}" style="color:var(--vx-primary); text-decoration:none; font-weight:600;">Faculty</a>
+      <span>/</span>
+      <span>Teaching Analytics &amp; Course Management</span>
+      <span>/</span>
+      <span style="font-weight:600; color:var(--vx-text-heading);">ID: {{ user.academic_id|default:"FAC-PROF" }}</span>
+    </div>
+  </div>
+
+  <div style="display:flex; gap:0.75rem; flex-wrap:wrap;">
+    <a href="{% url 'lms:faculty_gradebook' %}" class="vx-btn vx-btn-outline-primary vx-btn-sm">
+      <i class="fa-solid fa-table-list"></i> Master Gradebook
+    </a>
+    <a href="{% url 'lms:course_create' %}" class="vx-btn vx-btn-primary vx-btn-sm">
+      <i class="fa-solid fa-circle-plus"></i> Author Course
+    </a>
+  </div>
+</div>
+
+<!-- ===================================================================
+     ROW 2: 4 VUEXY KPI STAT CARDS
+     =================================================================== -->
+<div style="display:grid; grid-template-columns: repeat(4, 1fr); gap:1.5rem; margin-bottom:1.5rem;" class="vx-kpi-grid">
+  <!-- KPI 1 -->
+  <div class="vx-card" style="margin-bottom:0; padding:1.25rem 1.5rem;">
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+      <div>
+        <div style="font-size:0.8125rem; color:var(--vx-muted); font-weight:600;">Students Mentored</div>
+        <div style="font-size:1.65rem; font-weight:800; color:var(--vx-text-heading); margin-top:0.25rem;">{{ total_students_enrolled }}</div>
+        <div style="font-size:0.75rem; color:var(--vx-success); margin-top:0.35rem; display:flex; align-items:center; gap:0.25rem;">
+          <i class="fa-solid fa-circle-check"></i> Active in courses
+        </div>
+      </div>
+      <div style="width:44px; height:44px; border-radius:8px; background:var(--vx-primary-light); color:var(--vx-primary); display:flex; align-items:center; justify-content:center; font-size:1.25rem;">
+        <i class="fa-solid fa-users"></i>
+      </div>
+    </div>
+  </div>
+
+  <!-- KPI 2 -->
+  <div class="vx-card" style="margin-bottom:0; padding:1.25rem 1.5rem;">
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+      <div>
+        <div style="font-size:0.8125rem; color:var(--vx-muted); font-weight:600;">Active Curricula</div>
+        <div style="font-size:1.65rem; font-weight:800; color:var(--vx-text-heading); margin-top:0.25rem;">{{ total_courses }}</div>
+        <div style="font-size:0.75rem; color:var(--vx-primary); margin-top:0.35rem; display:flex; align-items:center; gap:0.25rem;">
+          <i class="fa-solid fa-layer-group"></i> {{ total_assignments }} Assigned Tasks
+        </div>
+      </div>
+      <div style="width:44px; height:44px; border-radius:8px; background:var(--vx-warning-light); color:var(--vx-warning); display:flex; align-items:center; justify-content:center; font-size:1.25rem;">
+        <i class="fa-solid fa-book-open"></i>
+      </div>
+    </div>
+  </div>
+
+  <!-- KPI 3 -->
+  <div class="vx-card" style="margin-bottom:0; padding:1.25rem 1.5rem;">
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+      <div>
+        <div style="font-size:0.8125rem; color:var(--vx-muted); font-weight:600;">Grading Queue</div>
+        <div style="font-size:1.65rem; font-weight:800; color:var(--vx-text-heading); margin-top:0.25rem;">{{ total_pending }}</div>
+        <div style="font-size:0.75rem; color:var(--vx-warning); margin-top:0.35rem; display:flex; align-items:center; gap:0.25rem;">
+          <i class="fa-regular fa-clock"></i> Submissions Pending
+        </div>
+      </div>
+      <div style="width:44px; height:44px; border-radius:8px; background:var(--vx-warning-light); color:var(--vx-warning); display:flex; align-items:center; justify-content:center; font-size:1.25rem;">
+        <i class="fa-solid fa-hourglass-half"></i>
+      </div>
+    </div>
+  </div>
+
+  <!-- KPI 4 -->
+  <div class="vx-card" style="margin-bottom:0; padding:1.25rem 1.5rem;">
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+      <div>
+        <div style="font-size:0.8125rem; color:var(--vx-muted); font-weight:600;">Graded Submissions</div>
+        <div style="font-size:1.65rem; font-weight:800; color:var(--vx-text-heading); margin-top:0.25rem;">{{ total_graded }}</div>
+        <div style="font-size:0.75rem; color:var(--vx-success); margin-top:0.35rem; display:flex; align-items:center; gap:0.25rem;">
+          <i class="fa-solid fa-chart-line"></i> {{ grading_rate }}% Completion
+        </div>
+      </div>
+      <div style="width:44px; height:44px; border-radius:8px; background:var(--vx-success-light); color:var(--vx-success); display:flex; align-items:center; justify-content:center; font-size:1.25rem;">
+        <i class="fa-solid fa-circle-check"></i>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ===================================================================
+     ROW 1: TEACHING ANALYTICS HERO + GRADING TRACKER + VELOCITY
+     =================================================================== -->
+<div style="display:grid; grid-template-columns: 1.5fr 1fr 1fr; gap:1.5rem; margin-bottom:1.5rem;" class="vx-top-grid">
+
+  <!-- Card 1: Vuexy Signature Teaching Analytics Hero Card -->
+  <div class="vx-card" style="background: linear-gradient(72.47deg, #0FAE9A 22.16%, #087F73 76.47%); color:#FFFFFF; margin-bottom:0; display:flex; flex-direction:column; justify-content:space-between; position:relative; overflow:hidden;">
+    <div style="padding:1.75rem 1.75rem 1rem 1.75rem;">
+      <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+        <div>
+          <h2 style="font-size:1.35rem; font-weight:700; color:#FFFFFF; margin-bottom:0.35rem;">Teaching Analytics</h2>
+          <div style="font-size:0.875rem; color:rgba(255,255,255,0.85);">
+            Welcome back, Prof. {{ user.get_full_name_or_username }}
+          </div>
+        </div>
+        <div style="width:48px; height:48px; border-radius:12px; background:rgba(255,255,255,0.18); display:flex; align-items:center; justify-content:center; font-size:1.5rem;">
+          <i class="fa-solid fa-chalkboard-user"></i>
+        </div>
+      </div>
+
+      <div style="margin-top:1.5rem; display:grid; grid-template-columns: 1fr 1fr; gap:1rem;">
+        <div style="background:rgba(255,255,255,0.14); border-radius:8px; padding:0.85rem 1rem;">
+          <div style="font-size:0.75rem; text-transform:uppercase; letter-spacing:0.04em; color:rgba(255,255,255,0.8);">Active Students</div>
+          <div style="font-size:1.5rem; font-weight:800; color:#FFFFFF; margin-top:0.2rem;">{{ total_students_enrolled|default:"0" }}</div>
+        </div>
+        <div style="background:rgba(255,255,255,0.14); border-radius:8px; padding:0.85rem 1rem;">
+          <div style="font-size:0.75rem; text-transform:uppercase; letter-spacing:0.04em; color:rgba(255,255,255,0.8);">Evaluations</div>
+          <div style="font-size:1.5rem; font-weight:800; color:#FFFFFF; margin-top:0.2rem;">{{ total_graded|default:"0" }}</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="padding:1rem 1.75rem 1.5rem 1.75rem; display:flex; justify-content:space-between; align-items:center; border-top:1px solid rgba(255,255,255,0.15);">
+      <div style="font-size:0.8125rem; color:rgba(255,255,255,0.9);">
+        <i class="fa-solid fa-circle-check" style="margin-right:4px;"></i> {{ avg_score|default:"88.5" }}% Average Class Score
+      </div>
+      <a href="{% url 'lms:faculty_gradebook' %}" style="color:#FFFFFF; font-weight:700; font-size:0.8125rem; text-decoration:none; display:inline-flex; align-items:center; gap:0.35rem;">
+        Master Ledger <i class="fa-solid fa-arrow-right"></i>
+      </a>
+    </div>
+  </div>
+
+  <!-- Card 2: Grading Tracker Radial -->
+  <div class="vx-card" style="margin-bottom:0; display:flex; flex-direction:column;">
+    <div class="vx-card-header">
+      <div>
+        <h2 class="vx-card-title">Grading Tracker</h2>
+        <div class="vx-card-subtitle">Pending vs Graded Queue</div>
+      </div>
+      <div style="font-size:1.25rem; font-weight:800; color:var(--vx-text-heading);">{{ total_submissions|default:"0" }}</div>
+    </div>
+    <div class="vx-card-body" style="padding-top:0; display:flex; flex-direction:column; justify-content:space-between; flex:1;">
+      <div id="gradingTrackerChart" style="min-height:190px;"></div>
+      <div style="display:flex; justify-content:space-around; text-align:center; padding-top:0.75rem; border-top:1px solid var(--vx-border);">
+        <div>
+          <div style="font-size:0.75rem; color:var(--vx-muted);">Pending</div>
+          <div style="font-weight:700; color:var(--vx-warning); font-size:1.05rem;">{{ total_pending }}</div>
+        </div>
+        <div>
+          <div style="font-size:0.75rem; color:var(--vx-muted);">Evaluated</div>
+          <div style="font-weight:700; color:var(--vx-success); font-size:1.05rem;">{{ total_graded }}</div>
+        </div>
+        <div>
+          <div style="font-size:0.75rem; color:var(--vx-muted);">Completion</div>
+          <div style="font-weight:700; color:var(--vx-primary); font-size:1.05rem;">{{ grading_rate }}%</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Card 3: Submissions & Activity Velocity -->
+  <div class="vx-card" style="margin-bottom:0; display:flex; flex-direction:column;">
+    <div class="vx-card-header">
+      <div>
+        <h2 class="vx-card-title">Submission Velocity</h2>
+        <div class="vx-card-subtitle">Weekly Student Submissions</div>
+      </div>
+      <span class="vx-badge-pill success">+14.2%</span>
+    </div>
+    <div class="vx-card-body" style="padding-top:0; display:flex; flex-direction:column; justify-content:space-between; flex:1;">
+      <div style="display:flex; align-items:baseline; gap:0.5rem; margin-bottom:0.5rem;">
+        <span style="font-size:1.75rem; font-weight:800; color:var(--vx-text-heading);">{{ total_submissions }}</span>
+        <span style="font-size:0.8125rem; color:var(--vx-muted);">total student tasks</span>
+      </div>
+      <div id="facultyVelocityChart" style="min-height:140px;"></div>
+      <div style="font-size:0.8125rem; color:var(--vx-muted); text-align:center; margin-top:0.5rem;">
+        <i class="fa-solid fa-arrow-trend-up" style="color:var(--vx-success); margin-right:4px;"></i> Active evaluation on track
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ===================================================================
+     ROW 3: ACTIVE COURSES TABLE + PENDING GRADING QUEUE
+     =================================================================== -->
+<div style="display:grid; grid-template-columns: 1.6fr 1.2fr; gap:1.5rem; margin-bottom:1.5rem;" class="vx-tables-grid">
+
+  <!-- Courses Table Card -->
+  <div class="vx-card" style="margin-bottom:0;">
+    <div class="vx-card-header">
+      <div>
+        <h2 class="vx-card-title">My Courses &amp; Curricula</h2>
+        <div class="vx-card-subtitle">Active Courses, Modules, and Enrollment Rosters</div>
+      </div>
+      <a href="{% url 'lms:course_create' %}" class="vx-btn vx-btn-primary vx-btn-sm">
+        <i class="fa-solid fa-plus"></i> New Course
+      </a>
+    </div>
+
+    <div style="overflow-x:auto;">
+      <table class="vx-table">
+        <thead>
+          <tr>
+            <th>Course</th>
+            <th>Department</th>
+            <th>Status</th>
+            <th>Enrolled</th>
+            <th>Modules</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for course in courses %}
+            <tr>
+              <td>
+                <div style="display:flex; align-items:center; gap:0.75rem;">
+                  <span class="vx-badge-pill primary" style="font-size:0.75rem; font-weight:800;">
+                    {{ course.course_code }}
+                  </span>
+                  <div>
+                    <a href="{% url 'lms:curriculum_builder' course.id %}" style="font-weight:700; color:var(--vx-text-heading); text-decoration:none;">
+                      {{ course.title }}
+                    </a>
+                    <div style="font-size:0.75rem; color:var(--vx-muted);">
+                      {{ course.credit_count }} Credits &middot; {{ course.assignment_count }} Assignments
+                    </div>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <span class="vx-badge-pill warning" style="font-size:0.72rem;">{{ course.department }}</span>
+              </td>
+              <td>
+                <form method="post" action="{% url 'lms:course_toggle_publish' course.id %}" style="display:inline;">
+                  {% csrf_token %}
+                  {% if course.is_published %}
+                    <button type="submit" class="vx-badge-pill success" style="border:none; cursor:pointer; font-family:inherit;" title="Click to unpublish">
+                      <i class="fa-solid fa-check"></i> Published
+                    </button>
+                  {% else %}
+                    <button type="submit" class="vx-badge-pill danger" style="border:none; cursor:pointer; font-family:inherit;" title="Click to publish">
+                      <i class="fa-solid fa-eye-slash"></i> Draft
+                    </button>
+                  {% endif %}
+                </form>
+              </td>
+              <td>
+                <span style="font-weight:700; color:var(--vx-text-heading);">{{ course.enrolled_count }}</span>
+                <span style="font-size:0.75rem; color:var(--vx-muted);">students</span>
+              </td>
+              <td>
+                <span style="font-weight:700; color:var(--vx-text-heading);">{{ course.module_count }}</span>
+              </td>
+              <td>
+                <div style="display:flex; align-items:center; gap:0.4rem;">
+                  <a href="{% url 'lms:curriculum_builder' course.id %}" class="vx-btn vx-btn-outline vx-btn-sm" title="Curriculum Builder" style="padding:0.3rem 0.6rem;">
+                    <i class="fa-solid fa-pen-ruler"></i>
+                  </a>
+                  <a href="{% url 'lms:assignment_dispatch' course.id %}" class="vx-btn vx-btn-outline vx-btn-sm" title="Dispatch Task" style="padding:0.3rem 0.6rem;">
+                    <i class="fa-solid fa-paper-plane"></i>
+                  </a>
+                  <a href="{% url 'lms:faculty_gradebook' %}?course_id={{ course.id }}" class="vx-btn vx-btn-outline-primary vx-btn-sm" title="Course Gradebook" style="padding:0.3rem 0.6rem;">
+                    <i class="fa-solid fa-table-list"></i>
+                  </a>
+                </div>
+              </td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="6" style="text-align:center; padding:2rem; color:var(--vx-muted);">
+                <i class="fa-solid fa-folder-open" style="font-size:2rem; opacity:0.3; margin-bottom:0.5rem; display:block;"></i>
+                No courses authored yet. <a href="{% url 'lms:course_create' %}" style="color:var(--vx-primary); font-weight:700;">Author your first course</a>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Pending Grading Queue Card -->
+  <div class="vx-card" style="margin-bottom:0; display:flex; flex-direction:column;">
+    <div class="vx-card-header">
+      <div>
+        <h2 class="vx-card-title">Pending Grading Queue</h2>
+        <div class="vx-card-subtitle">Submissions Awaiting Instructor Review</div>
+      </div>
+      <span class="vx-badge-pill warning">{{ total_pending }} Pending</span>
+    </div>
+
+    <div style="overflow-x:auto; flex:1;">
+      <table class="vx-table">
+        <thead>
+          <tr>
+            <th>Student</th>
+            <th>Task &amp; Course</th>
+            <th>Submitted</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for sub in pending_submissions|slice:":6" %}
+            <tr>
+              <td>
+                <div style="font-weight:700; color:var(--vx-text-heading);">{{ sub.student.get_full_name_or_username }}</div>
+                <div style="font-size:0.72rem; color:var(--vx-muted);">{{ sub.student.academic_id|default:"STU" }}</div>
+              </td>
+              <td>
+                <div style="font-weight:600; color:var(--vx-text-heading); font-size:0.85rem;">{{ sub.assignment.title|truncatechars:20 }}</div>
+                <span class="vx-badge-pill primary" style="font-size:0.68rem;">{{ sub.assignment.course.course_code }}</span>
+              </td>
+              <td>
+                <div style="font-size:0.75rem; color:var(--vx-muted);">{{ sub.submitted_at|date:"M d, H:i" }}</div>
+                {% if sub.is_late %}
+                  <span class="vx-badge-pill danger" style="font-size:0.65rem;">Late</span>
+                {% else %}
+                  <span class="vx-badge-pill success" style="font-size:0.65rem;">On-Time</span>
+                {% endif %}
+              </td>
+              <td>
+                <a href="{% url 'lms:grade_submission' sub.id %}" class="vx-btn vx-btn-primary vx-btn-sm" style="padding:0.35rem 0.75rem; font-size:0.78rem;">
+                  <i class="fa-solid fa-check"></i> Grade
+                </a>
+              </td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="4" style="text-align:center; padding:2rem; color:var(--vx-muted);">
+                <i class="fa-solid fa-circle-check" style="font-size:2rem; color:var(--vx-success); opacity:0.5; margin-bottom:0.5rem; display:block;"></i>
+                Grading queue is clear! All submitted assignments are evaluated.
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<!-- ===================================================================
+     ROW 4: RECENTLY EVALUATED TASKS LEDGER
+     =================================================================== -->
+<div class="vx-card" style="margin-bottom:0;">
+  <div class="vx-card-header">
+    <div>
+      <h2 class="vx-card-title">Recent Evaluations &amp; Grade Records</h2>
+      <div class="vx-card-subtitle">Latest graded student assignments across your curricula</div>
+    </div>
+    <a href="{% url 'lms:faculty_gradebook' %}" class="vx-btn vx-btn-outline vx-btn-sm">
+      <i class="fa-solid fa-list-check"></i> View Full Gradebook
+    </a>
+  </div>
+
+  <div style="overflow-x:auto;">
+    <table class="vx-table">
+      <thead>
+        <tr>
+          <th>Student Candidate</th>
+          <th>Course &amp; Task</th>
+          <th>Awarded Score</th>
+          <th>Feedback Snippet</th>
+          <th>Graded At</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for sub in recent_graded %}
+          <tr>
+            <td>
+              <div style="font-weight:700; color:var(--vx-text-heading);">{{ sub.student.get_full_name_or_username }}</div>
+              <div style="font-size:0.72rem; color:var(--vx-muted);">ID: {{ sub.student.academic_id|default:"STU-ID" }}</div>
+            </td>
+            <td>
+              <div style="font-weight:600; color:var(--vx-text-heading);">{{ sub.assignment.title }}</div>
+              <span class="vx-badge-pill primary" style="font-size:0.72rem;">{{ sub.assignment.course.course_code }}</span>
+            </td>
+            <td>
+              <span class="vx-badge-pill success" style="font-size:0.85rem; font-weight:800;">
+                {{ sub.score }} / 100
+              </span>
+            </td>
+            <td style="max-width:240px; font-size:0.8125rem; color:var(--vx-muted);">
+              {{ sub.feedback|default:"Satisfactory completion."|truncatechars:45 }}
+            </td>
+            <td style="font-size:0.75rem; color:var(--vx-muted);">
+              {{ sub.graded_at|date:"M d, Y H:i" }}
+            </td>
+            <td>
+              <a href="{% url 'lms:grade_submission' sub.id %}" class="vx-btn vx-btn-outline vx-btn-sm" title="Review / Re-grade">
+                <i class="fa-solid fa-pen"></i> Edit
+              </a>
+            </td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="6" style="text-align:center; padding:1.5rem; color:var(--vx-muted);">
+              No evaluated submissions recorded yet.
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
+
+{% block admin_extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  const textHeading = isDark ? '#F8FAFC' : '#111827';
+  const textMuted = isDark ? '#94A3B8' : '#64748B';
+
+  // 1. Grading Tracker Radial Gauge Chart
+  const gradingRate = {{ grading_rate|default:100 }};
+  const gradingTrackerOptions = {
+    series: [gradingRate],
+    chart: {
+      height: 220,
+      type: 'radialBar',
+      sparkline: { enabled: true }
+    },
+    plotOptions: {
+      radialBar: {
+        startAngle: -135,
+        endAngle: 135,
+        hollow: {
+          size: '68%',
+          background: 'transparent'
+        },
+        track: {
+          background: isDark ? '#334155' : '#E2E8F0',
+          strokeWidth: '100%',
+        },
+        dataLabels: {
+          name: {
+            show: true,
+            fontSize: '12px',
+            color: textMuted,
+            offsetY: 20,
+            fontFamily: 'inherit'
+          },
+          value: {
+            offsetY: -15,
+            fontSize: '26px',
+            fontWeight: 800,
+            color: textHeading,
+            fontFamily: 'inherit',
+            formatter: function (val) {
+              return val + "%";
+            }
+          }
+        }
+      }
+    },
+    fill: {
+      type: 'gradient',
+      gradient: {
+        shade: 'dark',
+        type: 'horizontal',
+        shadeIntensity: 0.5,
+        gradientToColors: ['#087F73'],
+        inverseColors: true,
+        opacityFrom: 1,
+        opacityTo: 1,
+        stops: [0, 100]
+      }
+    },
+    colors: ['#0FAE9A'],
+    stroke: { dashArray: 4 },
+    labels: ['Completed']
+  };
+
+  const chartEl1 = document.querySelector("#gradingTrackerChart");
+  if (chartEl1) {
+    const chart1 = new ApexCharts(chartEl1, gradingTrackerOptions);
+    chart1.render();
+  }
+
+  // 2. Weekly Submission Velocity Bar Chart
+  const velocityOptions = {
+    series: [{
+      name: 'Submissions',
+      data: {{ weekly_submissions|safe }}
+    }],
+    chart: {
+      type: 'bar',
+      height: 140,
+      sparkline: { enabled: true },
+      toolbar: { show: false }
+    },
+    plotOptions: {
+      bar: {
+        columnWidth: '55%',
+        borderRadius: 4,
+        colors: {
+          ranges: [{
+            from: 0,
+            to: 100,
+            color: '#0FAE9A'
+          }]
+        }
+      }
+    },
+    tooltip: {
+      theme: isDark ? 'dark' : 'light',
+      y: {
+        formatter: function (val) {
+          return val + " submissions";
+        }
+      }
+    }
+  };
+
+  const chartEl2 = document.querySelector("#facultyVelocityChart");
+  if (chartEl2) {
+    const chart2 = new ApexCharts(chartEl2, velocityOptions);
+    chart2.render();
+  }
+});
+</script>
+{% endblock %}

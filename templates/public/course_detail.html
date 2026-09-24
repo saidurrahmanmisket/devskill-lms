@@ -1,0 +1,285 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ course.course_code }}: {{ course.title }} – DEVSKILL Academic Platform{% endblock %}
+
+{% block content %}
+<!-- Course Hero Banner -->
+<div style="background: linear-gradient(135deg, #111827 0%, #1F2937 100%); position:relative; overflow:hidden; color:#FFFFFF;">
+  <div style="position:absolute; inset:0; background:radial-gradient(circle at 80% 20%, rgba(0, 158, 140, 0.22) 0%, transparent 60%);"></div>
+
+  <div style="max-width:1500px; margin:0 auto; padding:3.5rem 2rem; position:relative; z-index:1;">
+    <div style="display:flex; align-items:center; gap:0.6rem; margin-bottom:1.25rem;">
+      <a href="{% url 'lms:course_catalog' %}" style="color:rgba(255,255,255,0.7); text-decoration:none; font-size:0.85rem; display:inline-flex; align-items:center; gap:0.4rem; transition:color 0.2s;" onmouseover="this.style.color='#FF6333'" onmouseout="this.style.color='rgba(255,255,255,0.7)'">
+        <i class="fa-solid fa-arrow-left"></i> Course Catalog
+      </a>
+      <span style="color:rgba(255,255,255,0.3);">/</span>
+      <span style="color:var(--accent,#FF6333); font-weight:700; font-size:0.85rem;">{{ course.department }}</span>
+    </div>
+
+    <div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:1rem; flex-wrap:wrap;">
+      <span style="background:rgba(255,107,53,0.18); border:1px solid rgba(255,107,53,0.4); color:var(--accent,#FF6333); font-size:0.82rem; font-weight:800; padding:0.35rem 0.9rem; border-radius:999px; letter-spacing:0.04em;">
+        {{ course.course_code }}
+      </span>
+      <span style="color:rgba(255,255,255,0.85); font-size:0.85rem; font-weight:600; display:inline-flex; align-items:center; gap:0.4rem;">
+        <i class="fa-solid fa-award" style="color:var(--primary,#0FAE9A);"></i> {{ course.credit_count }} Academic Credits
+      </span>
+      <span style="color:rgba(255,255,255,0.85); font-size:0.85rem; font-weight:600; display:inline-flex; align-items:center; gap:0.4rem;">
+        <i class="fa-solid fa-users" style="color:var(--primary,#0FAE9A);"></i> {{ total_students }} Students Enrolled
+      </span>
+      <span style="color:#F59E0B; font-size:0.85rem; font-weight:700; display:inline-flex; align-items:center; gap:0.35rem;">
+        <i class="fa-solid fa-star"></i> 5.0 (Verified Rating)
+      </span>
+    </div>
+
+    <h1 style="font-size:2.5rem; font-weight:800; color:#FFFFFF; max-width:900px; line-height:1.2; letter-spacing:-0.02em; margin-bottom:1.5rem;">
+      {{ course.title }}
+    </h1>
+
+    <div style="display:flex; align-items:center; gap:2.5rem; flex-wrap:wrap;">
+      <div style="display:flex; align-items:center; gap:0.75rem;">
+        <div style="background:var(--accent,#FF6333); color:#FFFFFF; font-weight:800; width:44px; height:44px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1.1rem; box-shadow:0 4px 12px rgba(255,107,53,0.3);">
+          {{ course.instructor.first_name|first|upper }}
+        </div>
+        <div>
+          <div style="font-size:0.75rem; color:rgba(255,255,255,0.6); text-transform:uppercase; letter-spacing:0.04em;">Lead Faculty</div>
+          <div style="font-weight:700; color:#FFFFFF; font-size:0.95rem;">{{ course.instructor.get_full_name }}</div>
+        </div>
+      </div>
+
+      <div style="display:flex; align-items:center; gap:0.5rem; color:rgba(255,255,255,0.85); font-size:0.9rem; font-weight:600;">
+        <i class="fa-solid fa-layer-group" style="color:var(--primary,#0FAE9A);"></i>
+        <span>{{ modules|length }} Modules</span>
+      </div>
+
+      <div style="display:flex; align-items:center; gap:0.5rem; color:rgba(255,255,255,0.85); font-size:0.9rem; font-weight:600;">
+        <i class="fa-solid fa-file-pen" style="color:var(--accent,#FF6333);"></i>
+        <span>{{ assignments|length }} Evaluated Projects</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Main Body -->
+<div style="max-width:1500px; margin:0 auto; padding:3rem 2rem 5rem 2rem;">
+  <div style="display:grid; grid-template-columns:1fr 360px; gap:2.5rem; align-items:start;">
+
+    <!-- Left Column: Syllabus & Curriculum Overview -->
+    <div>
+      <!-- Course Syllabus / Description -->
+      <div class="dev-card-modern" style="margin-bottom:2rem; padding:2rem;">
+        <div style="display:flex; align-items:center; gap:0.65rem; margin-bottom:1.25rem;">
+          <div style="width:36px; height:36px; border-radius:10px; background:#FFF0EA; color:#FF6333; display:flex; align-items:center; justify-content:center;">
+            <i class="fa-solid fa-book-open"></i>
+          </div>
+          <h2 style="font-size:1.3rem; font-weight:800; color:#111827; margin:0;">Course Syllabus &amp; Overview</h2>
+        </div>
+        <div style="color:#4B5563; line-height:1.75; font-size:0.95rem;">
+          {% if syllabus_html %}
+            <div class="markdown-body">
+              {{ syllabus_html|safe }}
+            </div>
+          {% else %}
+            <p>
+              {{ course.syllabus_outline|default:"Comprehensive academic curriculum covering foundational principles, practical laboratories, and industry-standard evaluations."|linebreaks }}
+            </p>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Curriculum Breakdown (Modules & Lessons) -->
+      <div class="dev-card-modern" style="margin-bottom:2rem; padding:2rem;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; flex-wrap:wrap; gap:1rem;">
+          <div style="display:flex; align-items:center; gap:0.65rem;">
+            <div style="width:36px; height:36px; border-radius:10px; background:#E6F7F5; color:#0FAE9A; display:flex; align-items:center; justify-content:center;">
+              <i class="fa-solid fa-list-check"></i>
+            </div>
+            <h2 style="font-size:1.3rem; font-weight:800; color:#111827; margin:0;">Curriculum Modules</h2>
+          </div>
+          <span style="font-size:0.85rem; font-weight:700; color:#6B7280; background:#F5ECE6; padding:0.35rem 0.85rem; border-radius:999px;">
+            {{ modules|length }} modules &middot; {{ total_lessons }} lessons
+          </span>
+        </div>
+
+        {% if modules %}
+          <div style="display:flex; flex-direction:column; gap:1rem;">
+            {% for mod in modules %}
+              <div style="border:1px solid #EFE4DC; border-radius:16px; overflow:hidden;">
+                <button type="button" onclick="togglePublicModule('pub-mod-{{ mod.id }}')"
+                        style="width:100%; padding:1rem 1.25rem; background:#F6FAFA; font-weight:700; color:#111827; display:flex; justify-content:space-between; align-items:center; border:none; cursor:pointer; text-align:left; font-family:inherit;">
+                  <div style="display:flex; align-items:center; gap:0.75rem;">
+                    <span style="background:#0FAE9A; color:#FFFFFF; font-size:0.75rem; font-weight:800; padding:0.25rem 0.7rem; border-radius:999px;">
+                      Mod {{ mod.order_index }}
+                    </span>
+                    <span style="font-size:0.95rem; font-weight:700;">{{ mod.title }}</span>
+                  </div>
+                  <div style="display:flex; align-items:center; gap:0.75rem;">
+                    <span style="font-size:0.8rem; color:#6B7280; font-weight:600;">{{ mod.lessons.count }} lesson{{ mod.lessons.count|pluralize }}</span>
+                    <i id="pub-icon-{{ mod.id }}" class="fa-solid fa-chevron-down" style="font-size:0.85rem; color:#0FAE9A; transition:transform 0.2s ease;"></i>
+                  </div>
+                </button>
+
+                <ul id="pub-list-{{ mod.id }}" style="list-style:none; padding:0; margin:0; border-top:1px solid #EFE4DC;">
+                  {% for lesson in mod.lessons.all %}
+                    <li style="padding:0.85rem 1.25rem; display:flex; align-items:center; justify-content:space-between; font-size:0.88rem; border-bottom:1px solid #F3EDE8; background:#FFFFFF;">
+                      <div style="display:flex; align-items:center; gap:0.65rem;">
+                        <i class="fa-regular fa-circle-play" style="color:var(--primary,#0FAE9A); font-size:1rem;"></i>
+                        <span style="color:#1F2937; font-weight:600;">{{ lesson.order_index }}. {{ lesson.title }}</span>
+                      </div>
+                      {% if lesson.media_file %}
+                        <span style="background:#E6F7F5; color:#0FAE9A; font-size:0.75rem; font-weight:700; padding:0.2rem 0.6rem; border-radius:6px; display:inline-flex; align-items:center; gap:0.3rem;">
+                          <i class="fa-solid fa-paperclip"></i> Asset
+                        </span>
+                      {% endif %}
+                    </li>
+                  {% empty %}
+                    <li style="padding:0.85rem 1.25rem; color:#6B7280; font-size:0.85rem; background:#FFFFFF;">No published lessons yet in this module.</li>
+                  {% endfor %}
+                </ul>
+              </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <p style="color:#6B7280; font-size:0.9rem;">Curriculum is currently being finalized by the instructor.</p>
+        {% endif %}
+      </div>
+
+      <!-- Assignments & Assessments -->
+      {% if assignments %}
+      <div class="dev-card-modern" style="padding:2rem;">
+        <div style="display:flex; align-items:center; gap:0.65rem; margin-bottom:1.25rem;">
+          <div style="width:36px; height:36px; border-radius:10px; background:#FFF0EA; color:#FF6333; display:flex; align-items:center; justify-content:center;">
+            <i class="fa-solid fa-file-signature"></i>
+          </div>
+          <h2 style="font-size:1.3rem; font-weight:800; color:#111827; margin:0;">Assessed Projects &amp; Coursework</h2>
+        </div>
+
+        <div style="display:flex; flex-direction:column; gap:0.85rem;">
+          {% for asn in assignments %}
+            <div style="padding:1rem 1.25rem; border:1px solid #EFE4DC; border-radius:14px; background:#F6FAFA; display:flex; justify-content:space-between; align-items:center;">
+              <div>
+                <div style="font-weight:700; color:#111827; font-size:0.95rem; margin-bottom:0.25rem;">{{ asn.title }}</div>
+                <div style="font-size:0.8rem; color:#6B7280; display:flex; align-items:center; gap:0.5rem;">
+                  <span><i class="fa-regular fa-clock" style="color:#FF6333; margin-right:3px;"></i> Deadline: {{ asn.deadline|date:"M d, Y H:i" }}</span>
+                  <span>&middot;</span>
+                  <span style="font-weight:700; color:#0FAE9A;"><i class="fa-solid fa-trophy" style="margin-right:3px;"></i> {{ asn.max_points }} pts</span>
+                </div>
+              </div>
+              <div>
+                {% if asn.allow_resubmissions %}
+                  <span style="background:#E6F7F5; color:#0FAE9A; font-size:0.75rem; font-weight:700; padding:0.3rem 0.75rem; border-radius:999px;">
+                    Resubmissions OK
+                  </span>
+                {% else %}
+                  <span style="background:#FEE2E2; color:#DC2626; font-size:0.75rem; font-weight:700; padding:0.3rem 0.75rem; border-radius:999px;">
+                    Single Attempt
+                  </span>
+                {% endif %}
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- Right Column: Course Card / Enrollment Action Box -->
+    <div style="position:sticky; top:5.5rem;">
+      <div class="dev-card-modern" style="overflow:hidden;">
+        <!-- Course Thumbnail -->
+        <div style="height:210px; position:relative; overflow:hidden;">
+          <img src="{% static course.image_url %}" alt="{{ course.title }}" style="width:100%; height:100%; object-fit:cover;">
+          <div style="position:absolute; inset:0; background:linear-gradient(to top, rgba(17,24,39,0.7) 0%, transparent 60%);"></div>
+          <span style="position:absolute; top:1rem; left:1rem; background:rgba(17,24,39,0.8); backdrop-filter:blur(6px); color:#FFFFFF; font-size:0.75rem; font-weight:800; padding:0.35rem 0.85rem; border-radius:999px;">
+            {{ course.course_code }}
+          </span>
+          <span style="position:absolute; top:1rem; right:1rem; background:var(--accent,#FF6333); color:#FFFFFF; font-size:0.75rem; font-weight:800; padding:0.35rem 0.85rem; border-radius:999px;">
+            {{ course.credit_count }} Cr.
+          </span>
+        </div>
+
+        <div style="padding:1.75rem;">
+          <div style="margin-bottom:1.25rem;">
+            <div style="font-size:0.75rem; font-weight:800; color:var(--primary,#0FAE9A); text-transform:uppercase; letter-spacing:0.06em;">
+              {{ course.department }}
+            </div>
+            <div style="font-size:1.6rem; font-weight:900; color:var(--accent,#FF6333); margin-top:0.25rem;">
+              $49.00 <span style="font-size:0.85rem; color:#9CA3AF; font-weight:600; text-decoration:line-through; margin-left:6px;">$99.00</span>
+            </div>
+          </div>
+
+          <!-- Quick facts -->
+          <div style="display:flex; flex-direction:column; gap:0.85rem; border-top:1px solid #F3EDE8; border-bottom:1px solid #F3EDE8; padding:1.25rem 0; margin-bottom:1.5rem; font-size:0.88rem;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <span style="color:#6B7280;"><i class="fa-solid fa-users" style="color:var(--primary,#0FAE9A); margin-right:6px;"></i> Enrolled Students</span>
+              <strong style="color:#111827;">{{ total_students }}</strong>
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <span style="color:#6B7280;"><i class="fa-solid fa-award" style="color:var(--accent,#FF6333); margin-right:6px;"></i> Academic Credits</span>
+              <strong style="color:#111827;">{{ course.credit_count }}</strong>
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <span style="color:#6B7280;"><i class="fa-solid fa-layer-group" style="color:var(--primary,#0FAE9A); margin-right:6px;"></i> Modules</span>
+              <strong style="color:#111827;">{{ modules|length }}</strong>
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <span style="color:#6B7280;"><i class="fa-solid fa-file-pen" style="color:var(--accent,#FF6333); margin-right:6px;"></i> Assignments</span>
+              <strong style="color:#111827;">{{ assignments|length }}</strong>
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <span style="color:#6B7280;"><i class="fa-solid fa-certificate" style="color:#10B981; margin-right:6px;"></i> Certificate</span>
+              <strong style="color:#10B981;">Included</strong>
+            </div>
+          </div>
+
+          <!-- Action buttons -->
+          {% if user.is_authenticated %}
+            {% if user.role == 'STUDENT' %}
+              {% if is_enrolled %}
+                <a href="{% url 'lms:course_detail' course.id %}" class="btn btn-primary" style="width:100%; padding:0.9rem; border-radius:999px; display:flex; align-items:center; justify-content:center; gap:0.5rem; font-weight:700;">
+                  <i class="fa-solid fa-play"></i> Go to Learning Portal
+                </a>
+              {% else %}
+                <a href="{% url 'lms:enroll_course' course.id %}" class="btn btn-accent" style="width:100%; padding:0.9rem; border-radius:999px; display:flex; align-items:center; justify-content:center; gap:0.5rem; font-weight:700;">
+                  <i class="fa-solid fa-graduation-cap"></i> Enroll in Course Now
+                </a>
+              {% endif %}
+            {% elif user.role == 'INSTRUCTOR' and course.instructor == user %}
+              <a href="{% url 'lms:curriculum_builder' course.id %}" class="btn btn-primary" style="width:100%; padding:0.9rem; border-radius:999px; display:flex; align-items:center; justify-content:center; gap:0.5rem; font-weight:700;">
+                <i class="fa-solid fa-pen-to-square"></i> Edit Curriculum Builder
+              </a>
+            {% else %}
+              <div style="text-align:center; padding:0.5rem 0; color:#6B7280; font-size:0.85rem; font-weight:600;">
+                Viewing as {{ user.role|title }}
+              </div>
+            {% endif %}
+          {% else %}
+            <a href="{% url 'accounts:register' %}" class="btn btn-accent" style="width:100%; padding:0.9rem; border-radius:999px; margin-bottom:0.75rem; display:flex; align-items:center; justify-content:center; gap:0.5rem; font-weight:700;">
+              <i class="fa-solid fa-user-plus"></i> Register to Enroll
+            </a>
+            <a href="{% url 'accounts:login' %}" class="btn btn-outline" style="width:100%; padding:0.8rem; border-radius:999px; text-align:center; font-weight:700;">
+              Sign In to Account
+            </a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  function togglePublicModule(id) {
+    const list = document.getElementById(id.replace('pub-mod-', 'pub-list-'));
+    const icon = document.getElementById(id.replace('pub-mod-', 'pub-icon-'));
+    if (!list) return;
+    const isHidden = list.style.display === 'none';
+    list.style.display = isHidden ? 'block' : 'none';
+    if (icon) {
+      icon.style.transform = isHidden ? 'rotate(0deg)' : 'rotate(-90deg)';
+    }
+  }
+</script>
+{% endblock %}

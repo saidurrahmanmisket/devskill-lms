@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <defs>
+    <!-- Background Gradient (Rose Pink / Coral Magenta) -->
+    <linearGradient id="gfx_bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FF6584" />
+      <stop offset="50%" stop-color="#FF3366" />
+      <stop offset="100%" stop-color="#C2185B" />
+    </linearGradient>
+    
+    <!-- Spherical Highlight -->
+    <radialGradient id="gfx_highlight" cx="35%" cy="25%" r="65%">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.65" />
+      <stop offset="40%" stop-color="#FFFFFF" stop-opacity="0.15" />
+      <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0" />
+    </radialGradient>
+
+    <!-- Drop Shadow Filter -->
+    <filter id="gfx_shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="8" stdDeviation="6" flood-color="#FF3366" flood-opacity="0.4" />
+    </filter>
+    
+    <!-- Palette Bevel Filter -->
+    <filter id="gfx_bevel" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="3" stdDeviation="2" flood-color="#7B0B35" flood-opacity="0.45" />
+    </filter>
+  </defs>
+
+  <!-- Base Circle with Shadow -->
+  <circle cx="50" cy="50" r="42" fill="url(#gfx_bg)" filter="url(#gfx_shadow)" />
+  
+  <!-- Outer Bevel Ring -->
+  <circle cx="50" cy="50" r="39" fill="none" stroke="#FFFFFF" stroke-opacity="0.25" stroke-width="2" />
+  
+  <!-- 3D Artist Palette & Pen -->
+  <g filter="url(#gfx_bevel)">
+    <!-- Palette curve -->
+    <path d="M 50 30 C 65 30 73 38 73 50 C 73 60 67 66 59 66 C 53 66 51 60 45 60 C 40 60 38 64 33 64 C 27 64 25 58 25 48 C 25 38 35 30 50 30 Z" fill="none" stroke="#FFFFFF" stroke-width="3.5" stroke-linejoin="round" />
+    
+    <!-- Color paint blobs -->
+    <circle cx="41" cy="40" r="2.8" fill="#FFEB3B" />
+    <circle cx="53" cy="38" r="2.8" fill="#00E5FF" />
+    <circle cx="63" cy="46" r="2.8" fill="#76FF03" />
+    <circle cx="60" cy="56" r="2.8" fill="#FFFFFF" />
+
+    <!-- Thumb hole -->
+    <ellipse cx="34" cy="52" rx="3.5" ry="4.5" fill="#FFFFFF" fill-opacity="0.3" stroke="#FFFFFF" stroke-width="2" />
+
+    <!-- Angled Stylus / Pen Nib -->
+    <path d="M 62 25 L 75 38 L 71 42 L 58 29 Z" fill="#FFFFFF" />
+    <polygon points="58,29 53,24 62,25" fill="#FFE082" />
+  </g>
+
+  <!-- Spherical Top Glaze Highlight -->
+  <ellipse cx="44" cy="30" rx="22" ry="13" fill="url(#gfx_highlight)" transform="rotate(-15 44 30)" />
+</svg>

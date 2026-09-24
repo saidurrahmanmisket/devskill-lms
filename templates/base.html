@@ -1,0 +1,213 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}DEVSKILL - Smart Academic Learning Platform{% endblock %}</title>
+  <meta name="description" content="DEVSKILL - Enterprise Institutional Learning Management Platform">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,600&display=swap">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="{% static 'css/main.css' %}">
+  {% block extra_css %}{% endblock %}
+</head>
+<body>
+  <!-- Navigation Header (Matched 1:1 to Home Page) -->
+  {% block header %}
+  <header class="dev-navbar">
+    <a href="{% url 'lms:index' %}" class="dev-brand">
+      <span class="brand-orange">DEV</span>SKILL<span class="brand-orange">.</span>
+    </a>
+
+    <ul class="dev-nav-menu">
+      <li><a href="{% url 'lms:index' %}" class="dev-nav-link {% if request.resolver_match.url_name == 'index' %}active{% endif %}">Home</a></li>
+      <li><a href="{% url 'lms:course_catalog' %}" class="dev-nav-link {% if request.resolver_match.url_name == 'course_catalog' %}active{% endif %}">Our Course</a></li>
+      <li><a href="{% url 'lms:course_catalog' %}" class="dev-nav-link">Pages <i class="fa-solid fa-angle-down" style="font-size:0.75rem;"></i></a></li>
+      <li><a href="{% url 'lms:mentors' %}" class="dev-nav-link {% if request.resolver_match.url_name == 'mentors' %}active{% endif %}">Mentors</a></li>
+      <li><a href="{% url 'lms:course_catalog' %}" class="dev-nav-link">Blog</a></li>
+      {% if user.is_authenticated %}
+        {% if user.role == 'ADMIN' or user.is_superuser %}
+          <li><a href="{% url 'lms:admin_dashboard' %}" class="dev-nav-link {% if 'admin' in request.path %}active{% endif %}">Admin Center</a></li>
+        {% elif user.role == 'INSTRUCTOR' %}
+          <li><a href="{% url 'lms:faculty_dashboard' %}" class="dev-nav-link {% if 'faculty' in request.path %}active{% endif %}">Faculty Hub</a></li>
+        {% elif user.role == 'STUDENT' %}
+          <li><a href="{% url 'lms:student_dashboard' %}" class="dev-nav-link {% if 'student' in request.path %}active{% endif %}">My Workspace</a></li>
+        {% endif %}
+      {% endif %}
+    </ul>
+
+    <div class="dev-nav-right">
+      <!-- Globe Icon Circle -->
+      <a href="{% url 'lms:course_catalog' %}" class="dev-globe-btn" title="Global Learning" aria-label="Globe">
+        <i class="fa-solid fa-globe"></i>
+      </a>
+
+      <!-- Demo Role Switcher (Preserved for review & grading) -->
+      <div class="dev-role-switcher" title="Instant role switch for preview">
+        <a href="{% url 'accounts:demo_login' 'admin' %}" class="dev-role-pill {% if user.is_authenticated and user.role == 'ADMIN' %}active{% endif %}">Admin</a>
+        <a href="{% url 'accounts:demo_login' 'instructor' %}" class="dev-role-pill {% if user.is_authenticated and user.role == 'INSTRUCTOR' %}active{% endif %}">Faculty</a>
+        <a href="{% url 'accounts:demo_login' 'student' %}" class="dev-role-pill {% if user.is_authenticated and user.role == 'STUDENT' %}active{% endif %}">Student</a>
+      </div>
+
+      <!-- Auth Button -->
+      {% if user.is_authenticated %}
+        <div style="display:flex;align-items:center;gap:0.6rem;">
+          <span style="font-size:0.85rem;font-weight:700;color:#111827;">{{ user.get_full_name_or_username }}</span>
+          <a href="{% url 'accounts:logout' %}" class="dev-btn-join" style="background:#EF4444;padding:0.45rem 1rem;font-size:0.8rem;">
+            <i class="fa-solid fa-right-from-bracket"></i> Sign Out
+          </a>
+        </div>
+      {% else %}
+        <a href="{% url 'accounts:login' %}" class="dev-btn-join">
+          Join Us
+        </a>
+      {% endif %}
+    </div>
+  </header>
+  {% endblock %}
+
+  <!-- Flash Messages -->
+  {% if messages %}
+    <div class="messages-container">
+      {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">
+          <span>{{ message }}</span>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  <!-- Main Content Area -->
+  <main class="main-wrapper">
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- DEVSKILL Modern Footer (Matched 1:1 to Home Page) -->
+  {% block footer %}
+  <footer class="dev-footer">
+    <div class="dev-footer-cols">
+      <!-- Brand Info -->
+      <div>
+        <div class="dev-footer-brand">
+          <span class="brand-orange">DEV</span>SKILL<span class="brand-orange">.</span>
+        </div>
+        <p class="dev-footer-desc">
+          We're always in search for talented and motivated people. Don't be shy introduce yourself Subscribe to our newsletter.
+        </p>
+        <div class="dev-socials">
+          <a href="#" class="dev-social-circle orange-active" aria-label="X"><i class="fa-brands fa-x-twitter"></i></a>
+          <a href="#" class="dev-social-circle" aria-label="YouTube"><i class="fa-brands fa-youtube"></i></a>
+          <a href="#" class="dev-social-circle" aria-label="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
+          <a href="#" class="dev-social-circle" aria-label="Globe"><i class="fa-solid fa-globe"></i></a>
+        </div>
+      </div>
+
+      <!-- Company Info -->
+      <div>
+        <h4>Company Info</h4>
+        <ul class="dev-footer-links">
+          <li><a href="{% url 'lms:index' %}">Home</a></li>
+          <li><a href="{% url 'lms:course_catalog' %}">Courses</a></li>
+          <li><a href="{% url 'accounts:login' %}">Instructor</a></li>
+          <li><a href="{% url 'lms:index' %}">About LmsZone</a></li>
+          <li><a href="{% url 'accounts:register' %}">Become instructor</a></li>
+          <li><a href="{% url 'lms:index' %}">Contact Us</a></li>
+          <li><a href="{% url 'lms:index' %}">Faq</a></li>
+        </ul>
+      </div>
+
+      <!-- Top Categories -->
+      <div>
+        <h4>Top Categories</h4>
+        <ul class="dev-footer-links">
+          <li><a href="{% url 'lms:course_catalog' %}">Development</a></li>
+          <li><a href="{% url 'lms:course_catalog' %}">Design</a></li>
+          <li><a href="{% url 'lms:course_catalog' %}">Marketing</a></li>
+          <li><a href="{% url 'lms:course_catalog' %}">It &amp; Software</a></li>
+          <li><a href="{% url 'lms:course_catalog' %}">Health &amp; Fitness</a></li>
+          <li><a href="{% url 'lms:course_catalog' %}">Math &amp; Logic</a></li>
+          <li><a href="{% url 'lms:course_catalog' %}">Personal Development</a></li>
+        </ul>
+      </div>
+
+      <!-- Download the LMS App -->
+      <div>
+        <h4>Download the LMS App</h4>
+        <p style="font-size:0.88rem;color:#6B7280;line-height:1.6;margin-bottom:1.25rem;">
+          Join us on this journey of discovery as we explore the latest trend
+        </p>
+        <div class="dev-contact-row">
+          <i class="fa-solid fa-location-dot" style="color:var(--dev-orange, #FF6333);"></i>
+          <span>254 Lillian Blvd, Holbrook</span>
+        </div>
+        <div class="dev-contact-row">
+          <i class="fa-solid fa-phone" style="color:var(--dev-orange, #FF6333);"></i>
+          <span>+880 1175 423 512</span>
+        </div>
+        <div class="dev-app-buttons">
+          <a href="#" class="dev-app-btn">
+            <i class="fa-brands fa-google-play"></i>
+            <span>Get it on<strong>Google Play</strong></span>
+          </a>
+          <a href="#" class="dev-app-btn">
+            <i class="fa-brands fa-apple"></i>
+            <span>Download on the<strong>App Store</strong></span>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div class="dev-payments-row">
+      <div class="dev-payments-lbl">We Accept Payment Gateway</div>
+      <div class="dev-payment-badges">
+        <i class="fa-brands fa-cc-paypal" title="PayPal"></i>
+        <i class="fa-brands fa-cc-mastercard" title="Mastercard"></i>
+        <i class="fa-brands fa-cc-visa" title="Visa"></i>
+        <i class="fa-brands fa-google-pay" title="Google Pay"></i>
+        <i class="fa-brands fa-apple-pay" title="Apple Pay"></i>
+        <i class="fa-brands fa-cc-stripe" title="Stripe"></i>
+        <i class="fa-brands fa-amazon-pay" title="Amazon Pay"></i>
+      </div>
+    </div>
+
+    <div class="dev-footer-bottom">
+      &copy; 2026 The Themtags. All rights reserved.
+    </div>
+  </footer>
+  {% endblock %}
+
+  <script src="{% static 'js/main.js' %}"></script>
+  <script>
+    function toggleActionDropdown(btn, event) {
+      if (event) event.stopPropagation();
+      const wrapper = btn.closest('.dropdown-action-wrapper');
+      if (!wrapper) return;
+      const menu = wrapper.querySelector('.dropdown-action-menu');
+      if (!menu) return;
+
+      const isDisplayed = menu.style.display === 'block';
+      document.querySelectorAll('.dropdown-action-menu').forEach(m => m.style.display = 'none');
+      if (!isDisplayed) {
+        menu.style.display = 'block';
+      }
+    }
+
+    document.addEventListener('click', function () {
+      document.querySelectorAll('.dropdown-action-menu').forEach(m => m.style.display = 'none');
+    });
+
+    // Auto-dismiss flash messages
+    setTimeout(() => {
+      document.querySelectorAll('.messages-container .alert').forEach(el => {
+        el.style.transition = 'opacity 0.4s, transform 0.4s';
+        el.style.opacity = '0';
+        el.style.transform = 'translateY(-8px)';
+        setTimeout(() => el.remove(), 400);
+      });
+    }, 4500);
+  </script>
+  {% block extra_js %}{% endblock %}
+</body>
+</html>

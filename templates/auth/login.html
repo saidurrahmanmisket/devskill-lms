@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Sign In – DEVSKILL Academic Platform{% endblock %}
+
+{% block content %}
+<div style="min-height: 80vh; display: flex; align-items: center; justify-content: center; padding: 3rem 1.5rem; background: var(--bg-main);">
+  <div class="dev-card-modern" style="width: 100%; max-width: 460px; overflow: hidden; box-shadow: 0 10px 35px rgba(0,0,0,0.06);">
+    
+    <!-- Top Branding Header -->
+    <div style="background: linear-gradient(180deg, #FFF0EA 0%, #FFFFFF 100%); padding: 2.5rem 2rem 1.75rem 2rem; text-align: center; border-bottom: 1px solid #E2E8F0;">
+      <div style="font-size: 2rem; font-weight: 800; color: #111827; letter-spacing: -0.03em; margin-bottom: 0.35rem;">
+        <span style="color: var(--accent, #FF6333);">DEV</span>SKILL<span style="color: var(--accent, #FF6333);">.</span>
+      </div>
+      <h2 style="font-size: 1.25rem; font-weight: 700; color: #111827; margin-bottom: 0.35rem;">Welcome Back</h2>
+      <p style="font-size: 0.88rem; color: #64748B;">Sign in to your learning workspace or faculty hub</p>
+    </div>
+
+    <div style="padding: 2.25rem;">
+      <form method="post" action="{% url 'accounts:login' %}">
+        {% csrf_token %}
+        {% if next %}
+          <input type="hidden" name="next" value="{{ next }}">
+        {% endif %}
+
+        <div class="form-group" style="margin-bottom: 1.25rem;">
+          <label class="form-label" for="id_username" style="font-weight: 700; color: #111827; font-size: 0.88rem;">Username or Email</label>
+          {{ form.username }}
+        </div>
+
+        <div class="form-group" style="margin-bottom: 1.75rem;">
+          <div style="display: flex; justify-content: space-between; margin-bottom: 0.4rem;">
+            <label class="form-label" for="id_password" style="font-weight: 700; color: #111827; font-size: 0.88rem; margin-bottom: 0;">Password</label>
+            <span style="font-size: 0.78rem; color: #94A3B8;">Min 8 chars</span>
+          </div>
+          {{ form.password }}
+        </div>
+
+        <button type="submit" class="btn btn-accent" style="width: 100%; padding: 0.85rem; font-size: 1rem; border-radius: 999px; font-weight: 700; margin-bottom: 1.5rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: #0FAE9A;">
+          <span>Sign In to Workspace</span>
+          <i class="fa-solid fa-arrow-right"></i>
+        </button>
+      </form>
+
+      <!-- One-Click Demo Credentials -->
+      <div style="background: #FFF0EA; border: 1px dashed rgba(255, 99, 51, 0.4); border-radius: 16px; padding: 1.25rem; margin-top: 1.25rem;">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem;">
+          <span style="font-size: 0.78rem; font-weight: 800; color: #FF6333; text-transform: uppercase; letter-spacing: 0.05em;">
+            <i class="fa-solid fa-bolt" style="margin-right: 4px;"></i> Instant Demo Access:
+          </span>
+          <span style="font-size: 0.72rem; color: #64748B; font-weight: 600;">Click to login</span>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.84rem;">
+          <a href="{% url 'accounts:demo_login' 'admin' %}" style="display: flex; justify-content: space-between; align-items: center; text-decoration: none; color: #111827; padding: 0.5rem 0.75rem; background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 10px; transition: all 0.2s;" onmouseover="this.style.borderColor='#0FAE9A'" onmouseout="this.style.borderColor='#E2E8F0'">
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+              <i class="fa-solid fa-shield-halved" style="color: #0FAE9A;"></i>
+              <span><strong>Admin</strong> (admin@demo.com / admin)</span>
+            </div>
+            <span class="role-badge admin">Enter</span>
+          </a>
+
+          <a href="{% url 'accounts:demo_login' 'instructor' %}" style="display: flex; justify-content: space-between; align-items: center; text-decoration: none; color: #111827; padding: 0.5rem 0.75rem; background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 10px; transition: all 0.2s;" onmouseover="this.style.borderColor='#0FAE9A'" onmouseout="this.style.borderColor='#E2E8F0'">
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+              <i class="fa-solid fa-chalkboard-user" style="color: #0FAE9A;"></i>
+              <span><strong>Faculty</strong> (prof_smith)</span>
+            </div>
+            <span class="role-badge instructor">Enter</span>
+          </a>
+
+          <a href="{% url 'accounts:demo_login' 'student' %}" style="display: flex; justify-content: space-between; align-items: center; text-decoration: none; color: #111827; padding: 0.5rem 0.75rem; background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 10px; transition: all 0.2s;" onmouseover="this.style.borderColor='#0FAE9A'" onmouseout="this.style.borderColor='#E2E8F0'">
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+              <i class="fa-solid fa-user-graduate" style="color: #FF6333;"></i>
+              <span><strong>Student</strong> (john_doe)</span>
+            </div>
+            <span class="role-badge student">Enter</span>
+          </a>
+        </div>
+      </div>
+
+      <div style="text-align: center; margin-top: 1.75rem; font-size: 0.88rem; color: #64748B;">
+        Don't have an account? <a href="{% url 'accounts:register' %}" style="color: #0FAE9A; font-weight: 700; text-decoration: none;">Create free account</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

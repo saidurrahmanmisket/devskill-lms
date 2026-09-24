@@ -1,0 +1,464 @@
+{% extends 'admin/base_admin.html' %}
+{% load static %}
+
+{% block title %}Vuexy – Student Learning Hub &amp; Academic Analytics{% endblock %}
+
+{% block admin_content %}
+<!-- Breadcrumb Header -->
+<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; flex-wrap:wrap; gap:1rem;">
+  <div>
+    <h1 style="font-size:1.5rem; font-weight:700; color:var(--vx-text-heading); margin-bottom:0.25rem;">
+      Student Learning Hub
+    </h1>
+    <div style="font-size:0.8125rem; color:var(--vx-muted); display:flex; align-items:center; gap:0.5rem;">
+      <a href="{% url 'lms:student_dashboard' %}" style="color:var(--vx-primary); text-decoration:none; font-weight:600;">Student Hub</a>
+      <span>/</span>
+      <span>Learning Journey &amp; Milestones</span>
+      <span>/</span>
+      <span style="font-weight:600; color:var(--vx-text-heading);">ID: {{ user.academic_id|default:"STU-ONLINE" }}</span>
+    </div>
+  </div>
+
+  <div style="display:flex; gap:0.75rem; flex-wrap:wrap;">
+    <a href="{% url 'lms:student_my_courses' %}" class="vx-btn vx-btn-primary vx-btn-sm">
+      <i class="fa-solid fa-book-bookmark"></i> My Courses
+    </a>
+    <a href="{% url 'lms:course_catalog' %}" class="vx-btn vx-btn-outline-primary vx-btn-sm">
+      <i class="fa-solid fa-compass"></i> Explore Course Catalog
+    </a>
+    <a href="{% url 'lms:student_grades' %}" class="vx-btn vx-btn-outline vx-btn-sm">
+      <i class="fa-solid fa-award"></i> Transcript &amp; GPA
+    </a>
+  </div>
+</div>
+
+<!-- ===================================================================
+     ROW 1: 4 VUEXY KPI STAT CARDS
+     =================================================================== -->
+<div style="display:grid; grid-template-columns: repeat(4, 1fr); gap:1.5rem; margin-bottom:1.5rem;" class="vx-kpi-grid">
+  <!-- KPI 1 -->
+  <div class="vx-card" style="margin-bottom:0; padding:1.25rem 1.5rem;">
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+      <div>
+        <div style="font-size:0.8125rem; color:var(--vx-muted); font-weight:600;">Enrolled Courses</div>
+        <div style="font-size:1.65rem; font-weight:800; color:var(--vx-text-heading); margin-top:0.25rem;">{{ total_enrolled }}</div>
+        <div style="font-size:0.75rem; color:var(--vx-primary); margin-top:0.35rem; display:flex; align-items:center; gap:0.25rem;">
+          <i class="fa-solid fa-award"></i> {{ total_credits }} Total Credits
+        </div>
+      </div>
+      <div style="width:44px; height:44px; border-radius:8px; background:var(--vx-primary-light); color:var(--vx-primary); display:flex; align-items:center; justify-content:center; font-size:1.25rem;">
+        <i class="fa-solid fa-graduation-cap"></i>
+      </div>
+    </div>
+  </div>
+
+  <!-- KPI 2 -->
+  <div class="vx-card" style="margin-bottom:0; padding:1.25rem 1.5rem;">
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+      <div>
+        <div style="font-size:0.8125rem; color:var(--vx-muted); font-weight:600;">Submissions Made</div>
+        <div style="font-size:1.65rem; font-weight:800; color:var(--vx-text-heading); margin-top:0.25rem;">{{ total_submitted }}</div>
+        <div style="font-size:0.75rem; color:var(--vx-success); margin-top:0.35rem; display:flex; align-items:center; gap:0.25rem;">
+          <i class="fa-solid fa-circle-check"></i> {{ total_graded }} Graded
+        </div>
+      </div>
+      <div style="width:44px; height:44px; border-radius:8px; background:var(--vx-warning-light); color:var(--vx-warning); display:flex; align-items:center; justify-content:center; font-size:1.25rem;">
+        <i class="fa-solid fa-file-arrow-up"></i>
+      </div>
+    </div>
+  </div>
+
+  <!-- KPI 3 -->
+  <div class="vx-card" style="margin-bottom:0; padding:1.25rem 1.5rem;">
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+      <div>
+        <div style="font-size:0.8125rem; color:var(--vx-muted); font-weight:600;">Open Tasks</div>
+        <div style="font-size:1.65rem; font-weight:800; color:var(--vx-text-heading); margin-top:0.25rem;">{{ upcoming_count }}</div>
+        <div style="font-size:0.75rem; color:var(--vx-warning); margin-top:0.35rem; display:flex; align-items:center; gap:0.25rem;">
+          <i class="fa-regular fa-clock"></i> Upcoming Deadlines
+        </div>
+      </div>
+      <div style="width:44px; height:44px; border-radius:8px; background:var(--vx-warning-light); color:var(--vx-warning); display:flex; align-items:center; justify-content:center; font-size:1.25rem;">
+        <i class="fa-solid fa-hourglass-half"></i>
+      </div>
+    </div>
+  </div>
+
+  <!-- KPI 4 -->
+  <div class="vx-card" style="margin-bottom:0; padding:1.25rem 1.5rem;">
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+      <div>
+        <div style="font-size:0.8125rem; color:var(--vx-muted); font-weight:600;">Cumulative GPA</div>
+        <div style="font-size:1.65rem; font-weight:800; color:var(--vx-text-heading); margin-top:0.25rem;">{{ gpa|floatformat:2 }}</div>
+        <div style="font-size:0.75rem; color:var(--vx-success); margin-top:0.35rem; display:flex; align-items:center; gap:0.25rem;">
+          <i class="fa-solid fa-star"></i> Honors Standing
+        </div>
+      </div>
+      <div style="width:44px; height:44px; border-radius:8px; background:var(--vx-success-light); color:var(--vx-success); display:flex; align-items:center; justify-content:center; font-size:1.25rem;">
+        <i class="fa-solid fa-chart-line"></i>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================================================================
+     ROW 2: ACADEMIC PROGRESS HERO + COMPLETION TRACKER + VELOCITY
+     =================================================================== -->
+<div style="display:grid; grid-template-columns: 1.5fr 1fr 1fr; gap:1.5rem; margin-bottom:1.5rem;" class="vx-top-grid">
+
+  <!-- Card 1 (was Card 3): Course Activity Velocity Chart -->
+  <div class="vx-card" style="margin-bottom:0; display:flex; flex-direction:column;">
+    <div class="vx-card-header">
+      <div>
+        <h2 class="vx-card-title">Course Activity</h2>
+        <div class="vx-card-subtitle">Weekly Video Hours Watched</div>
+      </div>
+      <span class="vx-badge-pill success">+15.2%</span>
+    </div>
+    <div class="vx-card-body" style="padding-top:0; display:flex; flex-direction:column; justify-content:space-between; flex:1;">
+      <div style="display:flex; align-items:baseline; gap:0.5rem; margin-bottom:0.5rem;">
+        <span style="font-size:1.75rem; font-weight:800; color:var(--vx-text-heading);">12.5</span>
+        <span style="font-size:0.8125rem; color:var(--vx-muted);">hours watched this week</span>
+      </div>
+      <div id="studentVelocityChart" style="min-height:140px;"></div>
+      <div style="font-size:0.8125rem; color:var(--vx-muted); text-align:center; margin-top:0.5rem;">
+        <i class="fa-solid fa-fire" style="color:var(--vx-warning); margin-right:4px;"></i> Great momentum! Keep it up.
+      </div>
+    </div>
+  </div>
+
+  <!-- Card 2: Curriculum Completion Radial Gauge -->
+  <div class="vx-card" style="margin-bottom:0; display:flex; flex-direction:column;">
+    <div class="vx-card-header">
+      <div>
+        <h2 class="vx-card-title">Curriculum Progress</h2>
+        <div class="vx-card-subtitle">Task Completion Velocity</div>
+      </div>
+      <div style="font-size:1.25rem; font-weight:800; color:var(--vx-text-heading);">{{ total_submitted }}/{{ assignments_with_status|length }}</div>
+    </div>
+    <div class="vx-card-body" style="padding-top:0; display:flex; flex-direction:column; justify-content:space-between; flex:1;">
+      <div id="studentProgressChart" style="min-height:190px;"></div>
+      <div style="display:flex; justify-content:space-around; text-align:center; padding-top:0.75rem; border-top:1px solid var(--vx-border);">
+        <div>
+          <div style="font-size:0.75rem; color:var(--vx-muted);">Submitted</div>
+          <div style="font-weight:700; color:var(--vx-primary); font-size:1.05rem;">{{ total_submitted }}</div>
+        </div>
+        <div>
+          <div style="font-size:0.75rem; color:var(--vx-muted);">Open Tasks</div>
+          <div style="font-weight:700; color:var(--vx-warning); font-size:1.05rem;">{{ upcoming_count }}</div>
+        </div>
+        <div>
+          <div style="font-size:0.75rem; color:var(--vx-muted);">Evaluated</div>
+          <div style="font-weight:700; color:var(--vx-success); font-size:1.05rem;">{{ total_graded }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Card 3 (was Card 1): Continue Learning / Last Course -->
+  {% with last_course=enrollments_data|first %}
+  {% if last_course %}
+  <div class="vx-card" style="margin-bottom:0; display:flex; flex-direction:column; justify-content:space-between; position:relative; overflow:hidden;"
+       onmouseover="this.querySelector('.course-top-overlay').style.opacity='1';"
+       onmouseout="this.querySelector('.course-top-overlay').style.opacity='0';">
+    <!-- Course Image Background -->
+    <div style="position:absolute; inset:0; background:url('{% static last_course.course.image_url %}') center/cover no-repeat; z-index:1;"></div>
+    
+    <!-- Top Gradient & Title Overlay -->
+    <div class="course-top-overlay" style="position:absolute; top:0; left:0; right:0; padding:1.5rem; padding-bottom:3rem; background:linear-gradient(to bottom, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0) 100%); z-index:2; opacity:0; transition:opacity 0.4s ease; pointer-events:none;">
+      <h2 style="font-size:1.35rem; font-weight:800; color:#FFFFFF; margin-bottom:0.25rem; line-height:1.2;">{{ last_course.course.title }}</h2>
+      <div style="font-size:0.85rem; color:rgba(255,255,255,0.9);">Prof. {{ last_course.course.instructor.get_full_name_or_username }}</div>
+    </div>
+    
+    <div style="padding:1.5rem; position:relative; z-index:3; flex:1; display:flex; flex-direction:column; justify-content:flex-end;">
+      <!-- Centered Play Icon -->
+      <div style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; pointer-events:none;">
+        <i class="fa-regular fa-circle-play" style="font-size:4.5rem; color:rgba(255,255,255,0.9); filter:drop-shadow(0 4px 12px rgba(0,0,0,0.6)); transition:transform 0.3s ease; pointer-events:auto; cursor:pointer;" onmouseover="this.style.transform='scale(1.15)'" onmouseout="this.style.transform='none'" onclick="window.location.href='{% url 'lms:course_detail' last_course.course.id %}'"></i>
+      </div>
+      
+      <div style="margin-top:1.5rem; position:relative; z-index:2;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.4rem; font-size:0.75rem; color:#FFFFFF; font-weight:700; text-shadow:0 1px 3px rgba(0,0,0,0.8);">
+          <span>Course Progress</span>
+          <span>{{ last_course.progress_percent }}%</span>
+        </div>
+        <div style="width:100%; height:6px; background:rgba(0,0,0,0.4); border-radius:3px; overflow:hidden;">
+          <div style="height:100%; width:{{ last_course.progress_percent }}%; background:var(--vx-primary); border-radius:3px;"></div>
+        </div>
+      </div>
+    </div>
+    
+    <div style="padding:1rem 1.5rem; position:relative; z-index:2; border-top:1px solid rgba(255,255,255,0.1); background:rgba(15,23,42,0.6); backdrop-filter:blur(4px);">
+      <a href="{% url 'lms:course_detail' last_course.course.id %}" style="color:#FFFFFF; font-weight:700; font-size:0.8125rem; text-decoration:none; display:inline-flex; align-items:center; gap:0.4rem; width:100%; justify-content:center;">
+        Resume Course <i class="fa-solid fa-arrow-right"></i>
+      </a>
+    </div>
+  </div>
+  {% else %}
+  <div class="vx-card" style="background: linear-gradient(72.47deg, #0FAE9A 22.16%, #087F73 76.47%); color:#FFFFFF; margin-bottom:0; display:flex; flex-direction:column; justify-content:center; align-items:center; padding:2rem; text-align:center;">
+    <h2 style="font-size:1.25rem; font-weight:700; color:#FFFFFF; margin-bottom:0.5rem;">No Recent Activity</h2>
+    <p style="font-size:0.85rem; color:rgba(255,255,255,0.85);">Enroll in a course to start learning</p>
+  </div>
+  {% endif %}
+  {% endwith %}
+
+</div>
+
+
+
+
+
+<!-- ===================================================================
+     ROW 4: DEADLINES & TASKS TABLE + RECENT EVALUATIONS LEDGER
+     =================================================================== -->
+<div style="display:grid; grid-template-columns: 1.25fr 1.35fr; gap:1.5rem; margin-bottom:1.5rem;" class="vx-tables-grid">
+
+  <!-- Deadlines & Open Tasks Card -->
+  <div class="vx-card" style="margin-bottom:0; display:flex; flex-direction:column;">
+    <div class="vx-card-header">
+      <div>
+        <h2 class="vx-card-title">Deadlines &amp; Assignments</h2>
+        <div class="vx-card-subtitle">Upcoming tasks across your active courses</div>
+      </div>
+      <span class="vx-badge-pill warning">{{ upcoming_count }} Due</span>
+    </div>
+
+    <div style="overflow-x:auto; flex:1;">
+      <table class="vx-table">
+        <thead>
+          <tr>
+            <th>Course &amp; Task</th>
+            <th>Due Date</th>
+            <th>Status</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in assignments_with_status|slice:":6" %}
+            <tr>
+              <td>
+                <div style="font-weight:700; color:var(--vx-text-heading); font-size:0.88rem;">{{ item.assignment.title|truncatechars:22 }}</div>
+                <span class="vx-badge-pill primary" style="font-size:0.68rem;">{{ item.assignment.course.course_code }}</span>
+              </td>
+              <td>
+                <div style="font-size:0.78rem; color:var(--vx-muted);">{{ item.assignment.deadline|date:"M d, H:i" }}</div>
+              </td>
+              <td>
+                {% if item.is_submitted %}
+                  <span class="vx-badge-pill success" style="font-size:0.68rem;">Submitted</span>
+                {% elif item.is_past_deadline %}
+                  <span class="vx-badge-pill danger" style="font-size:0.68rem;">Overdue</span>
+                {% else %}
+                  <span class="vx-badge-pill warning" style="font-size:0.68rem;">Open</span>
+                {% endif %}
+              </td>
+              <td>
+                <a href="{% url 'lms:course_detail' item.assignment.course.id %}?tab=jobs" class="vx-btn {% if item.is_submitted %}vx-btn-outline{% else %}vx-btn-primary{% endif %} vx-btn-sm" style="padding:0.3rem 0.65rem; font-size:0.75rem;">
+                  {% if item.is_submitted %}View{% else %}Submit{% endif %}
+                </a>
+              </td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="4" style="text-align:center; padding:2.5rem; color:var(--vx-muted);">
+                <i class="fa-solid fa-circle-check" style="font-size:2rem; color:var(--vx-success); opacity:0.5; margin-bottom:0.5rem; display:block;"></i>
+                No pending assignment deadlines!
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Recent Academic Evaluations & Grades Ledger -->
+  <div class="vx-card" style="margin-bottom:0; display:flex; flex-direction:column;">
+    <div class="vx-card-header">
+      <div>
+        <h2 class="vx-card-title">Recent Grades &amp; Feedback</h2>
+        <div class="vx-card-subtitle">Official evaluated grades and instructor comments</div>
+      </div>
+      <a href="{% url 'lms:student_grades' %}" class="vx-btn vx-btn-outline vx-btn-sm">
+        <i class="fa-solid fa-award"></i> Transcript
+      </a>
+    </div>
+
+    <div style="overflow-x:auto; flex:1;">
+      <table class="vx-table">
+        <thead>
+          <tr>
+            <th>Course</th>
+            <th>Assignment</th>
+            <th>Score</th>
+            <th>Feedback</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for sub in recent_grades|slice:":6" %}
+            <tr>
+              <td>
+                <span class="vx-badge-pill primary" style="font-size:0.72rem; font-weight:800;">
+                  {{ sub.assignment.course.course_code }}
+                </span>
+              </td>
+              <td>
+                <div style="font-weight:700; color:var(--vx-text-heading); font-size:0.85rem;">{{ sub.assignment.title|truncatechars:20 }}</div>
+              </td>
+              <td>
+                <span class="vx-badge-pill success" style="font-size:0.8rem; font-weight:800;">
+                  {{ sub.score }} <span style="font-size:0.68rem; font-weight:600; opacity:0.8;">/ {{ sub.assignment.max_points }}</span>
+                </span>
+              </td>
+              <td style="max-width:180px; font-size:0.78rem; color:var(--vx-muted);">
+                {{ sub.feedback|default:"Satisfactory completion."|truncatechars:40 }}
+              </td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="4" style="text-align:center; padding:2rem; color:var(--vx-muted);">
+                No evaluated grades recorded yet.
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+
+
+{% endblock %}
+
+{% block admin_extra_js %}
+<script>
+// Filter Course Cards by text query
+function filterCourseCards() {
+  const query = document.getElementById('courseSearchInput').value.toLowerCase();
+  const cards = document.querySelectorAll('.vx-course-card');
+  cards.forEach(card => {
+    const title = card.getAttribute('data-title') || '';
+    const code = card.getAttribute('data-code') || '';
+    const dept = card.getAttribute('data-dept') || '';
+    if (title.includes(query) || code.includes(query) || dept.includes(query)) {
+      card.style.display = 'flex';
+    } else {
+      card.style.display = 'none';
+    }
+  });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  const textHeading = isDark ? '#F8FAFC' : '#111827';
+  const textMuted = isDark ? '#94A3B8' : '#64748B';
+
+  // 1. Student Curriculum Progress Radial Gauge Chart
+  const progressPct = {{ progress_pct|default:82.5 }};
+  const progressOptions = {
+    series: [progressPct],
+    chart: {
+      height: 220,
+      type: 'radialBar',
+      sparkline: { enabled: true }
+    },
+    plotOptions: {
+      radialBar: {
+        startAngle: -135,
+        endAngle: 135,
+        hollow: {
+          size: '68%',
+          background: 'transparent'
+        },
+        track: {
+          background: isDark ? '#334155' : '#E2E8F0',
+          strokeWidth: '100%',
+        },
+        dataLabels: {
+          name: {
+            show: true,
+            fontSize: '12px',
+            color: textMuted,
+            offsetY: 20,
+            fontFamily: 'inherit'
+          },
+          value: {
+            offsetY: -15,
+            fontSize: '26px',
+            fontWeight: 800,
+            color: textHeading,
+            fontFamily: 'inherit',
+            formatter: function (val) {
+              return val + "%";
+            }
+          }
+        }
+      }
+    },
+    fill: {
+      type: 'gradient',
+      gradient: {
+        shade: 'dark',
+        type: 'horizontal',
+        shadeIntensity: 0.5,
+        gradientToColors: ['#087F73'],
+        inverseColors: true,
+        opacityFrom: 1,
+        opacityTo: 1,
+        stops: [0, 100]
+      }
+    },
+    colors: ['#0FAE9A'],
+    stroke: { dashArray: 4 },
+    labels: ['Completed']
+  };
+
+  const chartEl1 = document.querySelector("#studentProgressChart");
+  if (chartEl1) {
+    const chart1 = new ApexCharts(chartEl1, progressOptions);
+    chart1.render();
+  }
+
+  // 2. Weekly Student Activity Velocity Bar Chart
+  const velocityOptions = {
+    series: [{
+      name: 'Tasks Done',
+      data: {{ weekly_activity|safe }}
+    }],
+    chart: {
+      type: 'bar',
+      height: 140,
+      sparkline: { enabled: true },
+      toolbar: { show: false }
+    },
+    plotOptions: {
+      bar: {
+        columnWidth: '55%',
+        borderRadius: 4,
+        colors: {
+          ranges: [{
+            from: 0,
+            to: 100,
+            color: '#0FAE9A'
+          }]
+        }
+      }
+    },
+    tooltip: {
+      theme: isDark ? 'dark' : 'light',
+      y: {
+        formatter: function (val) {
+          return val + " submissions";
+        }
+      }
+    }
+  };
+
+  const chartEl2 = document.querySelector("#studentVelocityChart");
+  if (chartEl2) {
+    const chart2 = new ApexCharts(chartEl2, velocityOptions);
+    chart2.render();
+  }
+});
+</script>
+{% endblock %}
