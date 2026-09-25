@@ -4,8 +4,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{% block title %}Vuexy – Analytics Dashboard &amp; Admin Governance{% endblock %}</title>
-  <meta name="description" content="Vuexy Vuejs Admin Analytics Dashboard for DEVSKILL Platform">
+  <title>{% block title %}DevSkill – Analytics Dashboard &amp; Admin Governance{% endblock %}</title>
+  <meta name="description" content="DevSkill Vuejs Admin Analytics Dashboard for DEVSKILL Platform">
 
   <!-- Google Fonts: Plus Jakarta Sans / Public Sans -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -15,13 +15,13 @@
   <!-- Font Awesome 6.5.0 Icons (Strictly NO emojis) -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   
-  <!-- ApexCharts CDN for Vuexy Interactive Charts -->
+  <!-- ApexCharts CDN for DevSkill Interactive Charts -->
   <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 
   <style>
     /* ===================================================================
-       VUEXY ADMIN DESIGN SYSTEM
-       Exact palette matched to PixInvent Vuexy Vuejs Admin Template
+       DEVSKILL ADMIN DESIGN SYSTEM
+       Exact palette matched to PixInvent DevSkill Vuejs Admin Template
        =================================================================== */
     :root {
       --vx-primary: #0FAE9A;
@@ -117,7 +117,7 @@
     }
 
     /* ===================================================================
-       VUEXY SIDEBAR
+       DEVSKILL SIDEBAR
        =================================================================== */
     .vx-sidebar {
       width: 260px;
@@ -259,7 +259,7 @@
     .vx-badge-pill.danger { background: var(--vx-danger-light); color: var(--vx-danger); }
 
     /* ===================================================================
-       VUEXY MAIN CONTENT WRAPPER
+       DEVSKILL MAIN CONTENT WRAPPER
        =================================================================== */
     .vx-main-layout {
       flex: 1;
@@ -416,7 +416,7 @@
       flex: 1;
     }
 
-    /* VUEXY CARD */
+    /* DEVSKILL CARD */
     .vx-card {
       background: var(--vx-card-bg);
       border-radius: var(--vx-radius-md);
@@ -454,7 +454,7 @@
       padding: 1.5rem;
     }
 
-    /* VUEXY BUTTONS */
+    /* DEVSKILL BUTTONS */
     .vx-btn {
       display: inline-flex;
       align-items: center;
@@ -504,7 +504,7 @@
       font-size: 0.8125rem;
     }
 
-    /* VUEXY TABLE */
+    /* DEVSKILL TABLE */
     .vx-table {
       width: 100%;
       border-collapse: collapse;
@@ -596,7 +596,7 @@
 <body>
 
   <!-- ===================================================================
-       VUEXY VERTICAL SIDEBAR
+       DEVSKILL VERTICAL SIDEBAR
        =================================================================== -->
   <aside class="vx-sidebar" id="vxSidebar">
     <!-- Brand Header -->
@@ -606,7 +606,7 @@
           <i class="fa-solid fa-shapes"></i>
         </div>
         <div class="vx-brand-title">
-          Vuexy <span class="vx-brand-badge">{% if user.is_admin %}ADMIN{% elif user.is_instructor %}FACULTY{% else %}STUDENT{% endif %}</span>
+          DevSkill <span class="vx-brand-badge">{% if user.is_admin %}ADMIN{% elif user.is_instructor %}FACULTY{% else %}STUDENT{% endif %}</span>
         </div>
       </a>
       <button type="button" class="vx-nav-icon-btn" onclick="toggleSidebar()" aria-label="Toggle Sidebar" style="font-size:0.85rem;">
@@ -854,7 +854,7 @@
   </aside>
 
   <!-- ===================================================================
-       VUEXY MAIN CONTENT WRAPPER
+       DEVSKILL MAIN CONTENT WRAPPER
        =================================================================== -->
   <div class="vx-main-layout">
     
@@ -941,10 +941,10 @@
       {% block admin_content %}{% endblock %}
     </main>
 
-    <!-- VUEXY FOOTER -->
+    <!-- DEVSKILL FOOTER -->
     <footer class="vx-footer">
       <div>
-        &copy; 2026 <strong>Vuexy &amp; DEVSKILL</strong> &middot; Enterprise Academic Learning Management System
+        &copy; 2026 <strong>DevSkill &amp; DEVSKILL</strong> &middot; Enterprise Academic Learning Management System
       </div>
       <div style="display:flex; gap:1.5rem;">
         <a href="{% url 'lms:index' %}" style="color:var(--vx-muted); text-decoration:none;">Public Portal</a>

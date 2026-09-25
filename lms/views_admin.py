@@ -15,7 +15,7 @@ from django.db.models import Count
 @role_required('ADMIN')
 def admin_dashboard(request):
     """
-    Vuexy-Styled Administrative Analytics & Governance Dashboard.
+    DevSkill-Styled Administrative Analytics & Governance Dashboard.
     """
     total_students = User.objects.filter(role=User.Role.STUDENT).count()
     total_faculty = User.objects.filter(role=User.Role.INSTRUCTOR).count()

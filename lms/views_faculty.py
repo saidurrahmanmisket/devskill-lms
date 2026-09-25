@@ -10,7 +10,7 @@ from .reports import export_course_grades_csv, export_course_grades_pdf
 @role_required('INSTRUCTOR', 'ADMIN')
 def faculty_dashboard(request):
     """
-    Instructor / Faculty Workspace Dashboard (Vuexy Analytics & Teaching Portal).
+    Instructor / Faculty Workspace Dashboard (DevSkill Analytics & Teaching Portal).
     """
     user = request.user
     if user.is_admin:
