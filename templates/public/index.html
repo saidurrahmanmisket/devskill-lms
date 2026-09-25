@@ -296,19 +296,211 @@ body {
   transform: scale(1.08);
 }
 
-/* HERO RIGHT VISUAL */
+/* HERO RIGHT VISUAL STAGE & ANIMATED LAYERS */
 .dev-hero-right {
   display: flex;
   justify-content: center;
   align-items: flex-end;
   position: relative;
+  width: 100%;
 }
 
-.dev-hero-graphic {
+.dev-hero-stage {
+  position: relative;
   width: 100%;
   max-width: 485px;
+  aspect-ratio: 485 / 465;
+  margin: 0 auto;
+  perspective: 1200px;
+  user-select: none;
+}
+
+/* Base layer positioning with full stage coverage for SVGs */
+.hero-layer {
+  position: absolute;
+  pointer-events: none;
+  transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+  will-change: transform;
+}
+
+.hero-full-layer {
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.hero-full-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* Radar concentric rings pulsation */
+.radar-ring {
+  fill: none;
+  stroke: #EAC0B0;
+  stroke-width: 1.25px;
+  transform-origin: 185px 205px;
+  animation: radarPulse 5.5s ease-in-out infinite;
+}
+.radar-ring.r-1 { animation-delay: 0s; }
+.radar-ring.r-2 { animation-delay: 1.2s; }
+.radar-ring.r-3 { animation-delay: 2.4s; }
+.radar-ring.r-4 { animation-delay: 3.6s; }
+
+@keyframes radarPulse {
+  0%, 100% {
+    stroke-opacity: 0.35;
+    transform: scale(1);
+  }
+  50% {
+    stroke-opacity: 0.85;
+    transform: scale(1.025);
+  }
+}
+
+/* Floating accent dots */
+.hero-accent-dot.dot-teal {
+  fill: #16B692;
+  transform-origin: 255px 35px;
+  animation: floatDotTeal 4.5s ease-in-out infinite alternate;
+}
+.hero-accent-dot.dot-orange {
+  fill: #FC8B54;
+  transform-origin: 71px 62px;
+  animation: floatDotOrange 5s ease-in-out infinite alternate;
+}
+
+@keyframes floatDotTeal {
+  0% { transform: translate(0, 0); }
+  100% { transform: translate(-3px, -6px); }
+}
+@keyframes floatDotOrange {
+  0% { transform: translate(0, 0); }
+  100% { transform: translate(4px, -5px); }
+}
+
+/* Orange slanted geometric shape */
+.hero-layer-orange {
+  z-index: 2;
+  animation: floatOrangeBadge 6.8s ease-in-out infinite alternate;
+}
+.hero-layer-orange .hero-full-svg {
+  filter: drop-shadow(0 14px 22px rgba(217, 83, 30, 0.22));
+}
+
+@keyframes floatOrangeBadge {
+  0% { transform: translate(0, 0) rotate(0deg); }
+  100% { transform: translate(-3px, 4px) rotate(0.6deg); }
+}
+
+/* Green "Learn" badge */
+.hero-layer-green {
+  z-index: 3;
+  animation: floatGreenBadge 6s ease-in-out infinite alternate;
+}
+.hero-layer-green .hero-full-svg {
+  filter: drop-shadow(0 16px 26px rgba(11, 107, 80, 0.26));
+}
+
+@keyframes floatGreenBadge {
+  0% { transform: translate(0, 0) rotate(0deg); }
+  100% { transform: translate(3px, -5px) rotate(-0.5deg); }
+}
+
+/* Student centerpiece layer */
+.hero-layer-student {
+  z-index: 4;
+  left: 12%;
+  bottom: 0;
+  width: 69%;
+  pointer-events: auto;
+  animation: studentEntrance 0.9s cubic-bezier(0.16, 1, 0.3, 1) forwards,
+             studentGentleBreath 5s ease-in-out infinite alternate 0.9s;
+}
+
+.student-graphic {
+  width: 100%;
   height: auto;
   display: block;
+  filter: drop-shadow(0 16px 30px rgba(18, 38, 32, 0.09));
+  transition: transform 0.4s ease;
+}
+
+@keyframes studentEntrance {
+  0% {
+    opacity: 0;
+    transform: translateY(22px) scale(0.97);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes studentGentleBreath {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(-4px); }
+}
+
+/* Floating 3D Checkmark button (Left) */
+.hero-layer-check {
+  z-index: 5;
+  left: 9%;
+  top: 32.5%;
+  width: 11%;
+  pointer-events: auto;
+  animation: floatCheckmark 4.8s ease-in-out infinite alternate;
+}
+.check-icon {
+  width: 100%;
+  height: auto;
+  display: block;
+  transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+  cursor: pointer;
+  filter: drop-shadow(0 8px 16px rgba(220, 150, 20, 0.25));
+}
+.hero-layer-check:hover .check-icon {
+  transform: scale(1.18) rotate(-8deg);
+}
+
+@keyframes floatCheckmark {
+  0% {
+    transform: translateY(0) rotate(-2deg);
+  }
+  100% {
+    transform: translateY(9px) rotate(4deg);
+  }
+}
+
+/* Floating 3D Google Card (Top Right) */
+.hero-layer-google {
+  z-index: 5;
+  left: 73%;
+  top: 9%;
+  width: 12.5%;
+  pointer-events: auto;
+  animation: floatGoogleCard 5.4s ease-in-out infinite alternate;
+}
+.google-icon {
+  width: 100%;
+  height: auto;
+  display: block;
+  transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+  cursor: pointer;
+  filter: drop-shadow(0 10px 20px rgba(40, 80, 140, 0.18));
+}
+.hero-layer-google:hover .google-icon {
+  transform: scale(1.18) rotate(18deg);
+}
+
+@keyframes floatGoogleCard {
+  0% {
+    transform: translateY(0) rotate(8deg);
+  }
+  100% {
+    transform: translateY(-9px) rotate(14deg);
+  }
 }
 
 /* ===================================================================
@@ -1169,7 +1361,7 @@ body {
 /* ===================================================================
    RESPONSIVE
    =================================================================== */
-@media (max-width: 1024px) {
+@media (max-width: 860px) {
   .dev-hero { grid-template-columns: 1fr; text-align: center; }
   .dev-hero-title { font-size: 3rem; }
   .dev-hero-desc { margin: 0 auto 2rem auto; }
@@ -1234,8 +1426,90 @@ body {
   </div>
 
   <div class="dev-hero-right">
-    <!-- The exact original hero composition graphic from Dribbble -->
-    <img src="{% static 'images/hero_devskill.png' %}" alt="DevSkill Smart Learning" class="dev-hero-graphic">
+    <div class="dev-hero-stage" id="devHeroStage">
+      <!-- 1. Ambient Backdrop Layer with Concentric Radar Rings and Accent Dots -->
+      <div class="hero-stage-backdrop">
+        <svg viewBox="0 0 485 465" class="hero-backdrop-svg" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+          <!-- Concentric Radar Rings -->
+          <g class="hero-radar-group">
+            <circle cx="185" cy="205" r="62" class="radar-ring r-1"/>
+            <circle cx="185" cy="205" r="108" class="radar-ring r-2"/>
+            <circle cx="185" cy="205" r="154" class="radar-ring r-3"/>
+            <circle cx="185" cy="205" r="200" class="radar-ring r-4"/>
+          </g>
+
+          <!-- Accent Floating Dots -->
+          <circle cx="255" cy="35" r="6.5" class="hero-accent-dot dot-teal"/>
+          <circle cx="71" cy="62" r="4" class="hero-accent-dot dot-orange"/>
+        </svg>
+      </div>
+
+      <!-- 2. Orange Slanted Shape (floating layer) -->
+      <div class="hero-layer hero-full-layer hero-layer-orange" id="layerOrange" aria-hidden="true">
+        <svg viewBox="0 0 485 465" class="hero-full-svg" preserveAspectRatio="xMidYMid meet">
+          <defs>
+            <linearGradient id="orangeFillGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#FF7527"/>
+              <stop offset="100%" stop-color="#D9501B"/>
+            </linearGradient>
+          </defs>
+          <path d="M 285 285 
+                   L 426 226 
+                   Q 438 221, 436 235 
+                   L 348 375 
+                   Q 343 383, 332 383 
+                   L 245 383 
+                   Z" 
+                fill="url(#orangeFillGrad)"/>
+        </svg>
+      </div>
+
+      <!-- 3. Green "Learn" Badge (floating layer with debossed text) -->
+      <div class="hero-layer hero-full-layer hero-layer-green" id="layerGreen" aria-hidden="true">
+        <svg viewBox="0 0 485 465" class="hero-full-svg" preserveAspectRatio="xMidYMid meet">
+          <defs>
+            <linearGradient id="greenFillGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#18C492"/>
+              <stop offset="45%" stop-color="#12A27A"/>
+              <stop offset="100%" stop-color="#0D7E5D"/>
+            </linearGradient>
+          </defs>
+          <!-- Slanted polygon matching original geometry -->
+          <path d="M 185 195 
+                   L 260 160 
+                   L 422 144 
+                   Q 438 142, 432 156 
+                   L 325 320 
+                   Q 318 330, 305 330 
+                   L 170 330 
+                   Z" 
+                fill="url(#greenFillGrad)"/>
+          <!-- Debossed "Learn" text -->
+          <g transform="translate(348, 208) rotate(-33)">
+            <text x="0" y="0" text-anchor="middle" dominant-baseline="central"
+                  font-family="'Inter', 'Outfit', sans-serif" 
+                  font-weight="900" font-size="56" 
+                  fill="rgba(5, 75, 55, 0.25)" 
+                  letter-spacing="1.5">Learn</text>
+          </g>
+        </svg>
+      </div>
+
+      <!-- 4. Student Layer (Central Cutout generated with Nano Banana) -->
+      <div class="hero-layer hero-layer-student" id="layerStudent">
+        <img src="{% static 'images/hero_layer_student.png' %}" alt="DevSkill Student" class="student-graphic">
+      </div>
+
+      <!-- 5. 3D Yellow Checkmark Button (Floating Left, generated with Nano Banana) -->
+      <div class="hero-layer hero-layer-check" id="layerCheck">
+        <img src="{% static 'images/hero_layer_check.png' %}" alt="Verified Quality" class="check-icon">
+      </div>
+
+      <!-- 6. 3D Google Card (Floating Top-Right, generated with Nano Banana) -->
+      <div class="hero-layer hero-layer-google" id="layerGoogle">
+        <img src="{% static 'images/hero_layer_google.png' %}" alt="Google Partner" class="google-icon">
+      </div>
+    </div>
   </div>
 </section>
 
@@ -1744,6 +2018,57 @@ function filterCourses() {
     }
   });
 }
+
+/* Dynamic Interactive Parallax on Hero Stage */
+(function() {
+  const stage = document.getElementById('devHeroStage');
+  if (!stage) return;
+
+  const lStudent = document.getElementById('layerStudent');
+  const lCheck = document.getElementById('layerCheck');
+  const lGoogle = document.getElementById('layerGoogle');
+  const lGreen = document.getElementById('layerGreen');
+  const lOrange = document.getElementById('layerOrange');
+
+  let rect = null;
+
+  function updateRect() {
+    rect = stage.getBoundingClientRect();
+  }
+
+  window.addEventListener('resize', updateRect);
+  window.addEventListener('scroll', updateRect, { passive: true });
+
+  stage.addEventListener('mouseenter', () => {
+    updateRect();
+  });
+
+  stage.addEventListener('mousemove', (e) => {
+    if (!rect) updateRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    
+    // Normalized [-1, 1] from center
+    const nx = (x / rect.width - 0.5) * 2;
+    const ny = (y / rect.height - 0.5) * 2;
+
+    // Apply proportional multi-layer parallax offset
+    if (lStudent) lStudent.style.transform = `translate3d(${nx * 6}px, ${ny * 4}px, 0)`;
+    if (lCheck) lCheck.style.transform = `translate3d(${nx * 14}px, ${ny * 10}px, 20px) rotate(${nx * -4}deg)`;
+    if (lGoogle) lGoogle.style.transform = `translate3d(${nx * 16}px, ${ny * 12}px, 25px) rotate(${10 + nx * 5}deg)`;
+    if (lGreen) lGreen.style.transform = `translate3d(${nx * -5}px, ${ny * -4}px, -10px) rotate(${nx * -1}deg)`;
+    if (lOrange) lOrange.style.transform = `translate3d(${nx * -8}px, ${ny * -6}px, -15px)`;
+  });
+
+  stage.addEventListener('mouseleave', () => {
+    // Smooth reset
+    if (lStudent) lStudent.style.transform = '';
+    if (lCheck) lCheck.style.transform = '';
+    if (lGoogle) lGoogle.style.transform = '';
+    if (lGreen) lGreen.style.transform = '';
+    if (lOrange) lOrange.style.transform = '';
+  });
+})();
 </script>
 
 {% endblock %}
