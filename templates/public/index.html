@@ -233,17 +233,19 @@ body {
   color: var(--dev-orange);
 }
 
-/* Word-by-word entrance animation */
+/* Typing effect word-by-word */
 .hero-word {
   display: inline-block;
   opacity: 0;
-  transform: translateY(28px);
-  animation: wordReveal 0.65s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  clip-path: inset(0 100% 0 0);
+  transform: translateY(0);
+  animation: typingReveal 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }
-@keyframes wordReveal {
-  0% { opacity: 0; transform: translateY(40px) scale(0.8); }
-  60% { opacity: 1; transform: translateY(-10px) scale(1.1); }
-  100% { opacity: 1; transform: translateY(0) scale(1); }
+@keyframes typingReveal {
+  to {
+    opacity: 1;
+    clip-path: inset(0 0 0 0);
+  }
 }
 
 .dev-hero-desc {
@@ -355,12 +357,12 @@ body {
   stroke: #d4806a;
   stroke-width: 2px;
   transform-origin: 185px 205px;
-  animation: radarPulse 5.5s ease-in-out infinite;
+  animation: radarPulse 3s ease-in-out infinite;
 }
 .radar-ring.r-1 { stroke-opacity: 0.9; animation-delay: 0s; }
-.radar-ring.r-2 { stroke-opacity: 0.75; animation-delay: 1.2s; }
-.radar-ring.r-3 { stroke-opacity: 0.55; animation-delay: 2.4s; }
-.radar-ring.r-4 { stroke-opacity: 0.35; animation-delay: 3.6s; }
+.radar-ring.r-2 { stroke-opacity: 0.75; animation-delay: 0.6s; }
+.radar-ring.r-3 { stroke-opacity: 0.55; animation-delay: 1.2s; }
+.radar-ring.r-4 { stroke-opacity: 0.35; animation-delay: 1.8s; }
 
 @keyframes radarPulse {
   0%, 100% {
@@ -398,7 +400,7 @@ body {
 .hero-layer-orange {
   z-index: 2;
   opacity: 0.92;
-  animation: floatOrangeBadge 6.8s ease-in-out infinite alternate;
+  animation: floatOrangeBadge 3.5s ease-in-out infinite alternate;
 }
 .hero-layer-orange .hero-full-svg {
   filter: drop-shadow(0 18px 32px rgba(217, 83, 30, 0.55));
@@ -406,14 +408,14 @@ body {
 
 @keyframes floatOrangeBadge {
   0% { transform: translate(0, 0) rotate(0deg); }
-  100% { transform: translate(-15px, 20px) rotate(5deg); }
+  100% { transform: translate(-25px, 30px) rotate(8deg); }
 }
 
 /* Green "Learn" badge */
 .hero-layer-green {
   z-index: 3;
   opacity: 0.93;
-  animation: floatGreenBadge 6s ease-in-out infinite alternate;
+  animation: floatGreenBadge 3s ease-in-out infinite alternate;
 }
 .hero-layer-green .hero-full-svg {
   filter: drop-shadow(0 20px 36px rgba(11, 107, 80, 0.55));
@@ -421,18 +423,18 @@ body {
 
 @keyframes floatGreenBadge {
   0% { transform: translate(0, 0) rotate(0deg); }
-  100% { transform: translate(15px, -20px) rotate(-5deg); }
+  100% { transform: translate(25px, -30px) rotate(-8deg); }
 }
 
 /* Student centerpiece layer */
 .hero-layer-student {
   z-index: 4;
-  left: 5%;
-  bottom: 0;
-  width: 85%;
+  left: 2%;
+  bottom: -12%;
+  width: 95%;
   pointer-events: auto;
   animation: studentEntrance 0.9s cubic-bezier(0.16, 1, 0.3, 1) forwards,
-             studentGentleBreath 5s ease-in-out infinite alternate 0.9s;
+             studentGentleBreath 3s ease-in-out infinite alternate 0.9s;
 }
 
 .student-graphic {
@@ -456,17 +458,17 @@ body {
 
 @keyframes studentGentleBreath {
   0% { transform: translateY(0); }
-  100% { transform: translateY(-15px); }
+  100% { transform: translateY(-20px); }
 }
 
 /* Floating 3D Checkmark button (Left) */
 .hero-layer-check {
   z-index: 5;
-  left: 9%;
-  top: 32.5%;
-  width: 11%;
+  left: -2%;
+  top: 12%;
+  width: 13%;
   pointer-events: auto;
-  animation: floatCheckmark 4.8s ease-in-out infinite alternate;
+  animation: floatCheckmark 2.8s ease-in-out infinite alternate;
 }
 .check-icon {
   width: 100%;
@@ -485,7 +487,7 @@ body {
     transform: translateY(0) rotate(-5deg);
   }
   100% {
-    transform: translateY(25px) rotate(15deg);
+    transform: translateY(35px) rotate(20deg);
   }
 }
 
@@ -496,7 +498,7 @@ body {
   top: 9%;
   width: 12.5%;
   pointer-events: auto;
-  animation: floatGoogleCard 5.4s ease-in-out infinite alternate;
+  animation: floatGoogleCard 3.2s ease-in-out infinite alternate;
 }
 .google-icon {
   width: 100%;
@@ -515,7 +517,7 @@ body {
     transform: translateY(0) rotate(5deg);
   }
   100% {
-    transform: translateY(-30px) rotate(25deg);
+    transform: translateY(-40px) rotate(30deg);
   }
 }
 
