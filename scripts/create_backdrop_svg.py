@@ -63,15 +63,6 @@ svg_content = f'''<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 485 465" 
              L 170 330 
              Z" 
           fill="url(#greenGrad)" />
-    
-    <!-- Learn debossed text rotated ~ -33 deg -->
-    <g transform="translate(350, 235) rotate(-34)">
-      <text x="0" y="0" text-anchor="middle" dominant-baseline="central"
-            font-family="'Inter', 'Outfit', system-ui, sans-serif" 
-            font-weight="900" font-size="68" 
-            fill="rgba(8, 90, 65, 0.22)" 
-            letter-spacing="2">Learn</text>
-    </g>
   </g>
 
   <!-- 4. Accent Dots -->
