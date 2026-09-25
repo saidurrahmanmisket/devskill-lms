@@ -241,10 +241,9 @@ body {
   animation: wordReveal 0.65s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 @keyframes wordReveal {
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  0% { opacity: 0; transform: translateY(40px) scale(0.8); }
+  60% { opacity: 1; transform: translateY(-10px) scale(1.1); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
 }
 
 .dev-hero-desc {
@@ -407,7 +406,7 @@ body {
 
 @keyframes floatOrangeBadge {
   0% { transform: translate(0, 0) rotate(0deg); }
-  100% { transform: translate(-3px, 4px) rotate(0.6deg); }
+  100% { transform: translate(-15px, 20px) rotate(5deg); }
 }
 
 /* Green "Learn" badge */
@@ -422,15 +421,15 @@ body {
 
 @keyframes floatGreenBadge {
   0% { transform: translate(0, 0) rotate(0deg); }
-  100% { transform: translate(3px, -5px) rotate(-0.5deg); }
+  100% { transform: translate(15px, -20px) rotate(-5deg); }
 }
 
 /* Student centerpiece layer */
 .hero-layer-student {
   z-index: 4;
-  left: 12%;
+  left: 5%;
   bottom: 0;
-  width: 69%;
+  width: 85%;
   pointer-events: auto;
   animation: studentEntrance 0.9s cubic-bezier(0.16, 1, 0.3, 1) forwards,
              studentGentleBreath 5s ease-in-out infinite alternate 0.9s;
@@ -447,7 +446,7 @@ body {
 @keyframes studentEntrance {
   0% {
     opacity: 0;
-    transform: translateY(22px) scale(0.97);
+    transform: translateY(40px) scale(0.9);
   }
   100% {
     opacity: 1;
@@ -457,7 +456,7 @@ body {
 
 @keyframes studentGentleBreath {
   0% { transform: translateY(0); }
-  100% { transform: translateY(-4px); }
+  100% { transform: translateY(-15px); }
 }
 
 /* Floating 3D Checkmark button (Left) */
@@ -483,10 +482,10 @@ body {
 
 @keyframes floatCheckmark {
   0% {
-    transform: translateY(0) rotate(-2deg);
+    transform: translateY(0) rotate(-5deg);
   }
   100% {
-    transform: translateY(9px) rotate(4deg);
+    transform: translateY(25px) rotate(15deg);
   }
 }
 
@@ -513,10 +512,10 @@ body {
 
 @keyframes floatGoogleCard {
   0% {
-    transform: translateY(0) rotate(8deg);
+    transform: translateY(0) rotate(5deg);
   }
   100% {
-    transform: translateY(-9px) rotate(14deg);
+    transform: translateY(-30px) rotate(25deg);
   }
 }
 
