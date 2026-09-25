@@ -233,6 +233,20 @@ body {
   color: var(--dev-orange);
 }
 
+/* Word-by-word entrance animation */
+.hero-word {
+  display: inline-block;
+  opacity: 0;
+  transform: translateY(28px);
+  animation: wordReveal 0.65s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+@keyframes wordReveal {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .dev-hero-desc {
   font-size: 1rem;
   line-height: 1.7;
@@ -339,24 +353,24 @@ body {
 /* Radar concentric rings pulsation */
 .radar-ring {
   fill: none;
-  stroke: #EAC0B0;
-  stroke-width: 1.25px;
+  stroke: #d4806a;
+  stroke-width: 2px;
   transform-origin: 185px 205px;
   animation: radarPulse 5.5s ease-in-out infinite;
 }
-.radar-ring.r-1 { animation-delay: 0s; }
-.radar-ring.r-2 { animation-delay: 1.2s; }
-.radar-ring.r-3 { animation-delay: 2.4s; }
-.radar-ring.r-4 { animation-delay: 3.6s; }
+.radar-ring.r-1 { stroke-opacity: 0.9; animation-delay: 0s; }
+.radar-ring.r-2 { stroke-opacity: 0.75; animation-delay: 1.2s; }
+.radar-ring.r-3 { stroke-opacity: 0.55; animation-delay: 2.4s; }
+.radar-ring.r-4 { stroke-opacity: 0.35; animation-delay: 3.6s; }
 
 @keyframes radarPulse {
   0%, 100% {
-    stroke-opacity: 0.35;
+    stroke-opacity: 0.5;
     transform: scale(1);
   }
   50% {
-    stroke-opacity: 0.85;
-    transform: scale(1.025);
+    stroke-opacity: 1;
+    transform: scale(1.04);
   }
 }
 
@@ -384,10 +398,11 @@ body {
 /* Orange slanted geometric shape */
 .hero-layer-orange {
   z-index: 2;
+  opacity: 0.92;
   animation: floatOrangeBadge 6.8s ease-in-out infinite alternate;
 }
 .hero-layer-orange .hero-full-svg {
-  filter: drop-shadow(0 14px 22px rgba(217, 83, 30, 0.22));
+  filter: drop-shadow(0 18px 32px rgba(217, 83, 30, 0.55));
 }
 
 @keyframes floatOrangeBadge {
@@ -398,10 +413,11 @@ body {
 /* Green "Learn" badge */
 .hero-layer-green {
   z-index: 3;
+  opacity: 0.93;
   animation: floatGreenBadge 6s ease-in-out infinite alternate;
 }
 .hero-layer-green .hero-full-svg {
-  filter: drop-shadow(0 16px 26px rgba(11, 107, 80, 0.26));
+  filter: drop-shadow(0 20px 36px rgba(11, 107, 80, 0.55));
 }
 
 @keyframes floatGreenBadge {
@@ -424,7 +440,7 @@ body {
   width: 100%;
   height: auto;
   display: block;
-  filter: drop-shadow(0 16px 30px rgba(18, 38, 32, 0.09));
+  filter: drop-shadow(0 22px 40px rgba(18, 38, 32, 0.22));
   transition: transform 0.4s ease;
 }
 
@@ -459,7 +475,7 @@ body {
   display: block;
   transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
   cursor: pointer;
-  filter: drop-shadow(0 8px 16px rgba(220, 150, 20, 0.25));
+  filter: drop-shadow(0 10px 24px rgba(220, 150, 20, 0.55));
 }
 .hero-layer-check:hover .check-icon {
   transform: scale(1.18) rotate(-8deg);
@@ -489,7 +505,7 @@ body {
   display: block;
   transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
   cursor: pointer;
-  filter: drop-shadow(0 10px 20px rgba(40, 80, 140, 0.18));
+  filter: drop-shadow(0 12px 28px rgba(40, 80, 140, 0.45));
 }
 .hero-layer-google:hover .google-icon {
   transform: scale(1.18) rotate(18deg);
@@ -1403,9 +1419,15 @@ body {
     </div>
 
     <h1 class="dev-hero-title">
-      Master Modern Skills<br>
-      Learn From Experts<br>
-      <span class="title-orange">Build The Future</span>
+      <span class="hero-word" style="animation-delay:0.05s">Master</span>
+      <span class="hero-word" style="animation-delay:0.15s">Modern</span>
+      <span class="hero-word" style="animation-delay:0.25s">Skills</span><br>
+      <span class="hero-word" style="animation-delay:0.38s">Learn</span>
+      <span class="hero-word" style="animation-delay:0.48s">From</span>
+      <span class="hero-word" style="animation-delay:0.58s">Experts</span><br>
+      <span class="hero-word title-orange" style="animation-delay:0.72s">Build</span>
+      <span class="hero-word title-orange" style="animation-delay:0.82s">The</span>
+      <span class="hero-word title-orange" style="animation-delay:0.92s">Future</span>
     </h1>
 
     <p class="dev-hero-desc">
